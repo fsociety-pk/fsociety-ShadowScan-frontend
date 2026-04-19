@@ -1,0 +1,13 @@
+
+> frontend@0.0.0 build
+> tsc -b && vite build
+
+src/App.tsx(27,1): error TS6133: 'UserManagement' is declared but its value is never read.
+src/App.tsx(161,47): error TS2304: Cannot find name 'AdminUsers'.
+src/pages/admin/UserManagement.tsx(37,21): error TS6196: 'ScanHistory' is declared but never used.
+src/pages/admin/UserManagement.tsx(299,22): error TS6133: 'pagination' is declared but its value is never read.
+src/pages/admin/UserManagement.tsx(299,34): error TS6133: 'filters' is declared but its value is never read.
+src/pages/admin/UserManagement.tsx(299,43): error TS6133: 'sorter' is declared but its value is never read.
+src/pages/admin/UserManagement.tsx(381,27): error TS2552: Cannot find name 'Skeleton'. Did you mean 'Selection'?
+src/pages/admin/UserManagement.tsx(394,22): error TS2322: Type '"left"' is not assignable to type 'Orientation | undefined'.
+src/pages/admin/UserManagement.tsx(402,22): error TS2322: Type '"left"' is not assignable to type 'Orientation | undefined'.

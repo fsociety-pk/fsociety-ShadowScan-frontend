@@ -1,0 +1,291 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  --neon-green: #00ff88;
+  --neon-green-glow: 0 0 10px rgba(0, 255, 136, 0.4);
+  --neon-green-dim: rgba(0, 255, 136, 0.08);
+  --bg-black: #000000;
+  --bg-dark: #0d1117;
+  --bg-card: #010409;
+  --border-color: #30363d;
+  --text-main: #e6edf3;
+  --text-muted: #8b949e;
+  
+  --sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  
+  --sidebar-width: 280px;
+  --header-height: 72px;
+  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --glow-shadow: 0 0 15px rgba(0, 255, 136, 0.3);
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  background-color: var(--bg-black);
+  color: var(--text-main);
+  font-family: var(--sans);
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.page-transition {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* Ant Design Override for Hacker Theme */
+.ant-layout {
+  background: var(--bg-black) !important;
+  transition: var(--transition-smooth);
+}
+
+.ant-layout-header {
+  background: rgba(0, 0, 0, 0.85) !important;
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border-color);
+  padding: 0 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  height: var(--header-height) !important;
+  position: sticky !important;
+  top: 0;
+  z-index: 1000 !important;
+  width: 100% !important;
+}
+
+/* Vertical Page Tabs */
+.vertical-nav-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 40px 20px;
+  position: sticky;
+  top: var(--header-height);
+  height: calc(100vh - var(--header-height));
+  z-index: 99;
+}
+
+.nav-tab-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  background: rgba(0, 255, 136, 0.03);
+  border: 1px solid rgba(0, 255, 136, 0.1);
+  border-radius: 8px;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  font-size: 13px;
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  width: 220px;
+}
+
+.nav-tab-item:hover, .nav-tab-item.active {
+  background: var(--neon-green-dim);
+  border-color: var(--neon-green);
+  color: var(--neon-green);
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+  transform: translateX(10px) translateY(-4px); /* Rise up effect */
+}
+
+.nav-tab-item .anticon {
+  font-size: 18px;
+  transition: all 0.3s ease;
+}
+
+.nav-tab-item:hover .anticon {
+  filter: drop-shadow(0 0 8px var(--neon-green));
+  transform: scale(1.2);
+}
+
+/* Sidebar Menu Enhancements */
+.ant-menu.ant-menu-dark {
+  background: transparent !important;
+}
+
+.ant-menu-item {
+  transition: var(--transition-smooth) !important;
+  margin-top: 4px !important;
+  margin-bottom: 4px !important;
+}
+
+.ant-menu-item:hover {
+  background: var(--neon-green-dim) !important;
+}
+
+.ant-menu-item-selected {
+  background-color: var(--neon-green-dim) !important;
+  color: var(--neon-green) !important;
+  border-right: 3px solid var(--neon-green) !important;
+}
+
+.ant-menu-item-selected .anticon {
+  color: var(--neon-green) !important;
+  filter: drop-shadow(0 0 5px var(--neon-green));
+}
+
+/* Button Upgrades */
+.ant-btn {
+  border-radius: 6px !important;
+  transition: var(--transition-smooth) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ant-btn-primary {
+  background-color: var(--neon-green) !important;
+  border-color: var(--neon-green) !important;
+  color: #000 !important;
+  text-transform: uppercase;
+  font-size: 13px;
+  box-shadow: 0 2px 8px rgba(0, 255, 136, 0.2);
+}
+
+.ant-btn-primary:hover {
+  background-color: #00e67a !important;
+  box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+  transform: translateY(-2px);
+}
+
+.ant-btn:active {
+  transform: translateY(0);
+}
+
+/* Component Overrides */
+.ant-card {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-main) !important;
+  transition: var(--transition-smooth);
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.ant-card:hover {
+  border-color: var(--neon-green) !important;
+  box-shadow: 0 8px 32px rgba(0, 255, 136, 0.08);
+  transform: translateY(-4px);
+}
+
+.ant-typography {
+  color: var(--text-main) !important;
+}
+
+h1, h2, h3, .ant-typography-h1, .ant-typography-h2, .ant-typography-h3 {
+  letter-spacing: -0.5px !important;
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.2);
+}
+
+.ant-descriptions-bordered .ant-descriptions-item-label {
+  background-color: var(--bg-dark) !important;
+  color: var(--text-muted) !important;
+  border-right: 1px solid var(--border-color) !important;
+}
+
+.ant-descriptions-bordered .ant-descriptions-item-content {
+  color: var(--text-main) !important;
+  border-right: 1px solid var(--border-color) !important;
+}
+
+/* Form & Inputs */
+.ant-input, .ant-input-password, .ant-input-affix-wrapper {
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--neon-green) !important;
+  font-family: var(--mono) !important;
+  border-radius: 6px !important;
+  padding: 10px 16px !important;
+  transition: var(--transition-smooth);
+}
+
+.ant-input:hover, .ant-input-affix-wrapper:hover {
+  border-color: rgba(0, 255, 136, 0.4) !important;
+}
+
+.ant-input:focus, .ant-input-focused, .ant-input-affix-wrapper-focused {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: var(--neon-green) !important;
+  box-shadow: 0 0 0 4px rgba(0, 255, 136, 0.1) !important;
+}
+
+.ant-form-item-label > label {
+  color: var(--text-muted) !important;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-black);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #21262d;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--neon-green);
+}
+
+/* Typography Overrides */
+code, pre, .mono-text {
+  font-family: var(--mono) !important;
+}
+
+/* Leaderboard & Tables */
+.hacker-table .ant-table {
+  background: transparent !important;
+  color: var(--text-main) !important;
+  font-family: var(--mono) !important;
+}
+
+.hacker-table .ant-table-thead > tr > th {
+  background: var(--bg-dark) !important;
+  color: var(--text-muted) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.hacker-table .ant-table-tbody > tr > td {
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.hacker-table .ant-table-tbody > tr:hover > td {
+  background: var(--neon-green-dim) !important;
+}
+
+/* Responsive Overrides */
+@media (max-width: 768px) {
+  .ant-layout-content {
+    padding: 24px !important;
+  }
+}
