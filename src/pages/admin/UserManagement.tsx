@@ -232,8 +232,8 @@ const UserManagement: React.FC = () => {
       sorter: true,
       render: (text: string, record: User) => (
         <Space>
-          <Badge status={record.isActive ? 'processing' : 'default'} color={record.isActive ? '#00ff88' : '#8b949e'} />
-          <span style={{ color: '#00ff88', fontWeight: 'bold' }}>{text}</span>
+          <Badge status={record.isActive ? 'processing' : 'default'} color={record.isActive ? 'var(--cyber-blue)' : 'var(--text-muted)'} />
+          <span style={{ color: 'var(--cyber-blue)', fontWeight: 'bold' }}>{text}</span>
         </Space>
       )
     },
@@ -250,7 +250,7 @@ const UserManagement: React.FC = () => {
       dataIndex: 'totalScans',
       key: 'totalScans',
       sorter: true,
-      render: (val: number) => <Text style={{ color: '#8b949e' }}>{val}</Text>
+      render: (val: number) => <Text style={{ color: 'var(--text-muted)' }}>{val}</Text>
     },
     {
       title: 'RISK',
@@ -314,7 +314,7 @@ const UserManagement: React.FC = () => {
     <div className="user-management-page">
       <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
         <Col>
-          <Title level={2} style={{ color: '#00ff88', margin: 0 }}>OPERATIVE MANAGEMENT</Title>
+          <Title level={2} style={{ color: 'var(--cyber-blue)', margin: 0 }}>OPERATIVE MANAGEMENT</Title>
         </Col>
         <Col>
           <Space>
@@ -471,7 +471,7 @@ const UserManagement: React.FC = () => {
                 { title: 'TOOL', dataIndex: 'toolName', key: 'toolName' },
                 { title: 'ACTION', dataIndex: 'action', key: 'action' },
                 { title: 'TIME', dataIndex: 'timestamp', key: 'timestamp', render: (ts) => new Date(ts).toLocaleString() },
-                { title: 'STATUS', dataIndex: 'status', key: 'status', render: (s) => <Tag color={s === 'success' ? '#00ff88' : '#f50'}>{s.toUpperCase()}</Tag> }
+                { title: 'STATUS', dataIndex: 'status', key: 'status', render: (s) => <Tag color={s === 'success' ? 'var(--cyber-blue)' : '#f50'}>{s.toUpperCase()}</Tag> }
               ]}
             />
           </div>

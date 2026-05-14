@@ -39,7 +39,7 @@ dayjs.extend(relativeTime);
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
-const COLORS = ['#00ff88', '#1890ff', '#f5222d', '#faad14'];
+const COLORS = ['var(--cyber-blue)', '#1890ff', '#f5222d', '#faad14'];
 
 const Analytics: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -126,10 +126,10 @@ const Analytics: React.FC = () => {
     <div style={{ paddingBottom: 40 }}>
       <Row justify="space-between" align="middle" style={{ marginBottom: 32 }}>
         <Col>
-          <Title level={2} style={{ color: '#00ff88', margin: 0 }}>SYSTEM ANALYTICS & INTELLIGENCE</Title>
+          <Title level={2} style={{ color: 'var(--cyber-blue)', margin: 0 }}>SYSTEM ANALYTICS & INTELLIGENCE</Title>
         </Col>
         <Col>
-          <Space size="middle">
+          <Space orientation="horizontal" size="middle">
             <RangePicker 
               value={dateRange} 
               onChange={(val) => val && setDateRange([val[0]!, val[1]!])}
@@ -166,7 +166,7 @@ const Analytics: React.FC = () => {
                               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                             ))}
                           </Pie>
-                          <Tooltip contentStyle={{ background: '#0d1117', border: '1px solid #30363d' }} />
+                          <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid var(--border-color)' }} />
                           <Legend />
                         </PieChart>
                       </ResponsiveContainer>
@@ -178,11 +178,11 @@ const Analytics: React.FC = () => {
                     <div style={{ height: 350 }}>
                       <ResponsiveContainer>
                         <BarChart data={dailyScanTrend}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#30363d" vertical={false} />
-                          <XAxis dataKey="date" stroke="#8b949e" fontSize={12} />
-                          <YAxis stroke="#8b949e" fontSize={12} />
-                          <Tooltip contentStyle={{ background: '#0d1117', border: '1px solid #30363d' }} />
-                          <Bar dataKey="scans" fill="#00ff88" radius={[4, 4, 0, 0]} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" vertical={false} />
+                          <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} />
+                          <YAxis stroke="var(--text-muted)" fontSize={12} />
+                          <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid var(--border-color)' }} />
+                          <Bar dataKey="scans" fill="var(--cyber-blue)" radius={[4, 4, 0, 0]} />
                         </BarChart>
                       </ResponsiveContainer>
                     </div>
@@ -193,10 +193,10 @@ const Analytics: React.FC = () => {
                     <Statistic 
                       title="MOST UTILIZED TOOL" 
                       value={toolStats?.mostUsed.name} 
-                      prefix={<RiseOutlined style={{ color: '#00ff88' }} />}
-                      valueStyle={{ color: '#00ff88' }}
+                      prefix={<RiseOutlined style={{ color: 'var(--cyber-blue)' }} />}
+                      styles={{ content: { color: 'var(--cyber-blue)' } }}
                     />
-                    <Text style={{ fontSize: '12px', color: '#8b949e' }}>Total executions: {toolStats?.mostUsed.value}</Text>
+                    <Text style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Total executions: {toolStats?.mostUsed.value}</Text>
                   </Card>
                 </Col>
                 <Col xs={24} sm={12}>
@@ -205,9 +205,9 @@ const Analytics: React.FC = () => {
                       title="LEAST UTILIZED TOOL" 
                       value={toolStats?.leastUsed.name} 
                       prefix={<FallOutlined style={{ color: '#ff4d4f' }} />}
-                      valueStyle={{ color: '#ff4d4f' }}
+                      styles={{ content: { color: '#ff4d4f' } }}
                     />
-                    <Text style={{ fontSize: '12px', color: '#8b949e' }}>Focus needed for tool optimization</Text>
+                    <Text style={{ fontSize: '12px', color: 'var(--text-muted)' }}>Focus needed for tool optimization</Text>
                   </Card>
                 </Col>
               </Row>
@@ -229,10 +229,10 @@ const Analytics: React.FC = () => {
                               <stop offset="95%" stopColor="#1890ff" stopOpacity={0}/>
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                          <XAxis dataKey="date" stroke="#8b949e" fontSize={12} />
-                          <YAxis stroke="#8b949e" fontSize={12} />
-                          <Tooltip contentStyle={{ background: '#0d1117', border: '1px solid #30363d' }} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                          <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} />
+                          <YAxis stroke="var(--text-muted)" fontSize={12} />
+                          <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid var(--border-color)' }} />
                           <Area type="monotone" dataKey="users" stroke="#1890ff" fillOpacity={1} fill="url(#colorUsers)" />
                         </AreaChart>
                       </ResponsiveContainer>
@@ -244,9 +244,9 @@ const Analytics: React.FC = () => {
                     <div style={{ height: 350 }}>
                       <ResponsiveContainer>
                         <BarChart data={peakHours}>
-                          <XAxis dataKey="hour" stroke="#8b949e" fontSize={10} label={{ value: 'Hour', position: 'insideBottom', offset: -5 }} />
+                          <XAxis dataKey="hour" stroke="var(--text-muted)" fontSize={10} label={{ value: 'Hour', position: 'insideBottom', offset: -5 }} />
                           <YAxis hide />
-                          <Tooltip contentStyle={{ background: '#0d1117', border: '1px solid #30363d' }} />
+                          <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid var(--border-color)' }} />
                           <Bar dataKey="count" fill="#faad14" />
                         </BarChart>
                       </ResponsiveContainer>
@@ -261,7 +261,7 @@ const Analytics: React.FC = () => {
                       pagination={false}
                       className="admin-compact-table"
                       columns={[
-                        { title: 'OPERATIVE', dataIndex: 'username', key: 'name', render: (t) => <span style={{ color: '#00ff88' }}>{t}</span> },
+                        { title: 'OPERATIVE', dataIndex: 'username', key: 'name', render: (t) => <span style={{ color: 'var(--cyber-blue)' }}>{t}</span> },
                         { title: 'EMAIL', dataIndex: 'email', key: 'email' },
                         { title: 'TOTAL SCANS', dataIndex: 'totalScans', key: 'scans', sorter: (a, b) => a.totalScans - b.totalScans },
                         { title: 'LAST ACTIVE', dataIndex: 'lastLogin', key: 'last', render: (v) => v ? dayjs(v).fromNow() : 'N/A' }
@@ -289,13 +289,13 @@ const Analytics: React.FC = () => {
                     <div style={{ height: 400 }}>
                       <ResponsiveContainer>
                         <LineChart data={dailyScanTrend}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                          <XAxis dataKey="date" stroke="#8b949e" fontSize={12} />
-                          <YAxis yAxisId="left" stroke="#00ff88" label={{ value: 'Scans', angle: -90, position: 'insideLeft', fill: '#00ff88' }} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                          <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} />
+                          <YAxis yAxisId="left" stroke="var(--cyber-blue)" label={{ value: 'Scans', angle: -90, position: 'insideLeft', fill: 'var(--cyber-blue)' }} />
                           <YAxis yAxisId="right" orientation="right" stroke="#1890ff" label={{ value: 'Users', angle: 90, position: 'insideRight', fill: '#1890ff' }} />
-                          <Tooltip contentStyle={{ background: '#0d1117', border: '1px solid #30363d' }} />
+                          <Tooltip contentStyle={{ background: '#ffffff', border: '1px solid var(--border-color)' }} />
                           <Legend />
-                          <Line yAxisId="left" type="monotone" dataKey="scans" stroke="#00ff88" strokeWidth={3} name="Total Scans" />
+                          <Line yAxisId="left" type="monotone" dataKey="scans" stroke="var(--cyber-blue)" strokeWidth={3} name="Total Scans" />
                           <Line yAxisId="right" type="monotone" dataKey="users" stroke="#1890ff" strokeWidth={3} name="Unique Operatives" />
                         </LineChart>
                       </ResponsiveContainer>
@@ -308,10 +308,10 @@ const Analytics: React.FC = () => {
                       title="PERIOD GROWTH RATE" 
                       value={growthMetrics?.growth} 
                       suffix="%" 
-                      valueStyle={{ color: growthMetrics?.direction === 'up' ? '#00ff88' : '#f50' }}
+                      styles={{ content: { color: growthMetrics?.direction === 'up' ? 'var(--cyber-blue)' : '#f50' } }}
                       prefix={growthMetrics?.direction === 'up' ? <RiseOutlined /> : <FallOutlined />}
                     />
-                    <Text style={{ color: '#8b949e' }}>Trajectory over the selected period</Text>
+                    <Text style={{ color: 'var(--text-muted)' }}>Trajectory over the selected period</Text>
                   </Card>
                 </Col>
                 <Col xs={24} sm={12}>
@@ -319,9 +319,9 @@ const Analytics: React.FC = () => {
                     <Statistic 
                       title="DAILY AVERAGE SCANS" 
                       value={dailyScanTrend.length > 0 ? Math.round(dailyScanTrend.reduce((a, b) => a + b.scans, 0) / dailyScanTrend.length) : 0} 
-                      valueStyle={{ color: '#1890ff' }}
+                      styles={{ content: { color: '#1890ff' } }}
                     />
-                    <Text style={{ color: '#8b949e' }}>System load benchmark</Text>
+                    <Text style={{ color: 'var(--text-muted)' }}>System load benchmark</Text>
                   </Card>
                 </Col>
               </Row>

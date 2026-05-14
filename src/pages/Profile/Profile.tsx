@@ -39,15 +39,15 @@ const Profile: React.FC = () => {
     <div style={{ maxWidth: 800, margin: '0 auto' }}>
       <Row gutter={[24, 24]}>
         <Col span={24}>
-           <Title level={2} style={{ color: '#00ff88', borderBottom: '1px solid #30363d', paddingBottom: 10 }}>
+           <Title level={2} style={{ color: 'var(--cyber-blue)', borderBottom: '1px solid var(--border-color)', paddingBottom: 10 }}>
               [ My Dossier - Identity ]
            </Title>
         </Col>
         
         <Col xs={24} md={8}>
-          <Card style={{ background: '#0d1117', border: '1px solid #30363d', textAlign: 'center' }}>
-            <Avatar size={120} icon={<UserOutlined />} style={{ background: '#010409', border: '2px solid #00ff88', marginBottom: 20 }} />
-            <Title level={3} style={{ color: '#00ff88', margin: 0 }}>{user.username}</Title>
+          <Card style={{ background: '#ffffff', border: '1px solid var(--border-color)', textAlign: 'center', borderRadius: 12 }}>
+            <Avatar size={120} icon={<UserOutlined />} style={{ background: '#f8fafc', border: '2px solid var(--cyber-blue)', marginBottom: 20 }} />
+            <Title level={3} style={{ color: 'var(--cyber-blue)', margin: 0 }}>{user.username}</Title>
             <div style={{ marginTop: 10 }}>
               <Tag color="blue">{user.email}</Tag>
             </div>
@@ -63,27 +63,27 @@ const Profile: React.FC = () => {
 
         <Col xs={24} md={16}>
           <Card 
-            title={<span style={{ color: '#00ff88' }}><SafetyCertificateOutlined /> Security & Access</span>}
-            style={{ background: '#0d1117', border: '1px solid #30363d', marginBottom: 24 }}
+            title={<span style={{ color: 'var(--cyber-blue)' }}><SafetyCertificateOutlined /> Security & Access</span>}
+            style={{ background: '#ffffff', border: '1px solid var(--border-color)', marginBottom: 24, borderRadius: 12 }}
           >
             <Text type="secondary" style={{ display: 'block', marginBottom: 15 }}>
               Your workspace is currently operating under standard encryption. All cases and entities are private to your identifier.
             </Text>
             <Row gutter={16}>
               <Col span={12}>
-                <Statistic title={<span style={{ color: '#8b949e' }}>Account Status</span>} value="VERIFIED" valueStyle={{ color: '#00ff88', fontSize: '1.2em' }} />
+                <Statistic title={<span style={{ color: 'var(--text-muted)' }}>Account Status</span>} value="VERIFIED" styles={{ content: { color: 'var(--cyber-blue)', fontSize: '1.2em' } }} />
               </Col>
               <Col span={12}>
-                <Statistic title={<span style={{ color: '#8b949e' }}>Workspace Isolation</span>} value="ACTIVE" valueStyle={{ color: '#00ff88', fontSize: '1.2em' }} />
+                <Statistic title={<span style={{ color: 'var(--text-muted)' }}>Workspace Isolation</span>} value="ACTIVE" styles={{ content: { color: 'var(--cyber-blue)', fontSize: '1.2em' } }} />
               </Col>
             </Row>
           </Card>
 
           <Card 
-            title={<span style={{ color: '#00ff88' }}><FolderOpenOutlined /> Operational Data</span>}
-            style={{ background: '#0d1117', border: '1px solid #30363d' }}
+            title={<span style={{ color: 'var(--cyber-blue)' }}><FolderOpenOutlined /> Operational Data</span>}
+            style={{ background: '#ffffff', border: '1px solid var(--border-color)', borderRadius: 12 }}
           >
-            <Paragraph style={{ color: '#8b949e' }}>
+            <Paragraph style={{ color: 'var(--text-muted)' }}>
               Your investigation data is stored in a private silo. Public sharing of dossiers is currently disabled for security.
             </Paragraph>
             <Button type="default" onClick={() => window.location.href = '/cases'}>
@@ -96,6 +96,6 @@ const Profile: React.FC = () => {
   );
 };
 
-const Divider = () => <div style={{ borderTop: '1px solid #30363d', margin: '20px 0' }} />;
+const Divider = () => <div style={{ borderTop: '1px solid var(--border-color)', margin: '20px 0' }} />;
 
 export default Profile;

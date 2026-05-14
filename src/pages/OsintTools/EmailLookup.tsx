@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Input, Button, Card, Typography, message, Space, List, Tag, Descriptions, Row, Col, Avatar, Divider, Empty } from 'antd';
-import { SearchOutlined, MailOutlined, WarningOutlined, UserOutlined, GlobalOutlined, CheckCircleOutlined, LinkOutlined, ExportOutlined } from '@ant-design/icons';
+import { Input, Button, Card, Typography, message, Space, List, Tag, Descriptions, Row, Col, Avatar, Divider, Table } from 'antd';
+import { SearchOutlined, MailOutlined, WarningOutlined, UserOutlined, GlobalOutlined, CheckCircleOutlined, LinkOutlined, ExportOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import api from '../../api/axiosConfig';
 
 const { Title, Text, Paragraph } = Typography;
@@ -31,20 +31,57 @@ const EmailLookup: React.FC = () => {
   };
 
   const getConfidenceLevel = (score: number) => {
-    if (score > 0.8) return { color: '#00ff41', text: 'HIGH CONFIDENCE' };
+    if (score > 0.8) return { color: 'var(--cyber-blue)', text: 'HIGH CONFIDENCE' };
     if (score > 0.4) return { color: '#faad14', text: 'PARTIAL MATCH' };
     return { color: '#ff4d4f', text: 'LOW CONFIDENCE' };
   };
 
+  const socialColumns = [
+    {
+      title: 'Platform',
+      dataIndex: 'platform',
+      key: 'platform',
+      render: (text: string) => <Text strong style={{ color: 'var(--text-main)' }}>{text.toUpperCase()}</Text>,
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string, record: any) => {
+        const isFound = status === 'found' || record.verified;
+        return isFound ? (
+          <Tag color="success" icon={<CheckCircleOutlined />}>IDENTIFIED</Tag>
+        ) : (
+          <Tag color="error" icon={<CloseCircleOutlined />}>NOT FOUND</Tag>
+        );
+      }
+    },
+    {
+      title: 'Intelligence',
+      key: 'action',
+      render: (_: any, record: any) => (
+        <Button 
+          type="link" 
+          href={record.url} 
+          target="_blank" 
+          icon={<ExportOutlined />} 
+          style={{ color: 'var(--cyber-blue)', padding: 0 }}
+        >
+          Intercept
+        </Button>
+      ),
+    },
+  ];
+
   return (
-    <Card style={{ background: '#0d1117', border: '1px solid #30363d' }}>
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+    <Card style={{ background: '#ffffff', border: '1px solid var(--border-color)', borderRadius: 12 }}>
+      <Space orientation="vertical" size="large" style={{ width: '100%' }}>
         <div>
-          <Title level={4} style={{ color: '#00ff41', marginTop: 0 }}>
+          <Title level={4} style={{ color: 'var(--primary)', marginTop: 0 }}>
             [ Advanced forensic enrichment ]
           </Title>
-          <Paragraph style={{ color: '#8b949e', marginBottom: 20 }}>
-            Orchestrates lookups across corporate registries (Hunter, Clearbit), professional networks, and breach databases. 
+          <Paragraph style={{ color: 'var(--text-muted)', marginBottom: 20 }}>
+            Orchestrates lookups across corporate registries, professional networks, and breach databases. 
             Assigns confidence scores based on cross-referenced identifiers.
           </Paragraph>
 
@@ -52,11 +89,11 @@ const EmailLookup: React.FC = () => {
             <Input
               size="large"
               placeholder="target@company.com"
-              prefix={<MailOutlined style={{ color: '#00ff41' }} />}
+              prefix={<MailOutlined style={{ color: 'var(--cyber-blue)' }} />}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onPressEnter={handleLookup}
-              style={{ background: '#010409', borderColor: '#30363d', color: '#00ff41' }}
+              style={{ background: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }}
             />
             <Button
               type="primary"
@@ -64,6 +101,8 @@ const EmailLookup: React.FC = () => {
               icon={<SearchOutlined />}
               loading={loading}
               onClick={handleLookup}
+              className="cyber-btn"
+              style={{ borderRadius: 10, height: 48 }}
             >
               START ENRICHMENT
             </Button>
@@ -76,12 +115,12 @@ const EmailLookup: React.FC = () => {
               {/* Profile Overview */}
               <Col xs={24} lg={8}>
                 <Card 
-                  title={<span style={{ color: '#00ff41' }}><UserOutlined /> Identity Profile</span>} 
-                  style={{ background: '#010409', border: '1px solid #30363d' }}
+                  title={<span style={{ color: 'var(--cyber-blue)' }}><UserOutlined /> Identity Profile</span>} 
+                  style={{ background: '#ffffff', border: '1px solid var(--border-color)' }}
                 >
                   <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                    <Avatar size={100} src={results.profile.avatar} icon={<UserOutlined />} style={{ border: '2px solid #00ff41', marginBottom: 15 }} />
-                    <Title level={4} style={{ color: '#e6edf3', margin: 0 }}>{results.profile.name}</Title>
+                    <Avatar size={100} src={results.profile.avatar} icon={<UserOutlined />} style={{ border: '2px solid var(--cyber-blue)', marginBottom: 15 }} />
+                    <Title level={4} style={{ color: 'var(--text-main)', margin: 0 }}>{results.profile.name}</Title>
                     <Space style={{ marginTop: 8 }}>
                         <Tag color={results.email_type === 'corporate' ? 'blue' : 'default'}>{results.email_type.toUpperCase()}</Tag>
                         {results.profile.verified && <Tag color="success">VERIFIED</Tag>}
@@ -98,7 +137,7 @@ const EmailLookup: React.FC = () => {
                     <Descriptions.Item label={<Text type="secondary">Sources</Text>}>
                         {results.profile.sources.join(', ') || 'Public Probing'}
                     </Descriptions.Item>
-                    <Divider style={{ borderColor: '#30363d', margin: '12px 0' }} />
+                    <Divider style={{ borderColor: 'var(--border-color)', margin: '12px 0' }} />
                     <Descriptions.Item label={<Text type="secondary">Bio</Text>}>
                         <Text style={{ fontSize: '0.9em' }}>{results.profile.bio || 'No public bio found.'}</Text>
                     </Descriptions.Item>
@@ -112,8 +151,8 @@ const EmailLookup: React.FC = () => {
                   {/* Professional & Business Info */}
                   <Col span={24}>
                     <Card 
-                      title={<span style={{ color: '#00ff41' }}><GlobalOutlined /> Professional Intelligence</span>}
-                      style={{ background: '#010409', border: '1px solid #30363d' }}
+                      title={<span style={{ color: 'var(--cyber-blue)' }}><GlobalOutlined /> Professional Intelligence</span>}
+                      style={{ background: '#ffffff', border: '1px solid var(--border-color)' }}
                     >
                         <Row gutter={16}>
                             <Col span={12}>
@@ -132,31 +171,18 @@ const EmailLookup: React.FC = () => {
                     </Card>
                   </Col>
 
-                  {/* Social Footprint */}
+                  {/* Social Footprint mapping */}
                   <Col span={24}>
                     <Card 
-                      title={<span style={{ color: '#00ff41' }}><LinkOutlined /> Social Footprint Mapping</span>}
-                      style={{ background: '#010409', border: '1px solid #30363d' }}
-                      bodyStyle={{ padding: 0 }}
+                      title={<span style={{ color: 'var(--cyber-blue)' }}><LinkOutlined /> Social Footprint Mapping</span>}
+                      style={{ background: '#ffffff', border: '1px solid var(--border-color)' }}
                     >
-                        <List
-                            dataSource={results.social_profiles}
-                            size="small"
-                            renderItem={(item: any) => (
-                                <List.Item 
-                                    style={{ padding: '12px 20px', borderBottom: '1px solid #30363d' }}
-                                    actions={[
-                                        <Button type="link" href={item.url} target="_blank" icon={<ExportOutlined />} style={{ color: '#00ff41' }}>Intercept</Button>
-                                    ]}
-                                >
-                                    <List.Item.Meta
-                                        avatar={<Avatar src={`https://www.google.com/s2/favicons?domain=${new URL(item.url).hostname}&sz=32`} />}
-                                        title={<Space><Text strong style={{ color: '#e6edf3' }}>{item.platform}</Text> {item.verified && <CheckCircleOutlined style={{ color: '#00ff41' }} />}</Space>}
-                                        description={<Text type="secondary">@{item.username || results.email.split('@')[0]}</Text>}
-                                    />
-                                </List.Item>
-                            )}
-                            locale={{ emptyText: <div style={{ padding: 20 }}><Empty description="No social patterns detected." /></div> }}
+                        <Table 
+                            dataSource={results.social_profiles} 
+                            columns={socialColumns} 
+                            size="small" 
+                            pagination={{ pageSize: 5 }}
+                            rowKey={(record) => record.platform + record.url}
                         />
                     </Card>
                   </Col>
@@ -164,15 +190,15 @@ const EmailLookup: React.FC = () => {
                   {/* Breach Analysis */}
                   <Col span={24}>
                     <Card 
-                      title={<span style={{ color: results.breaches.length > 0 ? '#ff4d4f' : '#00ff41' }}><WarningOutlined /> Risk Exposure (Breaches)</span>}
-                      style={{ background: '#010409', border: '1px solid #30363d' }}
+                      title={<span style={{ color: results.breaches.length > 0 ? '#ff4d4f' : 'var(--cyber-blue)' }}><WarningOutlined /> Risk Exposure (Breaches)</span>}
+                      style={{ background: '#ffffff', border: '1px solid var(--border-color)' }}
                     >
                       <List
                         dataSource={results.breaches}
                         renderItem={(item: any) => (
-                          <List.Item style={{ borderColor: '#30363d' }}>
+                          <List.Item style={{ borderColor: 'var(--border-color)' }}>
                             <List.Item.Meta
-                              title={<Text strong style={{ color: '#e6edf3' }}>{item.breach_name}</Text>}
+                              title={<Text strong style={{ color: 'var(--text-main)' }}>{item.breach_name}</Text>}
                               description={
                                 <div>
                                   <Space split={<Divider type="vertical" />}>

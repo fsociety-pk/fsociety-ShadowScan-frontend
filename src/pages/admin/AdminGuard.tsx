@@ -40,8 +40,8 @@ const AdminGuard: React.FC<AdminGuardProps> = ({ children }) => {
   if (isAuthorized === null) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', flexDirection: 'column' }}>
-        <Spin indicator={<LoadingOutlined style={{ fontSize: 48, color: '#00ff88' }} spin />} />
-        <div style={{ marginTop: 24, color: '#00ff88', letterSpacing: 2 }}>C3 COMMAND: VERIFYING CLEARANCE...</div>
+        <Spin indicator={<LoadingOutlined style={{ fontSize: 48, color: 'var(--cyber-blue)' }} spin />} />
+        <div style={{ marginTop: 24, color: 'var(--cyber-blue)', letterSpacing: 2 }}>C3 COMMAND: VERIFYING CLEARANCE...</div>
       </div>
     );
   }

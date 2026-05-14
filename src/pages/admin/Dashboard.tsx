@@ -19,7 +19,7 @@ import { Link } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 
-const COLORS = ['#00ff88', '#1890ff', '#f5222d', '#faad14'];
+const COLORS = ['var(--cyber-blue)', '#1890ff', '#f5222d', '#faad14'];
 
 const AdminDashboard: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -90,7 +90,7 @@ const AdminDashboard: React.FC = () => {
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => (
-        <Tag color={status === 'success' ? '#00ff88' : '#f50'}>{status.toUpperCase()}</Tag>
+        <Tag color={status === 'success' ? 'var(--cyber-blue)' : '#f50'}>{status.toUpperCase()}</Tag>
       )
     }
   ];
@@ -100,12 +100,12 @@ const AdminDashboard: React.FC = () => {
   return (
     <div style={{ padding: '0 0 40px 0' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
-        <Title level={2} style={{ color: '#00ff88', margin: 0 }}>COMMAND CENTER OVERVIEW</Title>
+        <Title level={2} style={{ color: 'var(--cyber-blue)', margin: 0 }}>COMMAND CENTER OVERVIEW</Title>
         <Button 
           icon={<SyncOutlined spin={loading} />} 
           onClick={() => { setLoading(true); fetchDashboardData(); }}
           type="text"
-          style={{ color: '#8b949e' }}
+          style={{ color: 'var(--text-muted)' }}
         >
           REFRESH INTEL
         </Button>
@@ -116,12 +116,12 @@ const AdminDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card className="admin-stat-card">
             <Statistic
-              title={<Text style={{ color: '#8b949e' }}>TOTAL OPERATIVES</Text>}
+              title={<Text style={{ color: 'var(--text-muted)' }}>TOTAL OPERATIVES</Text>}
               value={stats?.totalUsers}
-              prefix={<UserOutlined style={{ color: '#00ff88' }} />}
-              valueStyle={{ color: '#00ff88' }}
+              prefix={<UserOutlined style={{ color: 'var(--cyber-blue)' }} />}
+              styles={{ content: { color: 'var(--cyber-blue)' } }}
             />
-            <div style={{ marginTop: 8, fontSize: '12px', color: '#00ff88' }}>
+            <div style={{ marginTop: 8, fontSize: '12px', color: 'var(--cyber-blue)' }}>
               <RiseOutlined /> +12% from last month
             </div>
           </Card>
@@ -129,10 +129,10 @@ const AdminDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card className="admin-stat-card">
             <Statistic
-              title={<Text style={{ color: '#8b949e' }}>TOTAL SCANS</Text>}
+              title={<Text style={{ color: 'var(--text-muted)' }}>TOTAL SCANS</Text>}
               value={stats?.totalScans}
               prefix={<SearchOutlined style={{ color: '#1890ff' }} />}
-              valueStyle={{ color: '#1890ff' }}
+              styles={{ content: { color: '#1890ff' } }}
             />
             <div style={{ marginTop: 8, fontSize: '12px', color: '#1890ff' }}>
               <RiseOutlined /> +240 since yesterday
@@ -142,10 +142,10 @@ const AdminDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card className="admin-stat-card">
             <Statistic
-              title={<Text style={{ color: '#8b949e' }}>ACTIVE TODAY</Text>}
+              title={<Text style={{ color: 'var(--text-muted)' }}>ACTIVE TODAY</Text>}
               value={stats?.activeUsersToday}
               suffix={`/ ${stats?.totalUsers}`}
-              valueStyle={{ color: '#faad14' }}
+              styles={{ content: { color: '#faad14' } }}
             />
             <div style={{ marginTop: 8, fontSize: '12px', color: '#faad14' }}>
               {stats && stats.totalUsers > 0 ? Math.round((stats.activeUsersToday / stats.totalUsers) * 100) : 0}% Engagement Rate
@@ -155,12 +155,12 @@ const AdminDashboard: React.FC = () => {
         <Col xs={24} sm={12} lg={6}>
           <Card className="admin-stat-card">
             <Statistic
-              title={<Text style={{ color: '#8b949e' }}>SYSTEM HEALTH</Text>}
+              title={<Text style={{ color: 'var(--text-muted)' }}>SYSTEM HEALTH</Text>}
               value={stats?.systemHealthStatus.status.toUpperCase()}
-              prefix={<CheckCircleOutlined style={{ color: '#00ff88' }} />}
-              valueStyle={{ color: '#00ff88' }}
+              prefix={<CheckCircleOutlined style={{ color: 'var(--cyber-blue)' }} />}
+              styles={{ content: { color: 'var(--cyber-blue)' } }}
             />
-            <div style={{ marginTop: 8, fontSize: '12px', color: '#8b949e' }}>
+            <div style={{ marginTop: 8, fontSize: '12px', color: 'var(--text-muted)' }}>
               LATENCY: {stats?.systemHealthStatus.latency}
             </div>
           </Card>
@@ -174,14 +174,14 @@ const AdminDashboard: React.FC = () => {
             <div style={{ width: '100%', height: 300 }}>
               <ResponsiveContainer>
                 <LineChart data={trends}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                  <XAxis dataKey="date" stroke="#8b949e" fontSize={12} />
-                  <YAxis stroke="#8b949e" fontSize={12} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                  <XAxis dataKey="date" stroke="var(--text-muted)" fontSize={12} />
+                  <YAxis stroke="var(--text-muted)" fontSize={12} />
                   <Tooltip 
-                    contentStyle={{ background: '#0d1117', border: '1px solid #30363d' }}
-                    itemStyle={{ color: '#00ff88' }}
+                    contentStyle={{ background: '#ffffff', border: '1px solid var(--border-color)' }}
+                    itemStyle={{ color: 'var(--cyber-blue)' }}
                   />
-                  <Line type="monotone" dataKey="scans" stroke="#00ff88" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 8 }} />
+                  <Line type="monotone" dataKey="scans" stroke="var(--cyber-blue)" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 8 }} />
                   <Line type="monotone" dataKey="users" stroke="#1890ff" strokeWidth={2} />
                 </LineChart>
               </ResponsiveContainer>
@@ -205,7 +205,7 @@ const AdminDashboard: React.FC = () => {
                     ))}
                   </Pie>
                   <Tooltip 
-                    contentStyle={{ background: '#0d1117', border: '1px solid #30363d' }}
+                    contentStyle={{ background: '#ffffff', border: '1px solid var(--border-color)' }}
                   />
                   <Legend />
                 </PieChart>
@@ -221,13 +221,13 @@ const AdminDashboard: React.FC = () => {
             <div style={{ width: '100%', height: 300 }}>
               <ResponsiveContainer>
                 <BarChart data={topUsers}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#30363d" />
-                  <XAxis dataKey="username" stroke="#8b949e" fontSize={12} />
-                  <YAxis stroke="#8b949e" fontSize={12} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border-color)" />
+                  <XAxis dataKey="username" stroke="var(--text-muted)" fontSize={12} />
+                  <YAxis stroke="var(--text-muted)" fontSize={12} />
                   <Tooltip 
-                    contentStyle={{ background: '#0d1117', border: '1px solid #30363d' }}
+                    contentStyle={{ background: '#ffffff', border: '1px solid var(--border-color)' }}
                   />
-                  <Bar dataKey="totalScans" fill="#00ff88" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="totalScans" fill="var(--cyber-blue)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -237,7 +237,7 @@ const AdminDashboard: React.FC = () => {
           <Card 
             title="RECENT ACTIVITY" 
             className="admin-chart-card"
-            extra={<Link to="/admin/logs" style={{ color: '#00ff88', fontSize: '12px' }}>VIEW ALL LOGS <ArrowRightOutlined /></Link>}
+            extra={<Link to="/admin/logs" style={{ color: 'var(--cyber-blue)', fontSize: '12px' }}>VIEW ALL LOGS <ArrowRightOutlined /></Link>}
           >
             <Table 
               columns={activityColumns} 
@@ -253,11 +253,19 @@ const AdminDashboard: React.FC = () => {
 
       {/* Quick Actions */}
       <div style={{ marginTop: 32 }}>
-        <Title level={4} style={{ color: '#8b949e', marginBottom: 16 }}>QUICK ACTIONS</Title>
-        <Space size="middle">
-          <Link to="/admin/users"><Button type="primary" size="large">MANAGE OPERATIVES</Button></Link>
-          <Link to="/admin/logs"><Button size="large">SYSTEM AUDITS</Button></Link>
-          <Link to="/admin/settings"><Button size="large">GLOBAL CONFIG</Button></Link>
+        <Title level={4} style={{ color: 'var(--text-muted)', marginBottom: 16 }}>QUICK ACTIONS</Title>
+        <Space orientation="vertical" size="middle" style={{ width: '100%' }}>
+           <Row gutter={16}>
+             <Col span={8}>
+               <Link to="/admin/users"><Button type="primary" size="large" block>MANAGE OPERATIVES</Button></Link>
+             </Col>
+             <Col span={8}>
+               <Link to="/admin/logs"><Button size="large" block>SYSTEM AUDITS</Button></Link>
+             </Col>
+             <Col span={8}>
+               <Link to="/admin/settings"><Button size="large" block>GLOBAL CONFIG</Button></Link>
+             </Col>
+           </Row>
         </Space>
       </div>
     </div>

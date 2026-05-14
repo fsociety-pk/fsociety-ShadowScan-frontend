@@ -40,7 +40,7 @@ const UsernameSearch: React.FC = () => {
       title: 'Platform',
       dataIndex: 'platform',
       key: 'platform',
-      render: (text: string) => <Text strong style={{ color: '#00ff41' }}>{text}</Text>,
+      render: (text: string) => <Text strong style={{ color: 'var(--text-main)' }}>{text}</Text>,
     },
     {
       title: 'Status',
@@ -78,7 +78,7 @@ const UsernameSearch: React.FC = () => {
             href={record.url} 
             target="_blank" 
             icon={<ExportOutlined />}
-            style={{ padding: 0, color: '#00ff41' }}
+            style={{ padding: 0, color: 'var(--cyber-blue)' }}
           >
             Intercept
           </Button>
@@ -88,25 +88,25 @@ const UsernameSearch: React.FC = () => {
   ];
 
   return (
-    <Card style={{ background: '#0d1117', border: '1px solid #30363d' }}>
-      <Title level={4} style={{ color: '#00ff41', marginTop: 0 }}>
+    <Card style={{ background: '#ffffff', border: '1px solid var(--border-color)', borderRadius: 12 }}>
+      <Title level={4} style={{ color: 'var(--primary)', marginTop: 0 }}>
         [ Advanced Username Intelligence ]
       </Title>
-      <Paragraph style={{ color: '#8b949e', marginBottom: 20 }}>
+      <Paragraph style={{ color: 'var(--text-muted)', marginBottom: 20 }}>
         Conducts multi-signature content analysis across 300+ platforms. Unlike basic status checks, 
         this engine verifies HTML markers to distinguish between active, deleted, and suspended accounts.
       </Paragraph>
 
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Space orientation="vertical" size="large" style={{ width: '100%' }}>
         <div style={{ display: 'flex', gap: 10 }}>
           <Input
             size="large"
             placeholder="target_alias"
-            prefix={<UserOutlined style={{ color: '#00ff41' }} />}
+            prefix={<UserOutlined style={{ color: 'var(--cyber-blue)' }} />}
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             onPressEnter={handleSearch}
-            style={{ background: '#010409', borderColor: '#30363d', color: '#00ff41' }}
+            style={{ background: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }}
           />
           <Button
             type="primary"
@@ -114,17 +114,19 @@ const UsernameSearch: React.FC = () => {
             icon={<SearchOutlined />}
             loading={loading}
             onClick={handleSearch}
+            className="cyber-btn"
+            style={{ borderRadius: 10, height: 48 }}
           >
             START DEEP SCAN
           </Button>
         </div>
 
         {summary && (
-            <div style={{ background: 'rgba(0, 255, 65, 0.05)', padding: '10px 15px', borderRadius: 4, border: '1px solid rgba(0, 255, 65, 0.2)' }}>
+            <div style={{ background: '#f8fafc', padding: '12px 16px', borderRadius: 8, border: '1px solid var(--border-color)' }}>
                 <Space split={<Text type="secondary">|</Text>}>
-                    <Text strong style={{ color: '#e6edf3' }}>Scanned: {summary.total_scanned}</Text>
-                    <Text style={{ color: '#00ff41' }}>Identified: {summary.found}</Text>
-                    <Text style={{ color: '#faad14' }}>Suspended: {summary.suspended}</Text>
+                    <Text strong style={{ color: 'var(--text-main)' }}>Scanned: {summary.total_scanned}</Text>
+                    <Text style={{ color: 'var(--cyber-blue)', fontWeight: 600 }}>Identified: {summary.found}</Text>
+                    <Text style={{ color: '#faad14', fontWeight: 600 }}>Suspended: {summary.suspended}</Text>
                 </Space>
             </div>
         )}
@@ -135,7 +137,7 @@ const UsernameSearch: React.FC = () => {
             dataSource={results}
             pagination={{ pageSize: 15 }}
             size="small"
-            style={{ background: '#010409', borderRadius: 4, border: '1px solid #30363d' }}
+            style={{ background: '#ffffff', borderRadius: 8, border: '1px solid var(--border-color)' }}
           />
         )}
       </Space>

@@ -66,8 +66,8 @@ const AdminLayout: React.FC = () => {
         width={260}
         theme="dark"
         style={{ 
-          borderRight: '1px solid #30363d',
-          background: '#010409'
+          borderRight: '1px solid var(--border-color)',
+          background: '#f8fafc'
         }}
       >
         <div style={{ 
@@ -76,13 +76,13 @@ const AdminLayout: React.FC = () => {
           alignItems: 'center', 
           justifyContent: collapsed ? 'center' : 'flex-start',
           padding: '0 24px',
-          borderBottom: '1px solid #30363d'
+          borderBottom: '1px solid var(--border-color)'
         }}>
-          <BugOutlined style={{ fontSize: 24, color: '#00ff88' }} />
+          <BugOutlined style={{ fontSize: 24, color: 'var(--cyber-blue)' }} />
           {!collapsed && (
             <span style={{ 
               marginLeft: 12, 
-              color: '#00ff88', 
+              color: 'var(--cyber-blue)', 
               fontWeight: 'bold', 
               letterSpacing: 1,
               whiteSpace: 'nowrap'
@@ -100,24 +100,24 @@ const AdminLayout: React.FC = () => {
         />
       </Sider>
       
-      <Layout style={{ background: '#0d1117' }}>
+      <Layout style={{ background: '#ffffff' }}>
         <Header style={{ 
           padding: '0 24px', 
-          background: '#010409', 
+          background: '#f8fafc', 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'space-between',
-          borderBottom: '1px solid #30363d'
+          borderBottom: '1px solid var(--border-color)'
         }}>
           <Button
             type="text"
             icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
             onClick={() => setCollapsed(!collapsed)}
-            style={{ fontSize: '16px', width: 64, height: 64, color: '#8b949e' }}
+            style={{ fontSize: '16px', width: 64, height: 64, color: 'var(--text-muted)' }}
           />
           
           <Space size="large">
-            <Text style={{ color: '#8b949e' }}>STATUS: <span style={{ color: '#00ff88' }}>ADMINISTRATOR SECURE</span></Text>
+            <Text style={{ color: 'var(--text-muted)' }}>STATUS: <span style={{ color: 'var(--cyber-blue)' }}>ADMINISTRATOR SECURE</span></Text>
             <Button 
               type="primary" 
               icon={<DashboardOutlined />} 
@@ -132,8 +132,8 @@ const AdminLayout: React.FC = () => {
         <Content style={{ margin: '24px 24px', minHeight: 280 }}>
           <div style={{ marginBottom: 24 }}>
             <Breadcrumb items={[
-              { title: <Link to="/admin/dashboard" style={{ color: '#8b949e' }}>Admin</Link> },
-              { title: <span style={{ color: '#00ff88' }}>{getBreadcrumbLabel(location.pathname).replace('Admin / ', '')}</span> }
+              { title: <Link to="/admin/dashboard" style={{ color: 'var(--text-muted)' }}>Admin</Link> },
+              { title: <span style={{ color: 'var(--cyber-blue)' }}>{getBreadcrumbLabel(location.pathname).replace('Admin / ', '')}</span> }
             ]} />
           </div>
           

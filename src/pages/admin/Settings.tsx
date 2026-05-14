@@ -163,8 +163,8 @@ const Settings: React.FC = () => {
           Modal.success({
             title: 'NEW ACCESS TOKEN',
             content: (
-              <div style={{ marginTop: 16, padding: '12px', background: '#0d1117', border: '1px solid #00ff88', borderRadius: '4px' }}>
-                <Text copyable style={{ color: '#00ff88', fontFamily: 'monospace' }}>{res.data.newKey}</Text>
+              <div style={{ marginTop: 16, padding: '12px', background: '#ffffff', border: '1px solid var(--cyber-blue)', borderRadius: '4px' }}>
+                <Text copyable style={{ color: 'var(--cyber-blue)', fontFamily: 'monospace' }}>{res.data.newKey}</Text>
               </div>
             ),
             className: 'hacker-modal-success'
@@ -182,8 +182,8 @@ const Settings: React.FC = () => {
     <div className="admin-settings-container">
       <Row justify="space-between" align="middle" style={{ marginBottom: 32 }}>
         <Col>
-          <Title level={2} style={{ color: '#00ff88', margin: 0 }}>C3: COMMAND, CONTROL, CONFIGURATION</Title>
-          <Text style={{ color: '#8b949e' }}>Manage core platform parameters and external bridge stability.</Text>
+          <Title level={2} style={{ color: 'var(--cyber-blue)', margin: 0 }}>C3: COMMAND, CONTROL, CONFIGURATION</Title>
+          <Text style={{ color: 'var(--text-muted)' }}>Manage core platform parameters and external bridge stability.</Text>
         </Col>
       </Row>
 
@@ -220,7 +220,7 @@ const Settings: React.FC = () => {
                 </Col>
               </Row>
 
-              <Divider style={{ borderColor: '#30363d' }} />
+              <Divider style={{ borderColor: 'var(--border-color)' }} />
 
               <Row gutter={24}>
                 <Col xs={24} md={12}>
@@ -243,7 +243,7 @@ const Settings: React.FC = () => {
                 </Col>
               </Row>
 
-              <Divider style={{ borderColor: '#30363d' }} />
+              <Divider style={{ borderColor: 'var(--border-color)' }} />
 
               <Form.Item 
                 name="maintenanceMode" 
@@ -286,7 +286,7 @@ const Settings: React.FC = () => {
                     <Switch checkedChildren="ENFORCED" unCheckedChildren="DISABLED" />
                   </Form.Item>
                   <Form.Item label="Authorized IP Addresses">
-                    <Space direction="vertical" style={{ width: '100%' }}>
+                    <Space orientation="vertical" style={{ width: '100%' }}>
                       <Input 
                         placeholder="Add IP address (e.g. 192.168.1.1)" 
                         value={ipInput}
@@ -329,7 +329,7 @@ const Settings: React.FC = () => {
                                                 form.setFieldsValue({ adminIPWhitelist: current.filter((i: string) => i !== ip) });
                                             }}
                                             color="cyan"
-                                            style={{ border: '1px solid #30363d', background: '#0d1117' }}
+                                            style={{ border: '1px solid var(--border-color)', background: '#ffffff' }}
                                         >
                                             {ip}
                                         </Tag>
@@ -411,7 +411,7 @@ const Settings: React.FC = () => {
                     ]}
                   >
                     <List.Item.Meta
-                      avatar={<ApiOutlined style={{ fontSize: 20, color: item.isActive ? '#00ff88' : '#30363d' }} />}
+                      avatar={<ApiOutlined style={{ fontSize: 20, color: item.isActive ? 'var(--cyber-blue)' : 'var(--border-color)' }} />}
                       title={<span style={{ color: '#fff' }}>{item.name}</span>}
                       description={
                         <Space split={<Divider type="vertical" />}>
@@ -459,7 +459,7 @@ const Settings: React.FC = () => {
             onChange={e => setSudoPassword(e.target.value)}
             onPressEnter={handleSudoVerify}
             autoFocus
-            prefix={<KeyOutlined style={{ color: '#8b949e' }} />}
+            prefix={<KeyOutlined style={{ color: 'var(--text-muted)' }} />}
         />
       </Modal>
     </div>

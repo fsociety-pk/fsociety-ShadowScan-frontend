@@ -187,7 +187,7 @@ const ActivityLogs: React.FC = () => {
       dataIndex: 'timestamp',
       key: 'timestamp',
       width: 200,
-      render: (t: string) => <Text style={{ color: '#8b949e', fontFamily: 'monospace' }}>{dayjs(t).format('YYYY-MM-DD HH:mm:ss')}</Text>,
+      render: (t: string) => <Text style={{ color: 'var(--text-muted)', fontFamily: 'monospace' }}>{dayjs(t).format('YYYY-MM-DD HH:mm:ss')}</Text>,
       sorter: (a: any, b: any) => dayjs(a.timestamp).unix() - dayjs(b.timestamp).unix(),
     },
     {
@@ -196,7 +196,7 @@ const ActivityLogs: React.FC = () => {
       key: 'user',
       render: (user: any) => (
         <Space>
-          <UserOutlined style={{ color: '#00ff88' }} />
+          <UserOutlined style={{ color: 'var(--cyber-blue)' }} />
           <span style={{ fontWeight: 'bold' }}>{user?.username || 'SYSTEM'}</span>
         </Space>
       )
@@ -205,7 +205,7 @@ const ActivityLogs: React.FC = () => {
       title: 'ACTION',
       dataIndex: 'action',
       key: 'action',
-      render: (a: string) => <Tag color="#0d1117" style={{ border: '1px solid #30363d', color: '#00ff88' }}>{a.toUpperCase()}</Tag>
+      render: (a: string) => <Tag color="#ffffff" style={{ border: '1px solid var(--border-color)', color: 'var(--cyber-blue)' }}>{a.toUpperCase()}</Tag>
     },
     {
       title: 'TOOL',
@@ -220,7 +220,7 @@ const ActivityLogs: React.FC = () => {
       render: (s: string) => (
         <Badge 
           status={s === 'success' ? 'success' : 'error'} 
-          text={<span style={{ color: s === 'success' ? '#00ff88' : '#f50' }}>{s.toUpperCase()}</span>} 
+          text={<span style={{ color: s === 'success' ? 'var(--cyber-blue)' : '#f50' }}>{s.toUpperCase()}</span>} 
         />
       )
     },
@@ -230,8 +230,8 @@ const ActivityLogs: React.FC = () => {
       key: 'ip',
       render: (ip: string) => (
         <Space>
-          <GlobalOutlined style={{ fontSize: 12, color: '#8b949e' }} />
-          <Text copyable style={{ color: '#8b949e' }}>{ip}</Text>
+          <GlobalOutlined style={{ fontSize: 12, color: 'var(--text-muted)' }} />
+          <Text copyable style={{ color: 'var(--text-muted)' }}>{ip}</Text>
         </Space>
       )
     }
@@ -241,11 +241,11 @@ const ActivityLogs: React.FC = () => {
     <div className="activity-logs-page">
       <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
         <Col>
-          <Title level={2} style={{ color: '#00ff88', margin: 0 }}>CENTRAL INTELLIGENCE FEED</Title>
+          <Title level={2} style={{ color: 'var(--cyber-blue)', margin: 0 }}>CENTRAL INTELLIGENCE FEED</Title>
         </Col>
         <Col>
           <Space>
-            <Text style={{ color: '#8b949e' }}>
+            <Text style={{ color: 'var(--text-muted)' }}>
               <ClockCircleOutlined /> Last Sync: {secondsAgo}s ago
             </Text>
             <Button icon={<SyncOutlined spin={loading} />} onClick={fetchLogs}>REFRESH</Button>
@@ -312,7 +312,7 @@ const ActivityLogs: React.FC = () => {
             </Col>
             <Col span={24}>
               <Collapse ghost defaultActiveKey={[]}>
-                <Collapse.Panel header={<span style={{ color: '#00ff88' }}><FilterOutlined /> ADVANCED SIGNAL FILTERS</span>} key="1">
+                <Collapse.Panel header={<span style={{ color: 'var(--cyber-blue)' }}><FilterOutlined /> ADVANCED SIGNAL FILTERS</span>} key="1">
                   <Row gutter={24}>
                     <Col xs={24} md={12}>
                         <Form.Item name="actions" label="Intercepted Actions">

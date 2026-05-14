@@ -130,11 +130,11 @@ const MetadataExtractor: React.FC = () => {
 
     const getRiskColor = (level: string) => {
         switch (level?.toUpperCase()) {
-            case 'CRITICAL': return '#f85149';
-            case 'HIGH': return '#f85149';
-            case 'MEDIUM': return '#d29922';
-            case 'LOW': return '#3fb950';
-            default: return '#30363d';
+            case 'CRITICAL': return 'var(--error)';
+            case 'HIGH': return 'var(--error)';
+            case 'MEDIUM': return 'var(--warning)';
+            case 'LOW': return 'var(--success)';
+            default: return 'var(--border-color)';
         }
     };
 
@@ -180,29 +180,29 @@ const MetadataExtractor: React.FC = () => {
     };
 
     return (
-        <Card style={{ background: '#0d1117', border: '1px solid #30363d' }}>
-            <Title level={4} style={{ color: '#00ff41', marginTop: 0 }}>
+        <Card style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)' }}>
+            <Title level={4} style={{ color: 'var(--primary)', marginTop: 0 }}>
                 <FileSearchOutlined /> [ Advanced Metadata Forensic Engine ]
             </Title>
-            <Paragraph style={{ color: '#8b949e', marginBottom: 20 }}>
+            <Paragraph style={{ color: 'var(--text-muted)', marginBottom: 20 }}>
                 Deep-layer extraction orchestration. Reveal hardware fingerprints, reverse geocoded paths, and modification intelligence.
             </Paragraph>
 
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            <Space orientation="vertical" size="large" style={{ width: '100%' }}>
                 {/* PART A & B: Upload UI */}
                 {!metadata && !uploading && (
                     <Dragger
                         customRequest={handleUpload}
                         multiple={false}
                         showUploadList={false}
-                        style={{ background: '#010409', border: '1px dashed #30363d', padding: '30px' }}
+                        style={{ background: 'rgba(255,255,255,0.02)', border: '1px dashed var(--border-color)', padding: '30px' }}
                         disabled={loading}
                     >
                         <p className="ant-upload-drag-icon">
-                            <InboxOutlined style={{ color: '#00ff41' }} />
+                            <InboxOutlined style={{ color: 'var(--primary)' }} />
                         </p>
-                        <p className="ant-upload-text" style={{ color: '#e6edf3' }}>Intercept File for Analysis</p>
-                        <p className="ant-upload-hint" style={{ color: '#8b949e' }}>
+                        <p className="ant-upload-text" style={{ color: 'var(--text-main)' }}>Intercept File for Analysis</p>
+                        <p className="ant-upload-hint" style={{ color: 'var(--text-muted)' }}>
                             Drag and drop or click to upload. Supports Images, Office Docs, PDF, Audio, and Video.
                         </p>
                     </Dragger>
@@ -210,17 +210,17 @@ const MetadataExtractor: React.FC = () => {
 
                 {/* PART B & C: Progress & Loading */}
                 {uploading && (
-                    <Card style={{ background: '#010409', borderColor: '#30363d' }}>
-                        <Space direction="vertical" style={{ width: '100%' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', color: '#8b949e' }}>
-                                <Text style={{ color: '#00ff41' }}><ClockCircleOutlined /> {uploadProgress < 100 ? 'Uploading...' : 'Processing Metadata...'}</Text>
+                    <Card style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--border-color)' }}>
+                        <Space orientation="vertical" style={{ width: '100%' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--text-muted)' }}>
+                                <Text style={{ color: 'var(--primary)' }}><ClockCircleOutlined /> {uploadProgress < 100 ? 'Uploading...' : 'Processing Metadata...'}</Text>
                                 {uploadProgress < 100 && <Text>{uploadSpeed} | ETA: {eta}</Text>}
                             </div>
                             <Progress 
                                 percent={uploadProgress === 100 && loading ? 100 : uploadProgress} 
                                 status={uploadProgress === 100 && loading ? 'active' : 'normal'}
-                                strokeColor="#00ff41" 
-                                trailColor="#30363d"
+                                strokeColor="var(--primary)" 
+                                trailColor="var(--border-color)"
                                 showInfo={false}
                             />
                             <div style={{ textAlign: 'right', marginTop: 10 }}>
@@ -243,14 +243,14 @@ const MetadataExtractor: React.FC = () => {
                         <Row gutter={[16, 16]}>
                             {/* SECTION 9: Privacy Assessment Dashboard */}
                             <Col span={24}>
-                                <Card size="small" style={{ background: '#010409', borderColor: getRiskColor(metadata.privacy_assessment?.risk_level) }}>
+                                <Card size="small" style={{ background: 'rgba(255,255,255,0.02)', borderColor: getRiskColor(metadata.privacy_assessment?.risk_level) }}>
                                     <Row align="middle" gutter={24}>
                                         <Col xs={24} md={6} style={{ textAlign: 'center' }}>
                                             <Progress 
                                                 type="dashboard" 
                                                 percent={metadata.privacy_assessment?.risk_score} 
                                                 strokeColor={getRiskColor(metadata.privacy_assessment?.risk_level)}
-                                                trailColor="#30363d"
+                                                trailColor="var(--border-color)"
                                                 format={(percent) => (
                                                     <div style={{ color: getRiskColor(metadata.privacy_assessment?.risk_level) }}>
                                                         <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{percent}%</div>
@@ -267,10 +267,10 @@ const MetadataExtractor: React.FC = () => {
                                                 size="small"
                                                 dataSource={metadata.privacy_assessment?.risks}
                                                 renderItem={(risk: any) => (
-                                                    <List.Item style={{ borderBottom: '1px solid #30363d' }}>
+                                                    <List.Item style={{ borderBottom: '1px solid var(--border-color)' }}>
                                                         <Space>
                                                             <WarningOutlined style={{ color: getRiskColor(risk.severity) }} />
-                                                            <Text style={{ color: '#e6edf3' }}>{risk.description}</Text>
+                                                            <Text style={{ color: 'var(--text-main)' }}>{risk.description}</Text>
                                                             <Tag color={getRiskColor(risk.severity)}>{risk.severity}</Tag>
                                                         </Space>
                                                     </List.Item>
@@ -283,31 +283,31 @@ const MetadataExtractor: React.FC = () => {
 
                             {/* SECTION 1: File Dossier */}
                             <Col xs={24} md={8}>
-                                <Card size="small" title={<span style={{ color: '#00ff41' }}><FileSearchOutlined /> File Information</span>} style={{ background: '#010409', borderColor: '#30363d', height: '100%' }}>
+                                <Card size="small" title={<span style={{ color: 'var(--primary)' }}><FileSearchOutlined /> File Information</span>} style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--border-color)', height: '100%' }}>
                                     <Descriptions column={1} size="small" bordered={false}>
-                                        <Descriptions.Item label="Filename"><Text ellipsis style={{ width: 120, color: '#e6edf3' }}>{metadata.file_info?.filename}</Text></Descriptions.Item>
-                                        <Descriptions.Item label="Size"><Tag color="blue">{metadata.file_info?.file_size_readable}</Tag></Descriptions.Item>
-                                        <Descriptions.Item label="MIME Type"><Text code>{metadata.file_info?.file_type}</Text></Descriptions.Item>
-                                        <Descriptions.Item label="Upload Date"><Text style={{ color: '#8b949e' }}>{new Date(metadata.file_info?.upload_date).toLocaleString()}</Text></Descriptions.Item>
+                                        <Descriptions.Item label={<Text type="secondary">Filename</Text>}><Text ellipsis style={{ width: 120, color: 'var(--text-main)' }}>{metadata.file_info?.filename}</Text></Descriptions.Item>
+                                        <Descriptions.Item label={<Text type="secondary">Size</Text>}><Tag color="blue">{metadata.file_info?.file_size_readable}</Tag></Descriptions.Item>
+                                        <Descriptions.Item label={<Text type="secondary">MIME Type</Text>}><Text code>{metadata.file_info?.file_type}</Text></Descriptions.Item>
+                                        <Descriptions.Item label={<Text type="secondary">Upload Date</Text>}><Text style={{ color: 'var(--text-muted)' }}>{new Date(metadata.file_info?.upload_date).toLocaleString()}</Text></Descriptions.Item>
                                     </Descriptions>
                                 </Card>
                             </Col>
 
                             {/* SECTION 7: Hashing & Integrity */}
                             <Col xs={24} md={16}>
-                                <Card size="small" title={<span style={{ color: '#00ff41' }}><DashboardOutlined /> Cryptographic Hashing</span>} style={{ background: '#010409', borderColor: '#30363d', height: '100%' }}>
-                                    <Space direction="vertical" style={{ width: '100%' }}>
+                                <Card size="small" title={<span style={{ color: 'var(--primary)' }}><DashboardOutlined /> Cryptographic Hashing</span>} style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--border-color)', height: '100%' }}>
+                                    <Space orientation="vertical" style={{ width: '100%' }}>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <Text type="secondary">MD5</Text>
                                             <Space>
-                                                <Text code style={{ background: '#0d1117', color: '#8b949e' }}>{metadata.hashing?.md5}</Text>
+                                                <Text code style={{ background: 'var(--bg-card)', color: 'var(--text-muted)' }}>{metadata.hashing?.md5}</Text>
                                                 <Button size="small" icon={<CopyOutlined />} onClick={() => copyToClipboard(metadata.hashing?.md5, 'MD5')} />
                                             </Space>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                             <Text type="secondary">SHA-256</Text>
                                             <Space>
-                                                <Text code style={{ background: '#0d1117', color: '#8b949e' }}>{metadata.hashing?.sha256.substring(0, 32)}...</Text>
+                                                <Text code style={{ background: 'var(--bg-card)', color: 'var(--text-muted)' }}>{metadata.hashing?.sha256.substring(0, 32)}...</Text>
                                                 <Button size="small" icon={<CopyOutlined />} onClick={() => copyToClipboard(metadata.hashing?.sha256, 'SHA-256')} />
                                             </Space>
                                         </div>
@@ -318,16 +318,16 @@ const MetadataExtractor: React.FC = () => {
                             {/* SECTION 3: Geolocation Intelligence */}
                             {metadata.gps_data && (
                                 <Col span={24}>
-                                    <Card size="small" title={<span style={{ color: '#f85149' }}><EnvironmentOutlined /> Satellite Geolocation</span>} style={{ background: '#010409', borderColor: '#f85149' }}>
+                                    <Card size="small" title={<span style={{ color: 'var(--error)' }}><EnvironmentOutlined /> Satellite Geolocation</span>} style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--error)' }}>
                                         <Row gutter={24}>
                                             <Col xs={24} md={10}>
                                                 <Descriptions column={1} size="small" bordered={false}>
-                                                    <Descriptions.Item label="Latitude"><Text strong style={{ color: '#e6edf3' }}>{metadata.gps_data.latitude}</Text></Descriptions.Item>
-                                                    <Descriptions.Item label="Longitude"><Text strong style={{ color: '#e6edf3' }}>{metadata.gps_data.longitude}</Text></Descriptions.Item>
-                                                    <Descriptions.Item label="Altitude"><Text style={{ color: '#e6edf3' }}>{metadata.gps_data.altitude || 'Unknown'} m</Text></Descriptions.Item>
-                                                    <Descriptions.Item label="GPS Date"><Text style={{ color: '#8b949e' }}>{metadata.gps_data.gps_date || 'N/A'}</Text></Descriptions.Item>
-                                                    <Descriptions.Item label="Address">
-                                                        <Text style={{ color: '#00ff41' }}>{metadata.gps_data.address?.full_address || 'Unresolved'}</Text>
+                                                    <Descriptions.Item label={<Text type="secondary">Latitude</Text>}><Text strong style={{ color: 'var(--text-main)' }}>{metadata.gps_data.latitude}</Text></Descriptions.Item>
+                                                    <Descriptions.Item label={<Text type="secondary">Longitude</Text>}><Text strong style={{ color: 'var(--text-main)' }}>{metadata.gps_data.longitude}</Text></Descriptions.Item>
+                                                    <Descriptions.Item label={<Text type="secondary">Altitude</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.gps_data.altitude || 'Unknown'} m</Text></Descriptions.Item>
+                                                    <Descriptions.Item label={<Text type="secondary">GPS Date</Text>}><Text style={{ color: 'var(--text-muted)' }}>{metadata.gps_data.gps_date || 'N/A'}</Text></Descriptions.Item>
+                                                    <Descriptions.Item label={<Text type="secondary">Address</Text>}>
+                                                        <Text style={{ color: 'var(--primary)' }}>{metadata.gps_data.address?.full_address || 'Unresolved'}</Text>
                                                     </Descriptions.Item>
                                                 </Descriptions>
                                                 <Space style={{ marginTop: 20 }}>
@@ -336,7 +336,7 @@ const MetadataExtractor: React.FC = () => {
                                                 </Space>
                                             </Col>
                                             <Col xs={24} md={14}>
-                                                <div style={{ width: '100%', height: '250px', borderRadius: '4px', overflow: 'hidden', border: '1px solid #30363d' }}>
+                                                <div style={{ width: '100%', height: '250px', borderRadius: '4px', overflow: 'hidden', border: '1px solid var(--border-color)' }}>
                                                     <iframe 
                                                         title="Forensic Map"
                                                         width="100%" 
@@ -357,16 +357,16 @@ const MetadataExtractor: React.FC = () => {
                             {/* SECTION 2 & 5: EXIF & Image Properties */}
                             {metadata.exif_data && (
                                 <Col xs={24} md={12}>
-                                    <Card size="small" title={<span style={{ color: '#00ff41' }}><PictureOutlined /> EXIF Forensic Data</span>} style={{ background: '#010409', borderColor: '#30363d' }}>
+                                    <Card size="small" title={<span style={{ color: 'var(--primary)' }}><PictureOutlined /> EXIF Forensic Data</span>} style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--border-color)' }}>
                                         <Descriptions column={2} size="small">
-                                            <Descriptions.Item label="Make">{metadata.exif_data.camera?.make}</Descriptions.Item>
-                                            <Descriptions.Item label="Model">{metadata.exif_data.camera?.model}</Descriptions.Item>
-                                            <Descriptions.Item label="ISO">{metadata.exif_data.exposure?.iso}</Descriptions.Item>
-                                            <Descriptions.Item label="Aperture">{metadata.exif_data.exposure?.aperture}</Descriptions.Item>
-                                            <Descriptions.Item label="Shutter">{metadata.exif_data.exposure?.shutter_speed}</Descriptions.Item>
-                                            <Descriptions.Item label="DPI">{metadata.image_properties?.resolution}</Descriptions.Item>
-                                            <Descriptions.Item label="Dim.">{metadata.image_properties?.width}x{metadata.image_properties?.height}</Descriptions.Item>
-                                            <Descriptions.Item label="Color">{metadata.image_properties?.color_mode}</Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Make</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.exif_data.camera?.make}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Model</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.exif_data.camera?.model}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">ISO</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.exif_data.exposure?.iso}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Aperture</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.exif_data.exposure?.aperture}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Shutter</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.exif_data.exposure?.shutter_speed}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">DPI</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.image_properties?.resolution}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Dim.</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.image_properties?.width}x{metadata.image_properties?.height}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Color</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.image_properties?.color_mode}</Text></Descriptions.Item>
                                         </Descriptions>
                                     </Card>
                                 </Col>
@@ -375,11 +375,11 @@ const MetadataExtractor: React.FC = () => {
                             {/* SECTION 8: Device Fingerprint */}
                             {metadata.device_fingerprint && (
                                 <Col xs={24} md={12}>
-                                    <Card size="small" title={<span style={{ color: '#00ff41' }}><InfoCircleOutlined /> Device Fingerprint</span>} style={{ background: '#010409', borderColor: '#30363d' }}>
+                                    <Card size="small" title={<span style={{ color: 'var(--primary)' }}><InfoCircleOutlined /> Device Fingerprint</span>} style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--border-color)' }}>
                                         <Descriptions column={1} size="small">
-                                            <Descriptions.Item label="Identifier">{metadata.device_fingerprint.device_model || 'Unknown'}</Descriptions.Item>
-                                            <Descriptions.Item label="Software">{metadata.device_fingerprint.software_version || 'N/A'}</Descriptions.Item>
-                                            <Descriptions.Item label="Unique ID">
+                                            <Descriptions.Item label={<Text type="secondary">Identifier</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.device_fingerprint.device_model || 'Unknown'}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Software</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.device_fingerprint.software_version || 'N/A'}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Unique ID</Text>}>
                                                 <Tooltip title={metadata.device_fingerprint.unique_id}>
                                                     <Text code style={{ cursor: 'pointer' }} onClick={() => copyToClipboard(metadata.device_fingerprint.unique_id, 'Device ID')}>
                                                         {metadata.device_fingerprint.unique_id.substring(0, 16)}...
@@ -394,19 +394,19 @@ const MetadataExtractor: React.FC = () => {
                             {/* SECTION 6: Document Intelligence */}
                             {metadata.document_properties && (
                                 <Col span={24}>
-                                    <Card size="small" title={<span style={{ color: '#00ff41' }}><HistoryOutlined /> Document Intelligence</span>} style={{ background: '#010409', borderColor: '#30363d' }}>
+                                    <Card size="small" title={<span style={{ color: 'var(--primary)' }}><HistoryOutlined /> Document Intelligence</span>} style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--border-color)' }}>
                                         <Descriptions column={3} size="small">
-                                            <Descriptions.Item label="Author"><Text strong style={{ color: '#00ff41' }}>{metadata.document_properties.author || 'Redacted'}</Text></Descriptions.Item>
-                                            <Descriptions.Item label="Revision">v{metadata.document_properties.revision_count || 1}</Descriptions.Item>
-                                            <Descriptions.Item label="Software">{metadata.document_properties.software}</Descriptions.Item>
-                                            <Descriptions.Item label="Page Count">{metadata.document_properties.page_count || 0}</Descriptions.Item>
-                                            <Descriptions.Item label="Created">{new Date(metadata.document_properties.created).toLocaleDateString()}</Descriptions.Item>
-                                            <Descriptions.Item label="Modified">{new Date(metadata.document_properties.modified).toLocaleDateString()}</Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Author</Text>}><Text strong style={{ color: 'var(--primary)' }}>{metadata.document_properties.author || 'Redacted'}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Revision</Text>}><Text style={{ color: 'var(--text-main)' }}>v{metadata.document_properties.revision_count || 1}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Software</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.document_properties.software}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Page Count</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.document_properties.page_count || 0}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Created</Text>}><Text style={{ color: 'var(--text-main)' }}>{new Date(metadata.document_properties.created).toLocaleDateString()}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Modified</Text>}><Text style={{ color: 'var(--text-main)' }}>{new Date(metadata.document_properties.modified).toLocaleDateString()}</Text></Descriptions.Item>
                                         </Descriptions>
                                         {metadata.document_properties.keywords && (
                                             <div style={{ marginTop: 10 }}>
                                                 <Text type="secondary">Keywords: </Text>
-                                                <Text italic>{metadata.document_properties.keywords}</Text>
+                                                <Text italic style={{ color: 'var(--text-main)' }}>{metadata.document_properties.keywords}</Text>
                                             </div>
                                         )}
                                     </Card>
@@ -416,12 +416,12 @@ const MetadataExtractor: React.FC = () => {
                             {/* SECTION 4: IPTC Metadata */}
                             {metadata.iptc_data && metadata.iptc_data.creator && (
                                 <Col span={24}>
-                                    <Card size="small" title={<span style={{ color: '#00ff41' }}><InfoCircleOutlined /> IPTC Forensic Records</span>} style={{ background: '#010409', borderColor: '#30363d' }}>
+                                    <Card size="small" title={<span style={{ color: 'var(--primary)' }}><InfoCircleOutlined /> IPTC Forensic Records</span>} style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--border-color)' }}>
                                         <Descriptions column={2} size="small">
-                                            <Descriptions.Item label="Creator">{metadata.iptc_data.creator}</Descriptions.Item>
-                                            <Descriptions.Item label="Copyright">{metadata.iptc_data.copyright}</Descriptions.Item>
-                                            <Descriptions.Item label="Location">{metadata.iptc_data.location}</Descriptions.Item>
-                                            <Descriptions.Item label="Keywords">
+                                            <Descriptions.Item label={<Text type="secondary">Creator</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.iptc_data.creator}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Copyright</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.iptc_data.copyright}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Location</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.iptc_data.location}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Keywords</Text>}>
                                                 {metadata.iptc_data.keywords?.map((k: string) => <Tag key={k} color="cyan">{k}</Tag>)}
                                             </Descriptions.Item>
                                         </Descriptions>
@@ -432,13 +432,13 @@ const MetadataExtractor: React.FC = () => {
                              {/* Multimedia Metadata */}
                              {metadata.audio_metadata && (
                                 <Col span={24}>
-                                    <Card size="small" title={<span style={{ color: '#00ff41' }}><AudioOutlined /> Audio Forensic Data</span>} style={{ background: '#010409', borderColor: '#30363d' }}>
+                                    <Card size="small" title={<span style={{ color: 'var(--primary)' }}><AudioOutlined /> Audio Forensic Data</span>} style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--border-color)' }}>
                                         <Descriptions column={3} size="small">
-                                            <Descriptions.Item label="Title">{metadata.audio_metadata.title}</Descriptions.Item>
-                                            <Descriptions.Item label="Artist">{metadata.audio_metadata.artist}</Descriptions.Item>
-                                            <Descriptions.Item label="Album">{metadata.audio_metadata.album}</Descriptions.Item>
-                                            <Descriptions.Item label="Duration">{metadata.audio_metadata.duration_readable}</Descriptions.Item>
-                                            <Descriptions.Item label="Bitrate">{metadata.audio_metadata.bitrate}</Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Title</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.audio_metadata.title}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Artist</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.audio_metadata.artist}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Album</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.audio_metadata.album}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Duration</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.audio_metadata.duration_readable}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Bitrate</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.audio_metadata.bitrate}</Text></Descriptions.Item>
                                         </Descriptions>
                                     </Card>
                                 </Col>
@@ -446,27 +446,27 @@ const MetadataExtractor: React.FC = () => {
 
                             {metadata.video_metadata && (
                                 <Col span={24}>
-                                    <Card size="small" title={<span style={{ color: '#00ff41' }}><VideoCameraOutlined /> Video Stream Forensic</span>} style={{ background: '#010409', borderColor: '#30363d' }}>
+                                    <Card size="small" title={<span style={{ color: 'var(--primary)' }}><VideoCameraOutlined /> Video Stream Forensic</span>} style={{ background: 'rgba(255,255,255,0.02)', borderColor: 'var(--border-color)' }}>
                                         <Descriptions column={3} size="small">
-                                            <Descriptions.Item label="Resolution">{metadata.video_metadata.resolution}</Descriptions.Item>
-                                            <Descriptions.Item label="Codec">{metadata.video_metadata.video_codec}</Descriptions.Item>
-                                            <Descriptions.Item label="Bitrate">{metadata.video_metadata.bitrate_mbps} Mbps</Descriptions.Item>
-                                            <Descriptions.Item label="Duration">{metadata.video_metadata.duration_readable}</Descriptions.Item>
-                                            <Descriptions.Item label="FPS">{metadata.video_metadata.frame_rate}</Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Resolution</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.video_metadata.resolution}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Codec</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.video_metadata.video_codec}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Bitrate</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.video_metadata.bitrate_mbps} Mbps</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">Duration</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.video_metadata.duration_readable}</Text></Descriptions.Item>
+                                            <Descriptions.Item label={<Text type="secondary">FPS</Text>}><Text style={{ color: 'var(--text-main)' }}>{metadata.video_metadata.frame_rate}</Text></Descriptions.Item>
                                         </Descriptions>
                                     </Card>
                                 </Col>
                             )}
                         </Row>
 
-                        <Divider style={{ borderColor: '#30363d' }} />
+                        <Divider style={{ borderColor: 'var(--border-color)' }} />
                         
                         <Alert
                             message="Extraction Metadata"
                             description={`Processed by ${metadata.metadata?.tools_used?.join(', ')} in ${metadata.metadata?.extraction_time_ms}ms.`}
                             type="success"
                             showIcon
-                            style={{ background: '#0d1117', border: '1px solid #30363d', color: '#8b949e' }}
+                            style={{ background: 'var(--bg-card)', border: '1px solid var(--border-color)', color: 'var(--text-muted)' }}
                         />
                     </div>
                 )}
@@ -484,7 +484,7 @@ const MetadataExtractor: React.FC = () => {
                         }
                         type="warning"
                         showIcon
-                        style={{ background: '#010409', border: '1px solid #d29922' }}
+                        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--warning)' }}
                     />
                 )}
             </Space>

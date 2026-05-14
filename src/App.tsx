@@ -1,8 +1,8 @@
 import React from 'react';
+import logoImg from './assets/logo.png';
 import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { Layout, Button, Input, Space } from 'antd';
 import { 
-  BugOutlined, 
   UserOutlined, 
   DashboardOutlined, 
   ToolOutlined, 
@@ -21,6 +21,8 @@ import SearchResults from './pages/Search/SearchResults';
 import Profile from './pages/Profile/Profile';
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
+import EditCase from './pages/Cases/EditCase';
+import OsintChatbot from './components/OsintChatbot';
 
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminGuard from './pages/admin/AdminGuard';
@@ -40,6 +42,8 @@ const AppContent: React.FC = () => {
   const location = useLocation();
   const userStr = localStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : null;
+
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
   const onSearch = (value: string) => {
     if (value.trim()) {
@@ -68,34 +72,47 @@ const AppContent: React.FC = () => {
   };
 
   return (
-    <Layout style={{ minHeight: '100vh', background: '#000' }}>
-      <Header style={{ 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'space-between',
+    <Layout style={{ minHeight: '100vh', background: 'var(--bg-main)' }}>
+      {!isAuthPage && (
+        <Header className="modern-topbar" style={{ 
+          justifyContent: 'space-between',
         position: 'sticky',
         top: 0,
         zIndex: 1000,
         width: '100%',
-        background: 'rgba(0,0,0,0.92)',
-        backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid var(--border-color)',
         padding: '0 40px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
-           <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-             <BugOutlined style={{ fontSize: 28, color: '#00ff88', filter: 'drop-shadow(0 0 8px #00ff88)' }} />
-             <span style={{ color: '#00ff88', fontSize: 20, fontWeight: 'bold', letterSpacing: 1, textShadow: '0 0 10px rgba(0,255,136,0.3)' }}>SHADOWSCAN</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
+           <Link to="/" className="logo-hover" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
+             <img src={logoImg} alt="Shadow Scan Logo" style={{ width: 40, height: 40, objectFit: 'contain' }} />
+             <div>
+               <div style={{
+                 fontSize: 20,
+                 fontWeight: 900,
+                 letterSpacing: 3,
+                 color: 'var(--cyber-blue)',
+               }}>
+                 SHADOW SCAN
+               </div>
+               <div style={{
+                 fontSize: 9,
+                 color: '#6b7280',
+                 letterSpacing: 1.5,
+                 fontWeight: 600,
+                 marginTop: 2,
+               }}>
+                 OSINT INTELLIGENCE
+               </div>
+             </div>
            </Link>
         </div>
 
         <Space size="large">
           {user && (
             <Input.Search
-              placeholder="Search dossiers and clues..."
+              placeholder="Search dossiers and findings..."
               onSearch={onSearch}
-              style={{ width: 350 }}
-              className="navbar-search"
+              className="navbar-search animated-search"
               size="large"
             />
           )}
@@ -105,9 +122,15 @@ const AppContent: React.FC = () => {
               icon={<SafetyCertificateOutlined />} 
               size="large" 
               onClick={() => navigate('/admin/dashboard')}
-              style={{ background: 'rgba(0, 255, 136, 0.1)', borderColor: '#00ff88', color: '#00ff88' }}
+              style={{
+                background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
+                borderColor: 'var(--cyber-blue)',
+                color: 'var(--cyber-blue)',
+                fontWeight: 700,
+                letterSpacing: 1,
+              }}
             >
-              ADMINISTRATION
+              ADMIN
             </Button>
           )}
           {user ? (
@@ -116,17 +139,37 @@ const AppContent: React.FC = () => {
               icon={<LogoutOutlined />} 
               size="large" 
               onClick={handleLogout}
-              style={{ background: 'rgba(255, 77, 79, 0.1)', borderColor: '#ff4d4f', color: '#ff4d4f' }}
+              style={{
+                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(248, 113, 113, 0.1) 100%)',
+                borderColor: 'var(--error)',
+                color: 'var(--error)',
+                fontWeight: 700,
+                letterSpacing: 1,
+              }}
             >
               SIGN OUT
             </Button>
           ) : (
             <Link to="/login">
-              <Button type="primary" icon={<UserOutlined />} size="large">CONNECT</Button>
+              <Button
+                type="primary"
+                icon={<UserOutlined />}
+                size="large"
+                style={{
+                  background: 'var(--cyber-gradient)',
+                  border: 'none',
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                  color: '#fff',
+                }}
+              >
+                CONNECT
+              </Button>
             </Link>
           )}
         </Space>
       </Header>
+      )}
 
       <Layout style={{ background: 'transparent', display: 'flex', flexDirection: 'row' }}>
         {user && !location.pathname.startsWith('/admin') && (
@@ -136,13 +179,17 @@ const AppContent: React.FC = () => {
                 key={item.key} 
                 className={`nav-tab-item ${location.pathname === item.key ? 'active' : ''}`}
                 onClick={() => navigate(item.key)}
+                style={{
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                }}
               >
                 {item.icon}
                 <span>{item.label}</span>
               </div>
             ))}
-            <div style={{ marginTop: 'auto', padding: '0 10px', color: '#1a1d23', fontSize: '0.65em', letterSpacing: 1, fontWeight: 'bold', textTransform: 'uppercase' }}>
-              STATUS: SECURE // ENCRYPTED
+            <div style={{ marginTop: 'auto', padding: '0 10px', color: '#374151', fontSize: '0.6em', letterSpacing: 1.5, fontWeight: 700, textTransform: 'uppercase' }}>
+              ◆ SHADOW SCAN ◆
             </div>
           </div>
         )}
@@ -153,8 +200,10 @@ const AppContent: React.FC = () => {
           minHeight: 'calc(100vh - 72px)' 
         }}>
           <div key={location.pathname} className="page-transition" style={{ 
-            maxWidth: location.pathname.startsWith('/admin') ? 'none' : 1400, 
-            margin: (user && !location.pathname.startsWith('/admin')) ? '0' : (location.pathname.startsWith('/admin') ? '0' : '0 auto') 
+            maxWidth: isAuthPage || location.pathname.startsWith('/admin') ? 'none' : 1400, 
+            margin: (user && !location.pathname.startsWith('/admin')) ? '0' : ((isAuthPage || location.pathname.startsWith('/admin')) ? '0' : '0 auto'),
+            width: isAuthPage ? '100%' : 'auto',
+            height: isAuthPage ? '100vh' : 'auto'
           }}>
             <Routes>
               <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
@@ -164,6 +213,7 @@ const AppContent: React.FC = () => {
               <Route path="/cases" element={<ProtectedRoute><CaseList /></ProtectedRoute>} />
               <Route path="/cases/new" element={<ProtectedRoute><NewCase /></ProtectedRoute>} />
               <Route path="/cases/:id" element={<ProtectedRoute><CaseDetail /></ProtectedRoute>} />
+              <Route path="/cases/:id/edit" element={<ProtectedRoute><EditCase /></ProtectedRoute>} />
               <Route path="/tools" element={<ProtectedRoute><OsintTools /></ProtectedRoute>} />
               <Route path="/search" element={<ProtectedRoute><SearchResults /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
@@ -193,9 +243,18 @@ const AppContent: React.FC = () => {
         </Content>
       </Layout>
 
-      <Footer style={{ textAlign: 'center', background: '#000', color: '#1a1d23', borderTop: '1px solid #30363d', fontSize: '10px', letterSpacing: '2px', padding: '20px' }}>
-        FSOCIETY // PERSONAL SHADOWSCAN WORKSPACE // {new Date().getFullYear()} // STAY HIDDEN
-      </Footer>
+      {user && <OsintChatbot />}
+
+      {!isAuthPage && (
+        <Footer style={{ textAlign: 'center', background: 'var(--bg-card)', color: 'var(--text-muted)', borderTop: '1px solid var(--border-color)', fontSize: '11px', letterSpacing: '1.5px', padding: '30px', fontWeight: 600 }}>
+          <div style={{ marginBottom: 10 }}>
+            ◆ SHADOW SCAN OSINT PLATFORM ◆ © {new Date().getFullYear()} F.SOCIETY • INTELLIGENCE GATHERING FRAMEWORK
+          </div>
+          <div style={{ fontSize: 9, color: 'var(--primary)', letterSpacing: 1 }}>
+            STATUS: OPERATIONAL • ENCRYPTION: ENABLED • THREAT LEVEL: MONITORED
+          </div>
+        </Footer>
+      )}
     </Layout>
   );
 };

@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Typography, Row, Col, Tag, Button, Spin, message, Input, Select, Space } from 'antd';
-import { FolderOpenOutlined, SearchOutlined, FilterOutlined } from '@ant-design/icons';
+import { Card, Typography, Row, Col, Tag, Button, Spin, message, Input, Select, Space, Popconfirm } from 'antd';
+import { FolderOpenOutlined, SearchOutlined, FilterOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 
-const { Title, Text } = Typography;
+const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
 
 interface InvestigationCase {
@@ -48,6 +48,16 @@ const CaseList: React.FC = () => {
     }
   };
 
+  const deleteCase = async (id: string) => {
+    try {
+      await api.delete(`/cases/${id}`);
+      message.success('Case deleted successfully');
+      fetchCases();
+    } catch (error) {
+      message.error('Failed to delete case');
+    }
+  };
+
   const applyFilters = () => {
     let result = cases;
     
@@ -81,32 +91,34 @@ const CaseList: React.FC = () => {
   }
 
   return (
-    <div>
-      <Title level={2} style={{ color: '#00ff88', borderBottom: '1px solid #30363d', paddingBottom: 10 }}>
-        [ My Investigations - Workspace ]
-      </Title>
+    <div style={{ paddingBottom: 40 }}>
+      <div style={{ marginBottom: 30 }}>
+        <Title level={2} style={{ marginBottom: 4 }}>My Investigations</Title>
+        <Paragraph style={{ color: 'var(--text-muted)' }}>
+          Manage your active and past intelligence operations.
+        </Paragraph>
+      </div>
       
       {/* Search and Filters */}
-      <Card style={{ background: '#0d1117', border: '1px solid #30363d', marginBottom: 25, borderRadius: 8 }}>
+      <Card style={{ marginBottom: 30 }} bodyStyle={{ padding: 16 }}>
         <Row gutter={[16, 16]} align="middle">
           <Col xs={24} md={12}>
             <Input 
-              prefix={<SearchOutlined style={{ color: '#00ff88' }} />} 
-              placeholder="Filter cases by title, notes, or entities..." 
+              prefix={<SearchOutlined style={{ color: 'var(--text-muted)' }} />} 
+              placeholder="Filter cases by title or objective..." 
               size="large"
               value={searchText}
               onChange={e => setSearchText(e.target.value)}
-              style={{ background: '#010409', borderColor: '#30363d', color: '#00ff88' }}
             />
           </Col>
           <Col xs={24} md={12}>
             <Space style={{ width: '100%', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-               <FilterOutlined style={{ color: '#8b949e' }} />
+               <FilterOutlined style={{ color: 'var(--text-muted)' }} />
                <Select 
                 size="large" 
                 placeholder="Priority" 
                 allowClear 
-                style={{ width: 150 }}
+                style={{ width: 140 }}
                 onChange={val => setPriorityFilter(val)}
               >
                 <Option value="Low">Low</Option>
@@ -119,7 +131,7 @@ const CaseList: React.FC = () => {
                 size="large" 
                 placeholder="Category" 
                 allowClear 
-                style={{ width: 150 }}
+                style={{ width: 140 }}
                 onChange={val => setCategoryFilter(val)}
               >
                 <Option value="Cyber">Cyber</Option>
@@ -134,39 +146,43 @@ const CaseList: React.FC = () => {
 
       <Row gutter={[24, 24]}>
         {filteredCases.map((c) => (
-          <Col xs={24} sm={12} md={8} key={c._id}>
+          <Col xs={24} sm={12} lg={8} key={c._id}>
             <Card
               hoverable
-              style={{ background: '#0d1117', border: '1px solid #30363d', height: '100%' }}
+              style={{ height: '100%', display: 'flex', flexDirection: 'column' }}
+              bodyStyle={{ flex: 1, display: 'flex', flexDirection: 'column' }}
               actions={[
-                <Button type="primary" ghost icon={<FolderOpenOutlined />} onClick={() => navigate(`/cases/${c._id}`)}>OPEN CASE</Button>
+                <Button type="text" icon={<FolderOpenOutlined />} onClick={() => navigate(`/cases/${c._id}`)}>Open</Button>,
+                <Popconfirm title="Delete Case?" description="Are you sure you want to delete this case and all its findings?" onConfirm={() => deleteCase(c._id)}>
+                  <Button type="text" danger icon={<DeleteOutlined />}>Delete</Button>
+                </Popconfirm>
               ]}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <Title level={4} style={{ color: '#00ff88', marginTop: 0 }}>{c.title}</Title>
-                <Tag color={getPriorityColor(c.priority)}>{c.priority.toUpperCase()}</Tag>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                <Title level={5} style={{ margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.title}</Title>
+                <Tag color={getPriorityColor(c.priority)}>{c.priority}</Tag>
               </div>
               
-              <div style={{ marginBottom: 15 }}>
-                <Tag color="blue">{c.category}</Tag>
-                <Tag color="cyan">{c.status}</Tag>
+              <div style={{ marginBottom: 16 }}>
+                <Tag>{c.category}</Tag>
+                <Tag color={c.status === 'Active' ? 'success' : 'default'}>{c.status}</Tag>
               </div>
               
-              <Text type="secondary" style={{ display: 'block', height: 44, overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: 15 }}>
+              <Text type="secondary" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }}>
                 {c.description}
               </Text>
               
-              <div style={{ marginTop: 15, fontSize: '0.85em', color: '#6e7681', borderTop: '1px solid #21262d', paddingTop: 10 }}>
+              <div style={{ marginTop: 16, fontSize: '12px', color: 'var(--text-muted)' }}>
                 Created: {new Date(c.createdAt).toLocaleDateString()}
               </div>
             </Card>
           </Col>
         ))}
         {filteredCases.length === 0 && (
-          <Col span={24} style={{ textAlign: 'center', padding: '50px 0' }}>
-            <FolderOpenOutlined style={{ fontSize: 48, color: '#30363d', marginBottom: 15 }} />
+          <Col span={24} style={{ textAlign: 'center', padding: '60px 0' }}>
+            <FolderOpenOutlined style={{ fontSize: 48, color: 'var(--border-color)', marginBottom: 16 }} />
             <br />
-            <Text type="secondary" style={{ color: '#8b949e' }}>No investigation cases found. Start a new case to begin.</Text>
+            <Text type="secondary">No cases found. Start a new investigation.</Text>
           </Col>
         )}
       </Row>
