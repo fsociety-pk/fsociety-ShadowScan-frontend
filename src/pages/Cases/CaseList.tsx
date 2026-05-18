@@ -41,7 +41,7 @@ const CaseList: React.FC = () => {
       const response = await api.get('/cases');
       setCases(response.data);
       setFilteredCases(response.data);
-    } catch (error) {
+    } catch (_error) {
       message.error('Failed to load investigation cases');
     } finally {
       setLoading(false);
@@ -53,7 +53,7 @@ const CaseList: React.FC = () => {
       await api.delete(`/cases/${id}`);
       message.success('Case deleted successfully');
       fetchCases();
-    } catch (error) {
+    } catch (_error) {
       message.error('Failed to delete case');
     }
   };

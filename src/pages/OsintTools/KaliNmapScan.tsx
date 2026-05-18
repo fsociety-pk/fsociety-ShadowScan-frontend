@@ -51,7 +51,6 @@ const KaliNmapScan: React.FC = () => {
     setResults(null);
 
     try {
-      const token = localStorage.getItem('token');
       const response = await api.post(
         '/kali-tools/nmap',
         {

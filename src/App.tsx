@@ -2,14 +2,15 @@ import React from 'react';
 import logoImg from './assets/logo.png';
 import { BrowserRouter, Routes, Route, Link, useNavigate, useLocation, Navigate } from 'react-router-dom';
 import { Layout, Button, Input, Space } from 'antd';
-import { 
-  UserOutlined, 
-  DashboardOutlined, 
-  ToolOutlined, 
-  CodeOutlined, 
-  PlusOutlined, 
+import {
+  UserOutlined,
+  DashboardOutlined,
+  ToolOutlined,
+  CodeOutlined,
+  PlusOutlined,
   LogoutOutlined,
-  SafetyCertificateOutlined
+  SafetyCertificateOutlined,
+  InfoCircleOutlined,
 } from '@ant-design/icons';
 
 import Dashboard from './pages/Dashboard/Dashboard';
@@ -23,6 +24,8 @@ import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import EditCase from './pages/Cases/EditCase';
 import OsintChatbot from './components/OsintChatbot';
+import ToolOverviewModal from './components/ToolOverviewModal';
+import WelcomeTourModal from './components/WelcomeTourModal';
 
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminGuard from './pages/admin/AdminGuard';
@@ -33,15 +36,32 @@ import ActivityLogs from './pages/admin/ActivityLogs';
 import Settings from './pages/admin/Settings';
 import { AdminContextProvider } from './context/AdminContext';
 
-// Admin Page Placeholders (None remaining)
-
 const { Header, Content, Footer } = Layout;
+
+/**
+ * Guards a route — redirects unauthenticated users to /login.
+ * Defined outside AppContent so React never remounts it mid-render.
+ */
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const userStr = localStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
+  return user ? <>{children}</> : <Navigate to="/login" replace />;
+};
+
+/** Top-level nav links — reordered: OSINT Tools → New Case → My Cases. My Dossier removed from sidebar (profile moved to topbar). */
+const navItems = [
+  { key: '/dashboard', label: 'Dashboard', icon: <DashboardOutlined /> },
+  { key: '/tools', label: 'OSINT Tools', icon: <ToolOutlined /> },
+  { key: '/cases/new', label: 'New Case & AI Report', icon: <PlusOutlined /> },
+  { key: '/cases', label: 'My Cases', icon: <CodeOutlined /> },
+];
 
 const AppContent: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const userStr = localStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : null;
+  const [overviewOpen, setOverviewOpen] = React.useState(false);
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
 
@@ -57,31 +77,22 @@ const AppContent: React.FC = () => {
     navigate('/login');
   };
 
-  const navItems = [
-    { key: '/dashboard', label: 'Dashboard', icon: <DashboardOutlined /> },
-    { key: '/cases', label: 'My Cases', icon: <CodeOutlined /> },
-    { key: '/cases/new', label: 'New Case', icon: <PlusOutlined /> },
-    { key: '/tools', label: 'OSINT Tools', icon: <ToolOutlined /> },
-    { key: '/profile', label: 'My Dossier', icon: <UserOutlined /> },
-  ];
 
-
-  // Helper to protect routes
-  const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-    return user ? <>{children}</> : <Navigate to="/login" replace />;
-  };
 
   return (
     <Layout style={{ minHeight: '100vh', background: 'var(--bg-main)' }}>
       {!isAuthPage && (
-        <Header className="modern-topbar" style={{ 
-          justifyContent: 'space-between',
-        position: 'sticky',
-        top: 0,
-        zIndex: 1000,
-        width: '100%',
-        padding: '0 40px'
-      }}>
+        <Header
+          className="modern-topbar"
+          style={{
+            justifyContent: 'space-between',
+            position: 'sticky',
+            top: 0,
+            zIndex: 1000,
+            width: '100%',
+            padding: '0 40px',
+          }}
+        >
         <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
            <Link to="/" className="logo-hover" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
              <img src={logoImg} alt="Shadow Scan Logo" style={{ width: 40, height: 40, objectFit: 'contain' }} />
@@ -107,7 +118,24 @@ const AppContent: React.FC = () => {
            </Link>
         </div>
 
-        <Space size="large">
+        <Space size="middle" align="center">
+          {user && (
+            <Button
+              type="primary"
+              icon={<InfoCircleOutlined />}
+              size="large"
+              onClick={() => setOverviewOpen(true)}
+              style={{
+                background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
+                borderColor: '#4f46e5',
+                color: '#4f46e5',
+                fontWeight: 700,
+                letterSpacing: 1,
+              }}
+            >
+              ARMORY OVERVIEW
+            </Button>
+          )}
           {user && (
             <Input.Search
               placeholder="Search dossiers and findings..."
@@ -117,10 +145,10 @@ const AppContent: React.FC = () => {
             />
           )}
           {user && user.role === 'admin' && (
-            <Button 
-              type="primary" 
-              icon={<SafetyCertificateOutlined />} 
-              size="large" 
+            <Button
+              type="primary"
+              icon={<SafetyCertificateOutlined />}
+              size="large"
               onClick={() => navigate('/admin/dashboard')}
               style={{
                 background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
@@ -134,21 +162,42 @@ const AppContent: React.FC = () => {
             </Button>
           )}
           {user ? (
-            <Button 
-              type="primary" 
-              icon={<LogoutOutlined />} 
-              size="large" 
-              onClick={handleLogout}
-              style={{
-                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(248, 113, 113, 0.1) 100%)',
-                borderColor: 'var(--error)',
-                color: 'var(--error)',
-                fontWeight: 700,
-                letterSpacing: 1,
-              }}
-            >
-              SIGN OUT
-            </Button>
+            <>
+              {/* Profile avatar — navigates to /profile */}
+              <div
+                onClick={() => navigate('/profile')}
+                title={`Profile: ${user.username || 'Operative'}`}
+                style={{
+                  width: 38, height: 38, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #0ea5e9, #8b5cf6)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer', flexShrink: 0,
+                  boxShadow: '0 2px 10px rgba(14,165,233,0.3)',
+                  border: '2px solid rgba(255,255,255,0.6)',
+                  transition: 'transform 0.2s ease',
+                  color: '#fff', fontSize: 16,
+                }}
+                onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.08)')}
+                onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
+              >
+                <UserOutlined />
+              </div>
+              <Button
+                type="primary"
+                icon={<LogoutOutlined />}
+                size="large"
+                onClick={handleLogout}
+                style={{
+                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(248, 113, 113, 0.1) 100%)',
+                  borderColor: '#ef4444',
+                  color: '#ef4444',
+                  fontWeight: 700,
+                  letterSpacing: 1,
+                }}
+              >
+                SIGN OUT
+              </Button>
+            </>
           ) : (
             <Link to="/login">
               <Button
@@ -244,6 +293,8 @@ const AppContent: React.FC = () => {
       </Layout>
 
       {user && <OsintChatbot />}
+      {user && <WelcomeTourModal />}
+      <ToolOverviewModal open={overviewOpen} onClose={() => setOverviewOpen(false)} />
 
       {!isAuthPage && (
         <Footer style={{ textAlign: 'center', background: 'var(--bg-card)', color: 'var(--text-muted)', borderTop: '1px solid var(--border-color)', fontSize: '11px', letterSpacing: '1.5px', padding: '30px', fontWeight: 600 }}>

@@ -87,7 +87,7 @@ const UserManagement: React.FC = () => {
       if (response.pagination) {
         setTotal(response.pagination.total);
       }
-    } catch (error) {
+    } catch (_error) {
       message.error('Failed to retrieve operative data.');
     } finally {
       setLoading(false);
@@ -190,7 +190,7 @@ const UserManagement: React.FC = () => {
     try {
       const response = await adminService.getUserDetails(id);
       setSelectedUserDetail(response.data);
-    } catch (error) {
+    } catch (_error) {
       message.error('Failed to retrieve deep dive data.');
     } finally {
       setDetailLoading(false);
@@ -201,7 +201,7 @@ const UserManagement: React.FC = () => {
     try {
       await adminService.updateUser(selectedUserDetail.user._id, { notes });
       message.success('Intelligence notes updated.');
-    } catch (error) {
+    } catch (_error) {
       message.error('Notes sync failed.');
     }
   };

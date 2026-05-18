@@ -1,231 +1,492 @@
-import React, { useState } from 'react';
-import { Input, Button, Card, Typography, message, Space, List, Tag, Descriptions, Row, Col, Avatar, Divider, Table } from 'antd';
-import { SearchOutlined, MailOutlined, WarningOutlined, UserOutlined, GlobalOutlined, CheckCircleOutlined, LinkOutlined, ExportOutlined, CloseCircleOutlined } from '@ant-design/icons';
+/**
+ * EmailLookup — Holehe-powered email OSINT scanner.
+ * Checks 120+ platforms for email registrations and maps the digital footprint.
+ * Features a simulated radar animation and dynamic step readout during the scan.
+ */
+import React, { useState, useEffect, useRef } from 'react';
+import { Form, Input, Button, Card, Tag, Row, Col, Progress } from 'antd';
+import {
+  MailOutlined, SearchOutlined, CheckCircleOutlined, CloseCircleOutlined,
+  LinkOutlined, EyeOutlined, AlertOutlined, AimOutlined, SafetyCertificateOutlined,
+} from '@ant-design/icons';
 import api from '../../api/axiosConfig';
 
-const { Title, Text, Paragraph } = Typography;
+interface FoundPlatform {
+  platform: string;
+  url: string;
+  status: 'found' | 'not_found' | 'rate_limit' | 'error';
+  verified?: boolean;
+}
 
-const EmailLookup: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<any>(null);
+/** Extracts a favicon URL from a platform profile URL using Google's favicon service. */
+const getPlatformFavicon = (url: string) => {
+  try {
+    const domain = new URL(url).hostname;
+    return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+  } catch {
+    return '';
+  }
+};
 
-  const handleLookup = async () => {
-    if (!email || !email.includes('@')) {
-      message.error('Please enter a valid email address.');
-      return;
+interface EmailLookupProps {
+  onScanStateChange?: (isScanning: boolean) => void;
+}
+
+const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
+  const [form] = Form.useForm();
+  const [scanning, setScanning] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [foundPlatforms, setFoundPlatforms] = useState<FoundPlatform[]>([]);
+  const [done, setDone] = useState(false);
+  const [targetEmail, setTargetEmail] = useState('');
+  const [scanStats, setScanStats] = useState({
+    threatLevel: 'SECURE',
+    exposureCount: 0,
+    elapsedTime: 0,
+  });
+
+  const [currentStep, setCurrentStep] = useState('System Idle');
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Status messages cycled during scan animation
+  const steps = [
+    'Initializing email forensic sandbox...',
+    'Loading Holehe social footprint matrices...',
+    'Establishing passive verification tunnels...',
+    'Interrogating 120+ identity endpoints...',
+    'Resolving cryptographic signature matches...',
+    'Intercepting public API registries...',
+    'Excluding flagged NSFW directories...',
+    'Compiling digital exposure metrics...',
+    'Formulating final identity profile...',
+  ];
+
+  // Rotate the step text every 2.5 seconds while scanning
+  useEffect(() => {
+    let interval: ReturnType<typeof setInterval>;
+    if (scanning) {
+      let idx = 0;
+      interval = setInterval(() => {
+        setCurrentStep(steps[idx % steps.length]);
+        idx++;
+      }, 2500);
+    } else {
+      setCurrentStep('System Idle');
     }
+    if (onScanStateChange) {
+      onScanStateChange(scanning);
+    }
+    return () => clearInterval(interval);
+  }, [scanning, onScanStateChange]);
 
-    setLoading(true);
-    setResults(null);
+  const handleLookup = async (values: { email: string }) => {
+    const email = values.email.trim();
+    if (!email || !email.includes('@')) return;
+
+    setTargetEmail(email);
+    setFoundPlatforms([]);
+    setProgress(0);
+    setDone(false);
+    setScanning(true);
+
+    // Elapsed-time counter
+    let seconds = 0;
+    timerRef.current = setInterval(() => {
+      seconds += 1;
+      setScanStats(prev => ({ ...prev, elapsedTime: seconds }));
+    }, 1000);
+
+    // Smoothly increment a simulated progress bar up to 96% before the response arrives
+    let simulatedProgress = 0;
+    const progressInterval = setInterval(() => {
+      simulatedProgress += Math.random() * 5;
+      if (simulatedProgress >= 96) simulatedProgress = 96;
+      setProgress(Math.floor(simulatedProgress));
+    }, 400);
 
     try {
       const response = await api.post('/tools/email-lookup', { email });
-      setResults(response.data);
-      message.success('Advanced intelligence discovery complete.');
-    } catch (error: any) {
-      message.error(error.response?.data?.message || 'Failed to execute forensic lookup');
+
+      clearInterval(progressInterval);
+      if (timerRef.current) clearInterval(timerRef.current);
+      setProgress(100);
+
+      const payload = response.data || {};
+      const socialProfiles: FoundPlatform[] = payload.social_profiles || [];
+      setFoundPlatforms(socialProfiles);
+
+      const confirmedCount = socialProfiles.filter(p => p.status === 'found').length;
+
+      let threat = 'SECURE';
+      if (confirmedCount > 8) threat = 'EXPANSIVE';
+      else if (confirmedCount > 3) threat = 'MODERATE';
+
+      setScanStats(prev => ({
+        ...prev,
+        threatLevel: threat,
+        exposureCount: confirmedCount,
+      }));
+      setDone(true);
+    } catch {
+      clearInterval(progressInterval);
+      if (timerRef.current) clearInterval(timerRef.current);
+      setProgress(100);
+      setDone(true);
     } finally {
-      setLoading(false);
+      setScanning(false);
     }
   };
 
-  const getConfidenceLevel = (score: number) => {
-    if (score > 0.8) return { color: 'var(--cyber-blue)', text: 'HIGH CONFIDENCE' };
-    if (score > 0.4) return { color: '#faad14', text: 'PARTIAL MATCH' };
-    return { color: '#ff4d4f', text: 'LOW CONFIDENCE' };
-  };
-
-  const socialColumns = [
-    {
-      title: 'Platform',
-      dataIndex: 'platform',
-      key: 'platform',
-      render: (text: string) => <Text strong style={{ color: 'var(--text-main)' }}>{text.toUpperCase()}</Text>,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: string, record: any) => {
-        const isFound = status === 'found' || record.verified;
-        return isFound ? (
-          <Tag color="success" icon={<CheckCircleOutlined />}>IDENTIFIED</Tag>
-        ) : (
-          <Tag color="error" icon={<CloseCircleOutlined />}>NOT FOUND</Tag>
-        );
-      }
-    },
-    {
-      title: 'Intelligence',
-      key: 'action',
-      render: (_: any, record: any) => (
-        <Button 
-          type="link" 
-          href={record.url} 
-          target="_blank" 
-          icon={<ExportOutlined />} 
-          style={{ color: 'var(--cyber-blue)', padding: 0 }}
-        >
-          Intercept
-        </Button>
-      ),
-    },
-  ];
-
   return (
-    <Card style={{ background: '#ffffff', border: '1px solid var(--border-color)', borderRadius: 12 }}>
-      <Space orientation="vertical" size="large" style={{ width: '100%' }}>
-        <div>
-          <Title level={4} style={{ color: 'var(--primary)', marginTop: 0 }}>
-            [ Advanced forensic enrichment ]
-          </Title>
-          <Paragraph style={{ color: 'var(--text-muted)', marginBottom: 20 }}>
-            Orchestrates lookups across corporate registries, professional networks, and breach databases. 
-            Assigns confidence scores based on cross-referenced identifiers.
-          </Paragraph>
-
-          <div style={{ display: 'flex', gap: 10 }}>
-            <Input
-              size="large"
-              placeholder="target@company.com"
-              prefix={<MailOutlined style={{ color: 'var(--cyber-blue)' }} />}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              onPressEnter={handleLookup}
-              style={{ background: 'var(--bg-card)', borderColor: 'var(--border-color)', color: 'var(--text-main)' }}
-            />
-            <Button
-              type="primary"
-              size="large"
-              icon={<SearchOutlined />}
-              loading={loading}
-              onClick={handleLookup}
-              className="cyber-btn"
-              style={{ borderRadius: 10, height: 48 }}
-            >
-              START ENRICHMENT
-            </Button>
+    <div style={{ padding: '10px 0' }}>
+      {/* Search Input Card */}
+      <Card style={{
+        marginBottom: 24, background: '#ffffff', borderRadius: 16,
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)', border: '1px solid #f1f5f9',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+          <div style={{
+            width: 48, height: 48, flexShrink: 0,
+            background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+            borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <AimOutlined style={{ color: '#fff', fontSize: 22 }} />
+          </div>
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 19, color: '#1e293b' }}>Advanced Email OSINT Matrix</div>
+            <div style={{ color: '#64748b', fontSize: 13, fontWeight: 500 }}>
+              Orchestrate social footprint lookups and integrity checks using Holehe
+            </div>
           </div>
         </div>
 
-        {results && (
-          <div style={{ marginTop: 20 }}>
-            <Row gutter={[24, 24]}>
-              {/* Profile Overview */}
-              <Col xs={24} lg={8}>
-                <Card 
-                  title={<span style={{ color: 'var(--cyber-blue)' }}><UserOutlined /> Identity Profile</span>} 
-                  style={{ background: '#ffffff', border: '1px solid var(--border-color)' }}
-                >
-                  <div style={{ textAlign: 'center', marginBottom: 20 }}>
-                    <Avatar size={100} src={results.profile.avatar} icon={<UserOutlined />} style={{ border: '2px solid var(--cyber-blue)', marginBottom: 15 }} />
-                    <Title level={4} style={{ color: 'var(--text-main)', margin: 0 }}>{results.profile.name}</Title>
-                    <Space style={{ marginTop: 8 }}>
-                        <Tag color={results.email_type === 'corporate' ? 'blue' : 'default'}>{results.email_type.toUpperCase()}</Tag>
-                        {results.profile.verified && <Tag color="success">VERIFIED</Tag>}
-                    </Space>
-                  </div>
+        <Form form={form} onFinish={handleLookup} layout="vertical">
+          <Row gutter={16} align="bottom">
+            <Col xs={24} md={18}>
+              <Form.Item
+                name="email"
+                rules={[{ required: true, type: 'email', message: 'Please enter a valid target email' }]}
+                style={{ marginBottom: 0 }}
+              >
+                <Input
+                  size="large"
+                  placeholder="target@company.com"
+                  prefix={<MailOutlined style={{ color: '#6366f1' }} />}
+                  disabled={scanning}
+                  className="cyber-input"
+                  style={{ height: 50, fontSize: 15 }}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={scanning}
+                icon={<SearchOutlined />}
+                size="large"
+                style={{
+                  width: '100%', height: 50, borderRadius: 12,
+                  background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                  border: 'none', fontWeight: 700, fontSize: 15,
+                  boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)',
+                }}
+              >
+                {scanning ? 'Auditing...' : 'Start Scan'}
+              </Button>
+            </Col>
+          </Row>
+        </Form>
+      </Card>
 
-                  <Descriptions column={1} size="small" style={{ marginTop: 10 }} bordered={false}>
-                    <Descriptions.Item label={<Text type="secondary">Score</Text>}>
-                        <Tag color={getConfidenceLevel(results.profile.confidence_score).color}>
-                            {getConfidenceLevel(results.profile.confidence_score).text} ({Math.round(results.profile.confidence_score * 100)}%)
-                        </Tag>
-                    </Descriptions.Item>
-                    <Descriptions.Item label={<Text type="secondary">Loc</Text>}>{results.profile.location || 'Unknown'}</Descriptions.Item>
-                    <Descriptions.Item label={<Text type="secondary">Sources</Text>}>
-                        {results.profile.sources.join(', ') || 'Public Probing'}
-                    </Descriptions.Item>
-                    <Divider style={{ borderColor: 'var(--border-color)', margin: '12px 0' }} />
-                    <Descriptions.Item label={<Text type="secondary">Bio</Text>}>
-                        <Text style={{ fontSize: '0.9em' }}>{results.profile.bio || 'No public bio found.'}</Text>
-                    </Descriptions.Item>
-                  </Descriptions>
-                </Card>
-              </Col>
+      {/* Radar scanning animation */}
+      {scanning && (
+        <Card
+          style={{
+            marginBottom: 24, borderRadius: 16, background: '#0f172a',
+            border: '1px solid #1e293b', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)', overflow: 'hidden',
+          }}
+          bodyStyle={{ padding: '40px 24px' }}
+        >
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="radar-container" style={{ position: 'relative', width: 140, height: 140, marginBottom: 28 }}>
+              <div className="radar-circle" />
+              <div className="radar-sweep" />
+              <div className="radar-core" />
+              <AimOutlined style={{
+                position: 'absolute', top: '50%', left: '50%',
+                transform: 'translate(-50%, -50%)', color: '#6366f1',
+                fontSize: 32, animation: 'pulse 1.5s infinite',
+              }} />
+            </div>
 
-              {/* Enrichment Data */}
-              <Col xs={24} lg={16}>
-                <Row gutter={[0, 24]}>
-                  {/* Professional & Business Info */}
-                  <Col span={24}>
-                    <Card 
-                      title={<span style={{ color: 'var(--cyber-blue)' }}><GlobalOutlined /> Professional Intelligence</span>}
-                      style={{ background: '#ffffff', border: '1px solid var(--border-color)' }}
-                    >
-                        <Row gutter={16}>
-                            <Col span={12}>
-                                <Descriptions column={1} size="small">
-                                    <Descriptions.Item label="Company">{results.professional.company || 'N/A'}</Descriptions.Item>
-                                    <Descriptions.Item label="Position">{results.professional.title || 'N/A'}</Descriptions.Item>
-                                </Descriptions>
-                            </Col>
-                            <Col span={12}>
-                                <Descriptions column={1} size="small">
-                                    <Descriptions.Item label="Domain">{results.professional.domain || 'N/A'}</Descriptions.Item>
-                                    <Descriptions.Item label="Department">{results.professional.department || 'N/A'}</Descriptions.Item>
-                                </Descriptions>
-                            </Col>
-                        </Row>
-                    </Card>
-                  </Col>
+            <div style={{ color: '#38bdf8', fontFamily: 'monospace', fontSize: 14, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
+              [SYSTEM ACTIVE: EMAIL THREAT ENRICHMENT IN PROGRESS]
+            </div>
 
-                  {/* Social Footprint mapping */}
-                  <Col span={24}>
-                    <Card 
-                      title={<span style={{ color: 'var(--cyber-blue)' }}><LinkOutlined /> Social Footprint Mapping</span>}
-                      style={{ background: '#ffffff', border: '1px solid var(--border-color)' }}
-                    >
-                        <Table 
-                            dataSource={results.social_profiles} 
-                            columns={socialColumns} 
-                            size="small" 
-                            pagination={{ pageSize: 5 }}
-                            rowKey={(record) => record.platform + record.url}
-                        />
-                    </Card>
-                  </Col>
+            <div style={{ color: '#fff', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
+              Scanning Email: <span style={{ color: '#6366f1', fontFamily: 'monospace' }}>"{targetEmail}"</span>
+            </div>
 
-                  {/* Breach Analysis */}
-                  <Col span={24}>
-                    <Card 
-                      title={<span style={{ color: results.breaches.length > 0 ? '#ff4d4f' : 'var(--cyber-blue)' }}><WarningOutlined /> Risk Exposure (Breaches)</span>}
-                      style={{ background: '#ffffff', border: '1px solid var(--border-color)' }}
-                    >
-                      <List
-                        dataSource={results.breaches}
-                        renderItem={(item: any) => (
-                          <List.Item style={{ borderColor: 'var(--border-color)' }}>
-                            <List.Item.Meta
-                              title={<Text strong style={{ color: 'var(--text-main)' }}>{item.breach_name}</Text>}
-                              description={
-                                <div>
-                                  <Space split={<Divider type="vertical" />}>
-                                    <Text type="secondary">{item.date}</Text>
-                                    <Tag color={item.severity === 'high' ? 'error' : item.severity === 'medium' ? 'warning' : 'default'} style={{ fontSize: '0.75em' }}>
-                                        {item.severity.toUpperCase()} RISK
-                                    </Tag>
-                                  </Space>
-                                  <div style={{ marginTop: 8 }}>
-                                    {item.exposed_data.map((cls: string) => <Tag key={cls} style={{ fontSize: '0.7em', color: '#ff4d4f', background: 'rgba(255, 77, 79, 0.1)', borderColor: 'rgba(255, 77, 79, 0.2)' }}>{cls}</Tag>)}
-                                  </div>
-                                </div>
-                              }
-                            />
-                          </List.Item>
-                        )}
-                        locale={{ emptyText: <Text type="secondary">No integrity compromises detected in known databases.</Text> }}
-                      />
-                    </Card>
-                  </Col>
-                </Row>
-              </Col>
-            </Row>
+            <div style={{ width: '100%', maxWidth: 500, margin: '16px auto 12px' }}>
+              <Progress
+                percent={progress}
+                strokeColor={{ from: '#6366f1', to: '#a855f7' }}
+                trailColor="#1e293b"
+                status="active"
+                showInfo={false}
+                strokeWidth={8}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
+                <span>ENRICHING DATA SOCKETS</span>
+                <span style={{ color: '#38bdf8', fontWeight: 700 }}>{progress}% COMPLETE</span>
+              </div>
+            </div>
+
+            <div style={{
+              background: '#020617', border: '1px solid #1e293b', padding: '12px 20px',
+              borderRadius: 8, width: '100%', maxWidth: 500, textAlign: 'center',
+              fontFamily: 'monospace', fontSize: 12, color: '#38bdf8',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
+            }}>
+              <span className="blink">{'>'}</span> {currentStep}
+            </div>
           </div>
-        )}
-      </Space>
-    </Card>
+        </Card>
+      )}
+
+      {/* Scan results */}
+      {done && !scanning && (
+        <>
+          {/* Stats Dashboard */}
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+            <Col xs={24} sm={8}>
+              <Card
+                style={{
+                  borderRadius: 16, border: '1px solid #f1f5f9',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                  background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
+                }}
+                bodyStyle={{ padding: 20 }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                  <AlertOutlined style={{
+                    fontSize: 18,
+                    color: scanStats.threatLevel === 'EXPANSIVE' ? '#ef4444'
+                      : scanStats.threatLevel === 'MODERATE' ? '#f59e0b' : '#10b981',
+                  }} />
+                  <span style={{ color: '#64748b', fontWeight: 600, fontSize: 13 }}>FOOTPRINT STATUS</span>
+                </div>
+                <div style={{
+                  fontSize: 22, fontWeight: 800, letterSpacing: '0.5px',
+                  color: scanStats.threatLevel === 'EXPANSIVE' ? '#ef4444'
+                    : scanStats.threatLevel === 'MODERATE' ? '#f59e0b' : '#10b981',
+                }}>
+                  {scanStats.threatLevel}
+                </div>
+              </Card>
+            </Col>
+
+            <Col xs={24} sm={8}>
+              <Card
+                style={{
+                  borderRadius: 16, border: '1px solid #f1f5f9',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                  background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
+                }}
+                bodyStyle={{ padding: 20 }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                  <EyeOutlined style={{ fontSize: 18, color: '#6366f1' }} />
+                  <span style={{ color: '#64748b', fontWeight: 600, fontSize: 13 }}>CONFIRMED MATCHES</span>
+                </div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#1e293b' }}>
+                  {scanStats.exposureCount} <span style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>locations</span>
+                </div>
+              </Card>
+            </Col>
+
+            <Col xs={24} sm={8}>
+              <Card
+                style={{
+                  borderRadius: 16, border: '1px solid #f1f5f9',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                  background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
+                }}
+                bodyStyle={{ padding: 20 }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                  <SafetyCertificateOutlined style={{ fontSize: 18, color: '#3b82f6' }} />
+                  <span style={{ color: '#64748b', fontWeight: 600, fontSize: 13 }}>ELAPSED TIME</span>
+                </div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#1e293b' }}>
+                  {scanStats.elapsedTime} <span style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>seconds</span>
+                </div>
+              </Card>
+            </Col>
+          </Row>
+
+          {/* Social profile grid */}
+          {foundPlatforms.length > 0 ? (
+            <Card
+              title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <CheckCircleOutlined style={{ color: '#10b981', fontSize: 18 }} />
+                  <span style={{ color: '#1e293b', fontWeight: 700, fontSize: 16 }}>
+                    Social Footprint Mapping for "{targetEmail}"
+                  </span>
+                </div>
+              }
+              style={{
+                borderRadius: 16, border: '1px solid #e2e8f0',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.02)', marginBottom: 24,
+              }}
+            >
+              <Row gutter={[16, 16]}>
+                {foundPlatforms.map((p, idx) => (
+                  <Col key={idx} xs={24} sm={12} lg={8}>
+                    <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                      <div
+                        style={{
+                          border: '1px solid #f1f5f9', background: '#f8fafc', borderRadius: 14,
+                          padding: '16px', display: 'flex', alignItems: 'center', gap: 14,
+                          cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.01)',
+                        }}
+                        onMouseEnter={e => {
+                          const div = e.currentTarget as HTMLDivElement;
+                          div.style.borderColor = '#6366f1';
+                          div.style.background = '#ffffff';
+                          div.style.boxShadow = '0 10px 25px rgba(99, 102, 241, 0.08)';
+                          div.style.transform = 'translateY(-3px)';
+                        }}
+                        onMouseLeave={e => {
+                          const div = e.currentTarget as HTMLDivElement;
+                          div.style.borderColor = '#f1f5f9';
+                          div.style.background = '#f8fafc';
+                          div.style.boxShadow = '0 2px 4px rgba(0,0,0,0.01)';
+                          div.style.transform = 'translateY(0)';
+                        }}
+                      >
+                        {/* Platform favicon */}
+                        <div style={{
+                          width: 44, height: 44, borderRadius: 10, background: '#ffffff',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          border: '1px solid #e2e8f0', flexShrink: 0,
+                        }}>
+                          <img
+                            src={getPlatformFavicon(p.url)}
+                            alt={p.platform}
+                            onError={e => {
+                              (e.currentTarget as HTMLImageElement).src =
+                                'https://www.google.com/s2/favicons?sz=64&domain=github.com';
+                            }}
+                            style={{ width: 24, height: 24, objectFit: 'contain' }}
+                          />
+                        </div>
+
+                        {/* Platform name and URL */}
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontWeight: 700, fontSize: 14, color: '#1e293b' }}>{p.platform}</div>
+                          <div style={{
+                            fontSize: 11, color: '#64748b', overflow: 'hidden',
+                            textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                            fontFamily: 'monospace', marginTop: 2,
+                          }}>
+                            {p.url}
+                          </div>
+                        </div>
+
+                        {/* Status badge */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                          {p.status === 'found' && (
+                            <Tag style={{ margin: 0, fontWeight: 700, fontSize: 10, borderRadius: 6, padding: '2px 8px', border: 'none', background: '#dcfce7', color: '#16a34a' }}>
+                              CONFIRMED
+                            </Tag>
+                          )}
+                          {p.status === 'not_found' && (
+                            <Tag style={{ margin: 0, fontWeight: 700, fontSize: 10, borderRadius: 6, padding: '2px 8px', border: 'none', background: '#f1f5f9', color: '#64748b' }}>
+                              NOT FOUND
+                            </Tag>
+                          )}
+                          {p.status === 'rate_limit' && (
+                            <Tag style={{ margin: 0, fontWeight: 700, fontSize: 10, borderRadius: 6, padding: '2px 8px', border: 'none', background: '#ffedd5', color: '#ea580c' }}>
+                              RATE LIMIT
+                            </Tag>
+                          )}
+                          {p.status === 'error' && (
+                            <Tag style={{ margin: 0, fontWeight: 700, fontSize: 10, borderRadius: 6, padding: '2px 8px', border: 'none', background: '#fee2e2', color: '#dc2626' }}>
+                              ERROR
+                            </Tag>
+                          )}
+                          <LinkOutlined style={{ color: '#6366f1', fontSize: 13 }} />
+                        </div>
+                      </div>
+                    </a>
+                  </Col>
+                ))}
+              </Row>
+            </Card>
+          ) : (
+            <Card style={{
+              textAlign: 'center', padding: '48px 24px', borderRadius: 16,
+              border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)', marginBottom: 24,
+            }}>
+              <CloseCircleOutlined style={{ fontSize: 44, color: '#94a3b8', marginBottom: 16 }} />
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', marginBottom: 8 }}>
+                No Active Profiles Registered
+              </div>
+              <div style={{ color: '#64748b', fontSize: 14 }}>
+                The email address "{targetEmail}" was not verified on the tracked endpoints.
+              </div>
+            </Card>
+          )}
+        </>
+      )}
+
+      {/* Shared radar + input animation styles */}
+      <style>{`
+        .cyber-input {
+          border: 1.5px solid #e2e8f0 !important;
+          background: #f8fafc !important;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        .cyber-input:hover {
+          border-color: #6366f1 !important;
+          box-shadow: 0 0 10px rgba(99, 102, 241, 0.1) !important;
+          background: #ffffff !important;
+        }
+        .cyber-input:focus {
+          border-color: #6366f1 !important;
+          background: #ffffff !important;
+          box-shadow: 0 0 15px rgba(99, 102, 241, 0.25) !important;
+        }
+
+        .radar-container { display: flex; align-items: center; justify-content: center; }
+        .radar-circle {
+          position: absolute; width: 100%; height: 100%;
+          border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 50%;
+        }
+        .radar-sweep {
+          position: absolute; width: 100%; height: 100%; border-radius: 50%;
+          background: conic-gradient(from 0deg at 50% 50%, rgba(99, 102, 241, 0.25) 0deg, transparent 90deg);
+          animation: radar-sweep 3s linear infinite;
+        }
+        .radar-core {
+          position: absolute; width: 8px; height: 8px;
+          background: #6366f1; border-radius: 50%; box-shadow: 0 0 12px #6366f1;
+        }
+
+        @keyframes radar-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+          50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.6; }
+        }
+
+        .blink { animation: blink-anim 1s step-end infinite; }
+        @keyframes blink-anim { 50% { opacity: 0; } }
+      `}</style>
+    </div>
   );
 };
 

@@ -1,3 +1,8 @@
+/**
+ * IntelligenceAnalyst — AI-powered OSINT entity extraction and risk assessment tool.
+ * Paste any raw intelligence text; the Claude-backed backend extracts entities,
+ * maps relationships, scores risk, and returns a structured intelligence report.
+ */
 import React, { useState, useRef } from 'react';
 import {
   Card, Button, Input, Typography, message, Tag, Row, Col,
@@ -47,11 +52,29 @@ const EntityPill: React.FC<{ label: string; color?: string }> = ({ label, color 
   <Tag style={{ background: `${color}15`, border: `1px solid ${color}40`, color, borderRadius: 20, padding: '2px 12px', margin: '3px', fontSize: 12 }}>{label}</Tag>
 );
 
+/**
+ * Typed shape for the intelligence report returned by the backend.
+ * Fields are kept flexible since the AI output schema may vary.
+ */
+interface OsintReport {
+  reportId: string;
+  target: { label: string };
+  generatedAt: string;
+  executiveSummary: { overview: string; riskScore: number; totalEntitiesExtracted: number; platformsDetected: number };
+  riskAssessment: { riskLevel: string; overallRiskScore: number; indicators: { category: string; severity: string; description: string; evidence: string[] }[] };
+  targetProfile: { names: string[]; emails: string[]; phones: string[]; usernames: string[]; organizations: string[]; locations: string[] };
+  digitalFootprintAnalysis: { platforms: string[]; domains: string[]; ipAddresses: string[]; exposureScore: number; dataExposureRisks: string[] };
+  relationshipAnalysis: { relationships: { entity1: string; entity2: string; relation: string; strength: string }[]; clusterNotes: string };
+  keyFindings: { finding: string; confidence: number; category: string }[];
+  recommendations: string[];
+  investigationNotes: string;
+}
+
 const IntelligenceAnalyst: React.FC = () => {
   const [targetData, setTargetData] = useState('');
   const [targetLabel, setTargetLabel] = useState('');
   const [loading, setLoading] = useState(false);
-  const [report, setReport] = useState<any>(null);
+  const [report, setReport] = useState<OsintReport | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
 
   const analyze = async () => {
@@ -66,8 +89,9 @@ const IntelligenceAnalyst: React.FC = () => {
       setReport(res.data.report);
       message.success('Intelligence report generated successfully.');
       setTimeout(() => reportRef.current?.scrollIntoView({ behavior: 'smooth' }), 200);
-    } catch (err: any) {
-      message.error(err.response?.data?.message || 'Analysis failed. Please try again.');
+    } catch (err: unknown) {
+      const apiErr = err as { response?: { data?: { message?: string } } };
+      message.error(apiErr.response?.data?.message || 'Analysis failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -196,7 +220,7 @@ const IntelligenceAnalyst: React.FC = () => {
                 </div>
               </Col>
               <Col>
-                <Space direction="vertical" size={4} style={{ textAlign: 'right' }}>
+                <Space orientation="vertical" size={4} style={{ textAlign: 'right' }}>
                   <Tag color={riskLevel === 'High' ? 'error' : riskLevel === 'Medium' ? 'warning' : 'success'} style={{ fontSize: 12, padding: '2px 12px' }}>
                     {riskLevel.toUpperCase()} RISK
                   </Tag>
@@ -369,7 +393,7 @@ const IntelligenceAnalyst: React.FC = () => {
               {/* Key Findings */}
               <Section icon={<BulbOutlined />} title="Key Findings" accent="#ffd700">
                 <Timeline
-                  items={report.keyFindings.map((f: any, _i: number) => ({
+                  items={report.keyFindings.map((f: OsintReport['keyFindings'][number]) => ({
                     dot: <div style={{ width: 10, height: 10, borderRadius: '50%', background: CONF_COLOR(f.confidence), marginTop: 2 }} />,
                     children: (
                       <div style={{ paddingBottom: 4 }}>

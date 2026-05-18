@@ -29,7 +29,7 @@ const EditCase: React.FC = () => {
         toolsSuggested: data.toolsSuggested || [],
         targetProfile: data.targetProfile || {}
       });
-    } catch (error) {
+    } catch (_error) {
       message.error('Failed to load case data.');
       navigate('/cases');
     } finally {

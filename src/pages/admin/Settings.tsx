@@ -66,7 +66,7 @@ const Settings: React.FC = () => {
       const data = res.data.data;
       form.setFieldsValue(data);
       setIntegrations(data.apiIntegrations || []);
-    } catch (error) {
+    } catch (_error) {
       message.error('Failed to retrieve system protocols.');
     } finally {
       setLoading(false);
@@ -89,7 +89,7 @@ const Settings: React.FC = () => {
           });
           // Refresh to ensure UI stays in sync
           fetchSettings();
-        } catch (error) {
+        } catch (_error) {
           message.error('Failed to sync protocols with the grid.');
         } finally {
           setSaving(false);
@@ -105,7 +105,7 @@ const Settings: React.FC = () => {
         item.id === id ? { ...item, isActive: status, lastChecked: new Date().toISOString() } : item
       ));
       message.success(`API Node ${id} ${status ? 're-established' : 'decommissioned'}.`);
-    } catch (error) {
+    } catch (_error) {
       message.error('Signal override failed.');
     }
   };
@@ -124,7 +124,7 @@ const Settings: React.FC = () => {
           setSudoCallback(null);
         }
       }
-    } catch (error) {
+    } catch (_error) {
       message.error('Biometric/Credential mismatch. Access denied.');
     } finally {
       setSudoLoading(false);
@@ -169,7 +169,7 @@ const Settings: React.FC = () => {
             ),
             className: 'hacker-modal-success'
           });
-        } catch (error) {
+        } catch (_error) {
           message.error('Token regeneration cycle failed.');
         } finally {
           setRotating(null);

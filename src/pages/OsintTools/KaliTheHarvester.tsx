@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Form, Input, Button, Card, Tag, Space, Row, Col, Statistic, Progress, Divider } from 'antd';
+import { Form, Input, Button, Card, Tag, Space, Row, Col, Statistic } from 'antd';
 import {
-  MailOutlined, SearchOutlined, CheckCircleOutlined, CloseCircleOutlined,
+  MailOutlined, SearchOutlined, CheckCircleOutlined,
   RadarChartOutlined, StopOutlined, GlobalOutlined, InfoCircleOutlined
 } from '@ant-design/icons';
 

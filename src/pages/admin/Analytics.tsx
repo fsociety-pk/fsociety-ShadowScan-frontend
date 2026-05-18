@@ -90,7 +90,7 @@ const Analytics: React.FC = () => {
       setTopUsers(topUsersRes.data.data || []);
       setPeakHours(peakRes.data.data || []);
 
-    } catch (error) {
+    } catch (_error) {
       message.error('Failed to reconstruct analytics intelligence.');
     } finally {
       setLoading(false);

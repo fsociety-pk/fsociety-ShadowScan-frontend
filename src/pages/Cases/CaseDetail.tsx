@@ -82,7 +82,7 @@ const CaseDetail: React.FC = () => {
       const response = await api.get(`/cases/${id}`);
       setInvestigation(response.data);
       setNotes(response.data.notes || '');
-    } catch (error) {
+    } catch (_error) {
       message.error('Unauthorized or Case not found');
       navigate('/cases');
     } finally {
@@ -95,7 +95,7 @@ const CaseDetail: React.FC = () => {
     try {
       await api.put(`/cases/${id}`, { notes });
       message.success('Intelligence notes saved.');
-    } catch (error) {
+    } catch (_error) {
       message.error('Failed to save notes.');
     } finally {
       setSavingNotes(false);
@@ -172,7 +172,7 @@ const CaseDetail: React.FC = () => {
             )}
           </Card>
 
-          <Card style={{ marginBottom: 24 }} bodyStyle={{ padding: 0 }}>
+          <Card style={{ marginBottom: 24 }} styles={{ body: { padding: 0 } }}>
             <Tabs
               defaultActiveKey="findings"
               type="card"

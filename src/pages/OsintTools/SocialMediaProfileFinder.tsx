@@ -1,3 +1,8 @@
+/**
+ * SocialMediaProfileFinder — Multi-platform username and email OSINT scanner.
+ * Supports Deep (50+ platforms, 1-3 min) and Quick (15 platforms, ~30 sec) modes.
+ * Results are categorised by platform type and displayed in filterable tabs.
+ */
 import React, { useState, useEffect } from 'react';
 import {
   Form,
@@ -26,7 +31,6 @@ import {
   RocketOutlined,
 } from '@ant-design/icons';
 import api from '../../api/axiosConfig';
-import { useParams } from 'react-router-dom';
 
 interface SocialProfile {
   platform: string;
@@ -56,11 +60,8 @@ interface SearchResults {
   };
 }
 
-interface PlatformColor {
-  [key: string]: string;
-}
-
-const platformColors: PlatformColor = {
+/** Maps lowercase platform names to their brand hex colour for visual accent. */
+const platformColors: Record<string, string> = {
   twitter: '#1DA1F2',
   x: '#000000',
   instagram: '#E4405F',
@@ -88,7 +89,11 @@ const platformColors: PlatformColor = {
 
 
 
-const SocialMediaProfileFinder: React.FC = () => {
+interface SocialMediaProfileFinderProps {
+  onScanStateChange?: (isScanning: boolean) => void;
+}
+
+const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onScanStateChange }) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResults | null>(null);
@@ -96,9 +101,11 @@ const SocialMediaProfileFinder: React.FC = () => {
   const [searchType, setSearchType] = useState<'full' | 'quick'>('full');
   const [progress, setProgress] = useState(0);
   const [progressMessage, setProgressMessage] = useState('');
-  const { caseId } = useParams<{ caseId?: string }>();
 
   useEffect(() => {
+    if (onScanStateChange) {
+      onScanStateChange(loading);
+    }
     if (loading) {
       const interval = setInterval(() => {
         setProgress((prev) => {
@@ -117,7 +124,6 @@ const SocialMediaProfileFinder: React.FC = () => {
     setResults(null);
 
     try {
-      const token = localStorage.getItem('token');
       const endpoint = searchType === 'quick' ? '/social-media/quick' : '/social-media/find';
       
       setProgressMessage('Initializing scan...');
@@ -125,20 +131,16 @@ const SocialMediaProfileFinder: React.FC = () => {
 
       const response = await api.post(
         endpoint,
-        {
-          input: values.input.trim(),
-          caseId: caseId || undefined,
-        },
-        {
-          timeout: 120000,
-        }
+        { input: values.input.trim() },
+        { timeout: 120000 }
       );
 
       setProgressMessage('✅ Scan complete!');
       setProgress(100);
       setResults(response.data);
-    } catch (err: any) {
-      setError(err.response?.data?.message || 'Search failed. Please try again.');
+    } catch (err: unknown) {
+      const apiErr = err as { response?: { data?: { message?: string } } };
+      setError(apiErr.response?.data?.message || 'Search failed. Please try again.');
       setProgress(0);
     } finally {
       setLoading(false);
@@ -268,11 +270,6 @@ const SocialMediaProfileFinder: React.FC = () => {
                   prefix={<UserOutlined style={{ color: 'var(--cyber-blue)' }} />}
                   disabled={loading}
                   size="large"
-                  style={{
-                    background: 'rgba(0, 255, 136, 0.05)',
-                    border: '1px solid rgba(0, 255, 136, 0.2)',
-                    borderRadius: 8,
-                  }}
                 />
               </Form.Item>
             </Col>
@@ -671,7 +668,7 @@ const SocialMediaProfileFinder: React.FC = () => {
             }}
           >
             <small style={{ color: '#6b7280', letterSpacing: 0.5 }}>
-              ✅ Scan completed on {new Date(results.timestamp).toLocaleString()} {caseId && ' • 📁 Saved to Case'}
+              Scan completed on {new Date(results.timestamp).toLocaleString()}
             </small>
           </Card>
         </>

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Typography, Row, Col, Statistic, Button, List, Tag, Space } from 'antd';
+import { Card, Typography, Row, Col, Statistic, Button, Tag, Space } from 'antd';
 import { FolderOpenOutlined, DatabaseOutlined, PlusOutlined, SearchOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import api from '../../api/axiosConfig';
+import ToolOverviewModal from '../../components/ToolOverviewModal';
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -10,6 +11,7 @@ const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [stats, setStats] = useState({ cases: 0, entities: 0 });
   const [recentCases, setRecentCases] = useState<any[]>([]);
+  const [overviewOpen, setOverviewOpen] = useState(false);
   const userData = localStorage.getItem('user');
   const user = userData ? JSON.parse(userData) : null;
 
@@ -29,7 +31,7 @@ const Dashboard: React.FC = () => {
         entities: casesRes.data.reduce((acc: number, curr: any) => acc + (curr.findings?.length || 0), 0)
       });
       setRecentCases(casesRes.data.slice(0, 3));
-    } catch (error) {
+    } catch (_error) {
       console.error('Failed to load dashboard data');
     }
   };
@@ -52,6 +54,23 @@ const Dashboard: React.FC = () => {
           <Paragraph style={{ color: 'rgba(255,255,255,0.9)', fontSize: 16, marginTop: 8, marginBottom: 0 }}>
             Welcome back, {user.user?.username || 'Agent'}. Your intelligence workspace is secure and active.
           </Paragraph>
+          <Button 
+            type="primary" 
+            icon={<SafetyCertificateOutlined />} 
+            size="large" 
+            onClick={() => setOverviewOpen(true)}
+            style={{
+              marginTop: 18,
+              background: 'rgba(255, 255, 255, 0.15)',
+              borderColor: 'rgba(255, 255, 255, 0.35)',
+              color: 'white',
+              fontWeight: 800,
+              borderRadius: 8,
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            VIEW TOOL ARMORY OVERVIEW 🛡️
+          </Button>
         </div>
         <div style={{ position: 'absolute', top: '-50%', right: '-5%', fontSize: 200, opacity: 0.1, transform: 'rotate(-15deg)' }}>
           <SafetyCertificateOutlined />
@@ -60,27 +79,27 @@ const Dashboard: React.FC = () => {
       
       <Row gutter={24} style={{ marginTop: 20 }}>
         <Col xs={24} md={8}>
-          <Card className="hover-elevate" style={{ textAlign: 'center', height: '100%', borderRadius: 16, border: '1px solid var(--border-color)' }} bodyStyle={{ padding: 30 }}>
+          <Card className="hover-elevate" style={{ textAlign: 'center', height: '100%', borderRadius: 16, border: '1px solid var(--border-color)' }} styles={{ body: { padding: 30 } }}>
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(14, 165, 233, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
               <FolderOpenOutlined style={{ fontSize: 32, color: 'var(--cyber-blue)' }} />
             </div>
-            <Statistic title={<span style={{ fontWeight: 600 }}>Active Investigations</span>} value={stats.cases} valueStyle={{ fontSize: 36, fontWeight: 800, color: 'var(--text-main)' }} />
+            <Statistic title={<span style={{ fontWeight: 600 }}>Active Investigations</span>} value={stats.cases} styles={{ content: { fontSize: 36, fontWeight: 800, color: 'var(--text-main)' } }} />
           </Card>
         </Col>
         <Col xs={24} md={8}>
-          <Card className="hover-elevate" style={{ textAlign: 'center', height: '100%', borderRadius: 16, border: '1px solid var(--border-color)' }} bodyStyle={{ padding: 30 }}>
+          <Card className="hover-elevate" style={{ textAlign: 'center', height: '100%', borderRadius: 16, border: '1px solid var(--border-color)' }} styles={{ body: { padding: 30 } }}>
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(139, 92, 246, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
               <SearchOutlined style={{ fontSize: 32, color: 'var(--cyber-purple)' }} />
             </div>
-            <Statistic title={<span style={{ fontWeight: 600 }}>Total Findings Extracted</span>} value={stats.entities} valueStyle={{ fontSize: 36, fontWeight: 800, color: 'var(--text-main)' }} />
+            <Statistic title={<span style={{ fontWeight: 600 }}>Total Findings Extracted</span>} value={stats.entities} styles={{ content: { fontSize: 36, fontWeight: 800, color: 'var(--text-main)' } }} />
           </Card>
         </Col>
         <Col xs={24} md={8}>
-          <Card className="hover-elevate" style={{ textAlign: 'center', height: '100%', borderRadius: 16, border: '1px solid var(--border-color)' }} bodyStyle={{ padding: 30 }}>
+          <Card className="hover-elevate" style={{ textAlign: 'center', height: '100%', borderRadius: 16, border: '1px solid var(--border-color)' }} styles={{ body: { padding: 30 } }}>
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: 'rgba(82, 196, 26, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}>
               <SafetyCertificateOutlined style={{ fontSize: 32, color: '#52c41a' }} />
             </div>
-            <Statistic title={<span style={{ fontWeight: 600 }}>System Status</span>} value="SECURE" valueStyle={{ fontSize: 32, fontWeight: 800, color: '#52c41a', letterSpacing: 2 }} />
+            <Statistic title={<span style={{ fontWeight: 600 }}>System Status</span>} value="SECURE" styles={{ content: { fontSize: 32, fontWeight: 800, color: '#52c41a', letterSpacing: 2 } }} />
           </Card>
         </Col>
       </Row>
@@ -92,26 +111,31 @@ const Dashboard: React.FC = () => {
             style={{ height: '100%', borderRadius: 16, border: '1px solid var(--border-color)' }}
             extra={<Button type="link" onClick={() => navigate('/cases')} style={{ fontWeight: 600 }}>View All</Button>}
            >
-            <List
-              dataSource={recentCases}
-              renderItem={item => (
-                <List.Item 
-                  className="hover-bg-light"
-                  style={{ cursor: 'pointer', borderBottom: '1px solid var(--border-color)', padding: '16px', borderRadius: 8, transition: 'all 0.3s' }}
-                  onClick={() => navigate(`/cases/${item._id}`)}
-                >
-                  <List.Item.Meta
-                    title={<Text style={{ fontWeight: 700, fontSize: 16, color: 'var(--cyber-blue)' }}>{item.title}</Text>}
-                    description={<Tag color="blue" style={{ marginTop: 8, borderRadius: 4 }}>{item.category}</Tag>}
-                  />
-                  <div style={{ textAlign: 'right' }}>
-                    <Tag color={item.priority === 'High' || item.priority === 'Critical' ? 'error' : 'default'} style={{ fontWeight: 600, borderRadius: 4 }}>{item.priority}</Tag>
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 8, fontWeight: 500 }}>{new Date(item.createdAt).toLocaleDateString()}</div>
+            {recentCases.length === 0 ? (
+              <Text type="secondary">No active cases. Start a new investigation to begin.</Text>
+            ) : (
+              <div>
+                {recentCases.map((item) => (
+                  <div
+                    key={item._id}
+                    className="hover-bg-light"
+                    style={{ cursor: 'pointer', borderBottom: '1px solid var(--border-color)', padding: '16px', borderRadius: 8, transition: 'all 0.3s', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                    onClick={() => navigate(`/cases/${item._id}`)}
+                  >
+                    <div>
+                      <Text style={{ fontWeight: 700, fontSize: 16, color: 'var(--cyber-blue)' }}>{item.title}</Text>
+                      <div>
+                        <Tag color="blue" style={{ marginTop: 8, borderRadius: 4 }}>{item.category}</Tag>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <Tag color={item.priority === 'High' || item.priority === 'Critical' ? 'error' : 'default'} style={{ fontWeight: 600, borderRadius: 4 }}>{item.priority}</Tag>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: 8, fontWeight: 500 }}>{new Date(item.createdAt).toLocaleDateString()}</div>
+                    </div>
                   </div>
-                </List.Item>
-              )}
-              locale={{ emptyText: <Text type="secondary">No active cases. Start a new investigation to begin.</Text> }}
-            />
+                ))}
+              </div>
+            )}
            </Card>
         </Col>
         <Col xs={24} lg={8}>
@@ -133,6 +157,7 @@ const Dashboard: React.FC = () => {
           </Card>
         </Col>
       </Row>
+      <ToolOverviewModal open={overviewOpen} onClose={() => setOverviewOpen(false)} />
     </div>
   );
 };

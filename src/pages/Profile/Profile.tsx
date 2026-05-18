@@ -17,7 +17,7 @@ const Profile: React.FC = () => {
     try {
       const response = await api.get('/users/profile');
       setProfileData(response.data);
-    } catch (error) {
+    } catch (_error) {
       message.error('Could not retrieve private dossier.');
     } finally {
       setLoading(false);

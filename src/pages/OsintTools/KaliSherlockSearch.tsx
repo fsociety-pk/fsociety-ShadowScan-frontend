@@ -1,9 +1,16 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Form, Input, Button, Card, Tag, Space, Row, Col, Statistic, Progress } from 'antd';
+/**
+ * KaliSherlockSearch — Username OSINT scanner powered by the Sherlock backend tool.
+ * Probes 350+ social platforms and displays discovered profile cards.
+ * Features a simulated radar animation and dynamic step readout during the scan.
+ */
+import React, { useState, useEffect, useRef } from 'react';
+import { Form, Input, Button, Card, Tag, Row, Col, Progress } from 'antd';
 import {
-  UserOutlined, SearchOutlined, CheckCircleOutlined, CloseCircleOutlined,
-  LinkOutlined, RadarChartOutlined, StopOutlined
+  SearchOutlined, CheckCircleOutlined, CloseCircleOutlined,
+  LinkOutlined, EyeOutlined, SafetyCertificateOutlined, AlertOutlined,
+  AimOutlined,
 } from '@ant-design/icons';
+import axios from 'axios';
 
 interface FoundPlatform {
   platform: string;
@@ -11,336 +18,397 @@ interface FoundPlatform {
   statusCode: number;
 }
 
-interface LogLine {
-  type: 'status' | 'log' | 'found' | 'not_found' | 'error' | 'done';
-  message?: string;
-  platform?: string;
-  url?: string;
-  statusCode?: number;
-}
-
-import {
-  GithubOutlined, TwitterOutlined, InstagramOutlined, RedditOutlined, LinkedinOutlined,
-  YoutubeOutlined, GlobalOutlined
-} from '@ant-design/icons';
-
-const getPlatformIcon = (platform: string) => {
-  const p = platform.toLowerCase();
-  if (p.includes('github')) return <GithubOutlined />;
-  if (p.includes('twitter')) return <TwitterOutlined />;
-  if (p.includes('instagram')) return <InstagramOutlined />;
-  if (p.includes('reddit')) return <RedditOutlined />;
-  if (p.includes('linkedin')) return <LinkedinOutlined />;
-  if (p.includes('youtube')) return <YoutubeOutlined />;
-  return <GlobalOutlined />;
+/** Extracts a favicon URL from a platform profile URL using Google's favicon service. */
+const getPlatformFavicon = (url: string) => {
+  try {
+    const domain = new URL(url).hostname;
+    return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+  } catch {
+    return '';
+  }
 };
 
-const KaliSherlockSearch: React.FC = () => {
+interface KaliSherlockSearchProps {
+  onScanStateChange?: (isScanning: boolean) => void;
+}
+
+const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChange }) => {
   const [form] = Form.useForm();
   const [scanning, setScanning] = useState(false);
-  const [logs, setLogs] = useState<LogLine[]>([]);
+  const [progress, setProgress] = useState(0);
   const [foundPlatforms, setFoundPlatforms] = useState<FoundPlatform[]>([]);
-  const [scannedCount, setScannedCount] = useState(0);
-  const [totalCount, setTotalCount] = useState(0);
   const [done, setDone] = useState(false);
   const [targetUsername, setTargetUsername] = useState('');
-  const logsEndRef = useRef<HTMLDivElement>(null);
-  const esRef = useRef<EventSource | null>(null);
+  const [scanStats, setScanStats] = useState({
+    threatLevel: 'CLEAN',
+    exposureCount: 0,
+    elapsedTime: 0,
+  });
 
+  const [currentStep, setCurrentStep] = useState('System Idle');
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Status messages cycled during scan animation
+  const steps = [
+    'Initializing forensic sandbox...',
+    'Loading Sherlock database matrix (450+ profiles)...',
+    'Opening threat validation sockets...',
+    'Interrogating global identity signatures...',
+    'Resolving username across social matrices...',
+    'Analyzing security policies on target nodes...',
+    'Cross-referencing rate limit parameters...',
+    'Evaluating cryptographic profile checksums...',
+    'Compiling username exposure matrices...',
+  ];
+
+  // Rotate the step text every 2.5 seconds while scanning
   useEffect(() => {
-    logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [logs]);
-
-  const stopScan = () => {
-    if (esRef.current) {
-      esRef.current.close();
-      esRef.current = null;
+    let interval: ReturnType<typeof setInterval>;
+    if (scanning) {
+      let idx = 0;
+      interval = setInterval(() => {
+        setCurrentStep(steps[idx % steps.length]);
+        idx++;
+      }, 2500);
+    } else {
+      setCurrentStep('System Idle');
     }
-    setScanning(false);
-    setLogs(prev => [...prev, { type: 'status', message: '[!] Scan stopped by user.' }]);
-  };
+    if (onScanStateChange) {
+      onScanStateChange(scanning);
+    }
+    return () => clearInterval(interval);
+  }, [scanning, onScanStateChange]);
 
-  const handleSearch = (values: { username: string }) => {
+  const handleSearch = async (values: { username: string }) => {
     const username = values.username.trim();
     setTargetUsername(username);
-    setLogs([{ type: 'status', message: `[*] Initiating scan for: ${username}` }]);
     setFoundPlatforms([]);
-    setScannedCount(0);
-    setTotalCount(22);
+    setProgress(0);
     setDone(false);
     setScanning(true);
 
-    const token = localStorage.getItem('token');
-    const base = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-    const url = `${base}/kali-tools/sherlock/stream?username=${encodeURIComponent(username)}`;
+    // Elapsed-time counter
+    let seconds = 0;
+    timerRef.current = setInterval(() => {
+      seconds += 1;
+      setScanStats(prev => ({ ...prev, elapsedTime: seconds }));
+    }, 1000);
 
-    const es = new EventSource(url);
-    esRef.current = es;
+    // Smoothly increment a simulated progress bar up to 96% before the response arrives
+    let simulatedProgress = 0;
+    const progressInterval = setInterval(() => {
+      simulatedProgress += Math.random() * 6;
+      if (simulatedProgress >= 96) simulatedProgress = 96;
+      setProgress(Math.floor(simulatedProgress));
+    }, 500);
 
-    es.onmessage = (ev) => {
-      try {
-        const data: LogLine = JSON.parse(ev.data);
-        setLogs(prev => [...prev, data]);
+    try {
+      const base = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+      const token = localStorage.getItem('token');
 
-        if (data.type === 'found' && data.platform && data.url) {
-          setFoundPlatforms(prev => [...prev, { platform: data.platform!, url: data.url!, statusCode: data.statusCode || 200 }]);
-        }
-        if (data.type === 'log' || data.type === 'not_found') {
-          setScannedCount(prev => prev + 1);
-        }
-        if (data.type === 'done') {
-          setDone(true);
-          setScanning(false);
-          es.close();
-        }
-        if (data.type === 'error') {
-          setScanning(false);
-          es.close();
-        }
-      } catch {}
-    };
+      const response = await axios.post(
+        `${base}/kali-tools/sherlock`,
+        { username },
+        { headers: { Authorization: `Bearer ${token}` } },
+      );
 
-    es.onerror = () => {
-      setLogs(prev => [...prev, { type: 'error', message: '[!] Connection lost. Scan may be complete.' }]);
-      setScanning(false);
+      clearInterval(progressInterval);
+      if (timerRef.current) clearInterval(timerRef.current);
+      setProgress(100);
+
+      const platforms = response.data?.platforms || [];
+      const discovered: FoundPlatform[] = platforms.filter((p: { found: boolean }) => p.found);
+      setFoundPlatforms(discovered);
+
+      let threat = 'SECURE';
+      if (discovered.length > 10) threat = 'EXPANSIVE';
+      else if (discovered.length > 4) threat = 'MODERATE';
+
+      setScanStats(prev => ({
+        ...prev,
+        threatLevel: threat,
+        exposureCount: discovered.length,
+      }));
       setDone(true);
-      es.close();
-    };
+    } catch {
+      clearInterval(progressInterval);
+      if (timerRef.current) clearInterval(timerRef.current);
+      setProgress(100);
+      setDone(true);
+    } finally {
+      setScanning(false);
+    }
   };
 
-  const progress = totalCount > 0 ? Math.round((scannedCount / totalCount) * 100) : 0;
-
   return (
-    <div style={{ padding: '20px 0' }}>
-      {/* Search Form */}
-      <Card
-        style={{ marginBottom: 20, border: '1px solid #e2e8f0', borderRadius: 12 }}
-        bodyStyle={{ padding: 24 }}
-      >
+    <div style={{ padding: '10px 0' }}>
+      {/* Search Input Card */}
+      <Card style={{
+        marginBottom: 24, background: '#ffffff', borderRadius: 16,
+        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)', border: '1px solid #f1f5f9',
+      }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-          <div className="cyber-icon-wrapper" style={{ width: 50, height: 50, flexShrink: 0 }}>
-            <UserOutlined style={{ color: '#fff', fontSize: 24 }} />
+          <div style={{
+            width: 48, height: 48, flexShrink: 0,
+            background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+            borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <AimOutlined style={{ color: '#fff', fontSize: 22 }} />
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: 18, background: 'var(--cyber-gradient)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Username Lookup</div>
-            <div style={{ color: 'var(--cyber-purple)', fontSize: 13, fontWeight: 500 }}>Search across 20+ social platforms in real-time</div>
+            <div style={{ fontWeight: 800, fontSize: 19, color: '#1e293b' }}>Username OSINT Matrix</div>
+            <div style={{ color: '#64748b', fontSize: 13, fontWeight: 500 }}>
+              Audit username exposure across hundreds of social networks using Sherlock
+            </div>
           </div>
         </div>
 
         <Form form={form} onFinish={handleSearch} layout="vertical">
-          <Form.Item
-            name="username"
-            rules={[{ required: true, message: 'Please enter a username' }]}
-            style={{ marginBottom: 16 }}
-          >
-            <Input
-              size="large"
-              placeholder="Enter target username  (e.g. thehusnain)"
-              prefix={<UserOutlined style={{ color: '#1890ff' }} />}
-              disabled={scanning}
-              style={{
-                borderRadius: 10, fontSize: 15, color: '#333',
-                background: '#f8fafc', border: '1.5px solid #e2e8f0'
-              }}
-            />
-          </Form.Item>
-
-          <Space style={{ width: '100%' }}>
-            <Button
-              type="primary"
-              htmlType="submit"
-              icon={<SearchOutlined />}
-              loading={scanning}
-              size="large"
-              disabled={scanning}
-              className="cyber-btn"
-              style={{
-                flex: 1, height: 50, borderRadius: 10,
-                background: 'linear-gradient(90deg, #1890ff, #722ed1)',
-                border: 'none', fontWeight: 700, fontSize: 16, color: '#fff'
-              }}
-            >
-              {scanning ? 'Scanning...' : 'Search Username'}
-            </Button>
-            {scanning && (
-              <Button
-                danger size="large"
-                icon={<StopOutlined />}
-                onClick={stopScan}
-                style={{ height: 46, borderRadius: 10 }}
+          <Row gutter={16} align="bottom">
+            <Col xs={24} md={18}>
+              <Form.Item
+                name="username"
+                rules={[{ required: true, message: 'Please enter a target username' }]}
+                style={{ marginBottom: 0 }}
               >
-                Stop
+                <Input
+                  size="large"
+                  placeholder="Enter target username (e.g. thehusnain)"
+                  prefix={<AimOutlined style={{ color: '#6366f1' }} />}
+                  disabled={scanning}
+                  className="cyber-input"
+                  style={{ height: 50, fontSize: 15 }}
+                />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={6}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={scanning}
+                icon={<SearchOutlined />}
+                size="large"
+                style={{
+                  width: '100%', height: 50, borderRadius: 12,
+                  background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
+                  border: 'none', fontWeight: 700, fontSize: 15,
+                  boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)',
+                }}
+              >
+                {scanning ? 'Auditing...' : 'Search Username'}
               </Button>
-            )}
-          </Space>
+            </Col>
+          </Row>
         </Form>
       </Card>
 
-      {/* Live Terminal Output */}
-      {(logs.length > 0) && (
+      {/* Radar scanning animation */}
+      {scanning && (
         <Card
-          style={{ marginBottom: 20, border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden' }}
-          bodyStyle={{ padding: 0 }}
+          style={{
+            marginBottom: 24, borderRadius: 16, background: '#0f172a',
+            border: '1px solid #1e293b', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)', overflow: 'hidden',
+          }}
+          bodyStyle={{ padding: '40px 24px' }}
         >
-          {/* Terminal title bar */}
-          <div style={{
-            background: '#f8fafc', padding: '10px 16px',
-            display: 'flex', alignItems: 'center', gap: 8,
-            borderBottom: '1px solid #e2e8f0'
-          }}>
-            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#ff4d4f' }} />
-            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#faad14' }} />
-            <div style={{ width: 12, height: 12, borderRadius: '50%', background: '#52c41a' }} />
-            <span style={{ color: '#475569', fontSize: 13, marginLeft: 8, fontFamily: 'monospace', fontWeight: 600 }}>
-              <RadarChartOutlined /> osint-scanner — username: {targetUsername}
-            </span>
-            {scanning && (
-              <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span style={{
-                  width: 8, height: 8, borderRadius: '50%', background: '#52c41a',
-                  animation: 'pulse 1.5s infinite', display: 'inline-block'
-                }} />
-                <span style={{ color: '#52c41a', fontSize: 12, fontFamily: 'monospace', fontWeight: 700 }}>LIVE</span>
-              </span>
-            )}
-          </div>
-
-          {/* Progress bar */}
-          {(scanning || done) && (
-            <div style={{ background: '#ffffff', padding: '12px 16px 0' }}>
-              <Progress
-                percent={done ? 100 : progress}
-                strokeColor={{ from: '#1890ff', to: '#722ed1' }}
-                trailColor='#f1f5f9'
-                size="small"
-                format={pct => <span style={{ color: '#475569', fontSize: 11, fontWeight: 600 }}>{pct}%</span>}
-              />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="radar-container" style={{ position: 'relative', width: 140, height: 140, marginBottom: 28 }}>
+              <div className="radar-circle" />
+              <div className="radar-sweep" />
+              <div className="radar-core" />
+              <AimOutlined style={{
+                position: 'absolute', top: '50%', left: '50%',
+                transform: 'translate(-50%, -50%)', color: '#6366f1',
+                fontSize: 32, animation: 'pulse 1.5s infinite',
+              }} />
             </div>
-          )}
 
-          {/* Log lines */}
-          <div style={{
-            background: '#ffffff', padding: '12px 16px',
-            maxHeight: 320, overflowY: 'auto',
-            fontFamily: 'monospace', fontSize: 13
-          }}>
-            {logs.map((log, idx) => {
-              let color = '#475569';
-              let prefix = '';
-              if (log.type === 'found') { color = '#52c41a'; prefix = '[+]'; }
-              else if (log.type === 'not_found') { color = '#94a3b8'; prefix = '[-]'; }
-              else if (log.type === 'status') { color = '#1890ff'; }
-              else if (log.type === 'error') { color = '#ff4d4f'; }
-              else if (log.type === 'done') { color = '#faad14'; }
+            <div style={{ color: '#38bdf8', fontFamily: 'monospace', fontSize: 14, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
+              [SYSTEM ACTIVE: FORENSIC INVESTIGATION IN PROGRESS]
+            </div>
 
-              return (
-                <div key={idx} style={{ color, lineHeight: '1.7', wordBreak: 'break-all', fontWeight: 500 }}>
-                  {log.type === 'found'
-                    ? <><span style={{ color: '#52c41a', fontWeight: 700 }}>[+] {log.platform}</span><span style={{ color: '#64748b' }}>{' → '}</span><span style={{ color: '#1890ff' }}>{log.url}</span></>
-                    : log.type === 'not_found'
-                    ? <span style={{ color: '#94a3b8' }}>[-] {log.platform} — not found</span>
-                    : <span>{log.message}</span>
-                  }
-                </div>
-              );
-            })}
-            <div ref={logsEndRef} />
+            <div style={{ color: '#fff', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
+              Auditing Username: <span style={{ color: '#6366f1', fontFamily: 'monospace' }}>"{targetUsername}"</span>
+            </div>
+
+            <div style={{ width: '100%', maxWidth: 500, margin: '16px auto 12px' }}>
+              <Progress
+                percent={progress}
+                strokeColor={{ from: '#6366f1', to: '#a855f7' }}
+                trailColor="#1e293b"
+                status="active"
+                showInfo={false}
+                strokeWidth={8}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
+                <span>PROBING NODES</span>
+                <span style={{ color: '#38bdf8', fontWeight: 700 }}>{progress}% COMPLETE</span>
+              </div>
+            </div>
+
+            <div style={{
+              background: 'rgba(30, 41, 59, 0.7)', border: '1px solid #334155',
+              padding: '12px 20px', borderRadius: 8, width: '100%', maxWidth: 500,
+              textAlign: 'center', fontFamily: 'monospace', fontSize: 12,
+              color: '#38bdf8', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
+            }}>
+              <span className="blink">{'>'}</span> {currentStep}
+            </div>
           </div>
         </Card>
       )}
 
-      {/* Results Summary */}
-      {done && (
+      {/* Scan results */}
+      {done && !scanning && (
         <>
-          <Row gutter={16} style={{ marginBottom: 20 }}>
+          {/* Stats Dashboard */}
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
             <Col xs={24} sm={8}>
-              <Card style={{ borderRadius: 12, textAlign: 'center', border: '1px solid #e2e8f0' }}>
-                <Statistic
-                  title={<span style={{ color: '#64748b', fontWeight: 600 }}>Platforms Checked</span>}
-                  value={totalCount}
-                  valueStyle={{ color: '#1890ff', fontWeight: 700, fontSize: 32 }}
-                />
+              <Card
+                style={{
+                  borderRadius: 16, border: '1px solid #f1f5f9',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                  background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
+                }}
+                bodyStyle={{ padding: 20 }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                  <AlertOutlined style={{
+                    fontSize: 18,
+                    color: scanStats.threatLevel === 'EXPANSIVE' ? '#ef4444'
+                      : scanStats.threatLevel === 'MODERATE' ? '#f59e0b' : '#10b981',
+                  }} />
+                  <span style={{ color: '#64748b', fontWeight: 600, fontSize: 13 }}>FOOTPRINT STATUS</span>
+                </div>
+                <div style={{
+                  fontSize: 22, fontWeight: 800, letterSpacing: '0.5px',
+                  color: scanStats.threatLevel === 'EXPANSIVE' ? '#ef4444'
+                    : scanStats.threatLevel === 'MODERATE' ? '#f59e0b' : '#10b981',
+                }}>
+                  {scanStats.threatLevel}
+                </div>
               </Card>
             </Col>
+
             <Col xs={24} sm={8}>
-              <Card style={{ borderRadius: 12, textAlign: 'center', border: '1px solid #e2e8f0' }}>
-                <Statistic
-                  title={<span style={{ color: '#64748b', fontWeight: 600 }}>Profiles Found</span>}
-                  value={foundPlatforms.length}
-                  valueStyle={{ color: '#1890ff', fontWeight: 700, fontSize: 32 }}
-                />
+              <Card
+                style={{
+                  borderRadius: 16, border: '1px solid #f1f5f9',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                  background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
+                }}
+                bodyStyle={{ padding: 20 }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                  <EyeOutlined style={{ fontSize: 18, color: '#6366f1' }} />
+                  <span style={{ color: '#64748b', fontWeight: 600, fontSize: 13 }}>PROFILES DISCOVERED</span>
+                </div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#1e293b' }}>
+                  {scanStats.exposureCount} <span style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>locations</span>
+                </div>
               </Card>
             </Col>
+
             <Col xs={24} sm={8}>
-              <Card style={{ borderRadius: 12, textAlign: 'center', border: '1px solid #e2e8f0' }}>
-                <Statistic
-                  title={<span style={{ color: '#64748b', fontWeight: 600 }}>Exposure Rate</span>}
-                  value={totalCount > 0 ? ((foundPlatforms.length / totalCount) * 100).toFixed(1) : '0.0'}
-                  suffix="%"
-                  valueStyle={{
-                    color: foundPlatforms.length > 10 ? '#ff4d4f' : foundPlatforms.length > 5 ? '#faad14' : '#52c41a',
-                    fontWeight: 700, fontSize: 32
-                  }}
-                />
+              <Card
+                style={{
+                  borderRadius: 16, border: '1px solid #f1f5f9',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
+                  background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
+                }}
+                bodyStyle={{ padding: 20 }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                  <SafetyCertificateOutlined style={{ fontSize: 18, color: '#3b82f6' }} />
+                  <span style={{ color: '#64748b', fontWeight: 600, fontSize: 13 }}>ELAPSED TIME</span>
+                </div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#1e293b' }}>
+                  {scanStats.elapsedTime} <span style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>seconds</span>
+                </div>
               </Card>
             </Col>
           </Row>
 
-          {/* Found Profiles Grid */}
-          {foundPlatforms.length > 0 && (
+          {/* Platform discovery grid */}
+          {foundPlatforms.length > 0 ? (
             <Card
               title={
-                <Space>
-                  <CheckCircleOutlined style={{ color: '#52c41a' }} />
-                  <span style={{ color: '#333', fontWeight: 700 }}>
-                    Profiles Discovered — {foundPlatforms.length} found for "{targetUsername}"
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <CheckCircleOutlined style={{ color: '#10b981', fontSize: 18 }} />
+                  <span style={{ color: '#1e293b', fontWeight: 700, fontSize: 16 }}>
+                    Discovered Profiles for "{targetUsername}"
                   </span>
-                </Space>
+                </div>
               }
-              style={{ borderRadius: 12, border: '1px solid #e2e8f0' }}
+              style={{
+                borderRadius: 16, border: '1px solid #e2e8f0',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.02)',
+              }}
             >
-              <Row gutter={[12, 12]}>
+              <Row gutter={[16, 16]}>
                 {foundPlatforms.map((p, idx) => (
                   <Col key={idx} xs={24} sm={12} lg={8}>
                     <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                      <div style={{
-                        border: '1.5px solid #e2e8f0',
-                        borderRadius: 10, padding: '14px 16px',
-                        display: 'flex', alignItems: 'center', gap: 12,
-                        cursor: 'pointer', transition: 'all 0.2s',
-                        background: '#fff',
-                      }}
+                      <div
+                        style={{
+                          border: '1px solid #f1f5f9', background: '#f8fafc', borderRadius: 14,
+                          padding: '16px', display: 'flex', alignItems: 'center', gap: 14,
+                          cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.01)',
+                        }}
                         onMouseEnter={e => {
-                          (e.currentTarget as HTMLDivElement).style.borderColor = '#1890ff';
-                          (e.currentTarget as HTMLDivElement).style.boxShadow = '0 4px 20px rgba(24, 144, 255, 0.12)';
-                          (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)';
+                          const div = e.currentTarget as HTMLDivElement;
+                          div.style.borderColor = '#6366f1';
+                          div.style.background = '#ffffff';
+                          div.style.boxShadow = '0 10px 25px rgba(99, 102, 241, 0.08)';
+                          div.style.transform = 'translateY(-3px)';
                         }}
                         onMouseLeave={e => {
-                          (e.currentTarget as HTMLDivElement).style.borderColor = '#e2e8f0';
-                          (e.currentTarget as HTMLDivElement).style.boxShadow = 'none';
-                          (e.currentTarget as HTMLDivElement).style.transform = 'translateY(0)';
+                          const div = e.currentTarget as HTMLDivElement;
+                          div.style.borderColor = '#f1f5f9';
+                          div.style.background = '#f8fafc';
+                          div.style.boxShadow = '0 2px 4px rgba(0,0,0,0.01)';
+                          div.style.transform = 'translateY(0)';
                         }}
                       >
+                        {/* Platform favicon */}
                         <div style={{
-                          width: 40, height: 40, borderRadius: 10,
-                          background: 'linear-gradient(135deg, rgba(14,165,233,0.12), rgba(139,92,246,0.12))',
+                          width: 44, height: 44, borderRadius: 10, background: '#ffffff',
                           display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          fontSize: 20, flexShrink: 0
+                          border: '1px solid #e2e8f0', flexShrink: 0,
                         }}>
-                          {getPlatformIcon(p.platform)}
+                          <img
+                            src={getPlatformFavicon(p.url)}
+                            alt={p.platform}
+                            onError={e => {
+                              (e.currentTarget as HTMLImageElement).src =
+                                'https://www.google.com/s2/favicons?sz=64&domain=github.com';
+                            }}
+                            style={{ width: 24, height: 24, objectFit: 'contain' }}
+                          />
                         </div>
+
+                        {/* Platform name and URL */}
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-main)' }}>{p.platform}</div>
+                          <div style={{ fontWeight: 700, fontSize: 14, color: '#1e293b' }}>{p.platform}</div>
                           <div style={{
-                            fontSize: 11, color: '#64748b',
-                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
-                          }}>{p.url}</div>
+                            fontSize: 11, color: '#64748b', overflow: 'hidden',
+                            textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                            fontFamily: 'monospace', marginTop: 2,
+                          }}>
+                            {p.url}
+                          </div>
                         </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
-                          <Tag color="green" style={{ margin: 0, fontWeight: 600 }}>
-                            <CheckCircleOutlined /> Found
+
+                        {/* Found badge */}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                          <Tag color="green" style={{
+                            margin: 0, fontWeight: 700, fontSize: 11, borderRadius: 6,
+                            padding: '2px 8px', border: 'none', background: '#dcfce7', color: '#15803d',
+                          }}>
+                            FOUND
                           </Tag>
-                          <LinkOutlined style={{ color: 'var(--cyber-blue)', fontSize: 13 }} />
+                          <LinkOutlined style={{ color: '#6366f1', fontSize: 13 }} />
                         </div>
                       </div>
                     </a>
@@ -348,23 +416,64 @@ const KaliSherlockSearch: React.FC = () => {
                 ))}
               </Row>
             </Card>
-          )}
-
-          {foundPlatforms.length === 0 && (
-            <Card style={{ textAlign: 'center', padding: 40, borderRadius: 12, border: '1px solid #e2e8f0' }}>
-              <CloseCircleOutlined style={{ fontSize: 48, color: 'var(--text-muted)', marginBottom: 16 }} />
-              <div style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-main)', marginBottom: 8 }}>No Profiles Found</div>
-              <div style={{ color: '#64748b' }}>Username "{targetUsername}" was not found on any scanned platforms.</div>
+          ) : (
+            <Card style={{
+              textAlign: 'center', padding: '48px 24px', borderRadius: 16,
+              border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
+            }}>
+              <CloseCircleOutlined style={{ fontSize: 44, color: '#94a3b8', marginBottom: 16 }} />
+              <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', marginBottom: 8 }}>
+                No Active Profiles Found
+              </div>
+              <div style={{ color: '#64748b', fontSize: 14 }}>
+                Username "{targetUsername}" was not registered on any platform.
+              </div>
             </Card>
           )}
         </>
       )}
 
+      {/* Shared radar + input animation styles */}
       <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
+        .cyber-input {
+          border: 1.5px solid #e2e8f0 !important;
+          background: #f8fafc !important;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
         }
+        .cyber-input:hover {
+          border-color: #6366f1 !important;
+          box-shadow: 0 0 10px rgba(99, 102, 241, 0.1) !important;
+          background: #ffffff !important;
+        }
+        .cyber-input:focus {
+          border-color: #6366f1 !important;
+          background: #ffffff !important;
+          box-shadow: 0 0 15px rgba(99, 102, 241, 0.25) !important;
+        }
+
+        .radar-container { display: flex; align-items: center; justify-content: center; }
+        .radar-circle {
+          position: absolute; width: 100%; height: 100%;
+          border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 50%;
+        }
+        .radar-sweep {
+          position: absolute; width: 100%; height: 100%; border-radius: 50%;
+          background: conic-gradient(from 0deg at 50% 50%, rgba(99, 102, 241, 0.25) 0deg, transparent 90deg);
+          animation: radar-sweep 3s linear infinite;
+        }
+        .radar-core {
+          position: absolute; width: 8px; height: 8px;
+          background: #6366f1; border-radius: 50%; box-shadow: 0 0 12px #6366f1;
+        }
+
+        @keyframes radar-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse {
+          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+          50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.6; }
+        }
+
+        .blink { animation: blink-anim 1s step-end infinite; }
+        @keyframes blink-anim { 50% { opacity: 0; } }
       `}</style>
     </div>
   );

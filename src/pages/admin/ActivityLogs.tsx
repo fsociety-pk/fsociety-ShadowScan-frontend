@@ -115,7 +115,7 @@ const ActivityLogs: React.FC = () => {
       setLogs(newLogs);
       setTotal(res.data.pagination.total);
       setSecondsAgo(0);
-    } catch (error) {
+    } catch (_error) {
       message.error('Failed to synchronize with central intelligence node.');
     } finally {
       setLoading(false);
