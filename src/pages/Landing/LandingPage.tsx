@@ -315,7 +315,7 @@ const LandingPage: React.FC = () => {
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
           {[
             { label: 'GitHub', href: 'https://github.com/orgs/fsociety-pk', icon: '🐙' },
-            { label: 'LinkedIn', href: 'https://linkedin.com/company/fsociety-pk', icon: '💼' },
+            { label: 'LinkedIn', href: 'https://www.linkedin.com/company/113114181', icon: '💼' },
             { label: 'Discord', href: 'https://discord.gg/fsociety-pk', icon: '🎮' },
           ].map(link => (
             <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8', padding: '10px 20px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14, transition: 'all 0.2s' }}
