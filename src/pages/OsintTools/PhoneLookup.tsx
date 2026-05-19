@@ -1,5 +1,5 @@
 /**
- * PhoneLookup — WhatsOSINT-powered WhatsApp profile intelligence tool.
+ * PhoneLookup — NexusOSINT-powered WhatsApp profile and PhoneInfoga intelligence tool.
  * Queries live profile photos, display name, status bio, and account classification.
  * Features a simulated radar animation and dynamic step readout during the scan.
  */
@@ -7,7 +7,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button, Card, Tag, Row, Col, Progress, Alert, Descriptions, Avatar, Typography } from 'antd';
 import {
   SearchOutlined, SafetyCertificateOutlined, WhatsAppOutlined, UserOutlined,
-  CalendarOutlined, MobileOutlined, CheckCircleOutlined, AlertOutlined, EyeOutlined,
+  CalendarOutlined, MobileOutlined, AlertOutlined, EyeOutlined, GlobalOutlined
 } from '@ant-design/icons';
 import PhoneInputPkg from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
@@ -28,6 +28,22 @@ interface WhatsAppProfile {
   last_updated?: string;
 }
 
+interface NexusResult {
+  targetPhone: string;
+  last_updated: string;
+  source: string;
+  exists: boolean;
+  whatsapp?: WhatsAppProfile | null;
+  phoneinfoga?: {
+    country_code: number;
+    international: string;
+    e164: string;
+    carrier: string;
+    line_type: string;
+    success: boolean;
+  } | null;
+}
+
 interface PhoneLookupProps {
   onScanStateChange?: (isScanning: boolean) => void;
 }
@@ -36,7 +52,7 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
   const [phone, setPhone] = useState('');
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [whatsappData, setWhatsappData] = useState<WhatsAppProfile | null>(null);
+  const [nexusData, setNexusData] = useState<NexusResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [targetPhone, setTargetPhone] = useState('');
 
@@ -51,10 +67,10 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
 
   // Status messages cycled during scan animation
   const steps = [
-    'Initializing WhatsApp socket bridge...',
-    'Authenticating sandbox credentials...',
+    'Initializing NexusOSINT telemetry...',
+    'Probing PhoneInfoga carriers database...',
+    'Authenticating WhatsApp sandbox credentials...',
     'Establishing contact query parameters...',
-    'Probing target contact register databases...',
     'Resolving display name registries...',
     'Downloading profile photo matrices...',
     'Fetching status bio signatures...',
@@ -88,7 +104,7 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
 
     const formattedPhone = phone.startsWith('+') ? phone : `+${phone}`;
     setTargetPhone(formattedPhone);
-    setWhatsappData(null);
+    setNexusData(null);
     setError(null);
     setProgress(0);
     setScanning(true);
@@ -109,21 +125,21 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
     }, 450);
 
     try {
-      const response = await api.post('/tools/whatsapp-lookup', { phone: formattedPhone });
+      const response = await api.post('/tools/nexus-lookup', { phone: formattedPhone });
 
       clearInterval(progressInterval);
       if (timerRef.current) clearInterval(timerRef.current);
       setProgress(100);
 
       if (response.data) {
-        const data: WhatsAppProfile = response.data;
-        setWhatsappData(data);
+        const data: NexusResult = response.data;
+        setNexusData(data);
 
-        const threat = data.is_business ? 'COMMERCIAL' : 'SECURE';
+        const threat = data.whatsapp?.is_business ? 'COMMERCIAL' : 'SECURE';
         setScanStats(prev => ({
           ...prev,
           threatLevel: threat,
-          status: data.name ? 'RESOLVED' : 'UNKNOWN',
+          status: data.whatsapp?.name ? 'RESOLVED' : 'UNKNOWN',
         }));
       }
     } catch (err: unknown) {
@@ -153,9 +169,9 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
             <WhatsAppOutlined style={{ color: '#fff', fontSize: 22 }} />
           </div>
           <div>
-            <div style={{ fontWeight: 800, fontSize: 19, color: '#1e293b' }}>WhatsApp OSINT Profile Matrix</div>
+            <div style={{ fontWeight: 800, fontSize: 19, color: '#1e293b' }}>NexusOSINT Intelligence Matrix</div>
             <div style={{ color: '#64748b', fontSize: 13, fontWeight: 500 }}>
-              Query live profile photos, bio text status updates, and account configurations
+              Query live PhoneInfoga carrier details, WhatsApp profile photos, bio text status updates, and account configurations
             </div>
           </div>
         </div>
@@ -198,7 +214,7 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
                 boxShadow: '0 4px 12px rgba(37, 211, 102, 0.2)', color: '#fff',
               }}
             >
-              {scanning ? 'Resolving...' : 'Lookup WhatsApp'}
+              {scanning ? 'Resolving...' : 'Lookup Intelligence'}
             </Button>
           </Col>
         </Row>
@@ -265,7 +281,7 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
       )}
 
       {/* Scan results */}
-      {whatsappData && !scanning && (
+      {nexusData && !scanning && (
         <>
           {/* Stats Dashboard */}
           <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
@@ -325,13 +341,54 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
             </Col>
           </Row>
 
+          {/* PhoneInfoga details card */}
+          {nexusData.phoneinfoga && (
+            <Card
+              title={
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <GlobalOutlined style={{ color: '#3b82f6', fontSize: 18 }} />
+                  <span style={{ color: '#1e293b', fontWeight: 700, fontSize: 16 }}>
+                    PhoneInfoga Telecom Intelligence
+                  </span>
+                </div>
+              }
+              style={{
+                borderRadius: 16, border: '1px solid #e2e8f0',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.02)', marginBottom: 24,
+              }}
+            >
+              <Descriptions column={{ xs: 1, sm: 2, md: 3 }} size="small" bordered={false} style={{ background: '#f8fafc', padding: 16, borderRadius: 12 }}>
+                <Descriptions.Item label={<strong>International Format</strong>}>
+                  <Text strong>{nexusData.phoneinfoga.international || 'N/A'}</Text>
+                </Descriptions.Item>
+                <Descriptions.Item label={<strong>E.164 Format</strong>}>
+                  <Text strong>{nexusData.phoneinfoga.e164 || 'N/A'}</Text>
+                </Descriptions.Item>
+                <Descriptions.Item label={<strong>Country Code</strong>}>
+                  <Tag color="geekblue" style={{ fontWeight: 700, borderRadius: 6 }}>
+                    +{nexusData.phoneinfoga.country_code || 'N/A'}
+                  </Tag>
+                </Descriptions.Item>
+                <Descriptions.Item label={<strong>Carrier</strong>}>
+                  <Text strong>{nexusData.phoneinfoga.carrier}</Text>
+                </Descriptions.Item>
+                <Descriptions.Item label={<strong>Line Type</strong>}>
+                  <Tag color="purple" style={{ fontWeight: 700, borderRadius: 6 }}>
+                    {nexusData.phoneinfoga.line_type.toUpperCase()}
+                  </Tag>
+                </Descriptions.Item>
+              </Descriptions>
+            </Card>
+          )}
+
           {/* WhatsApp profile card */}
+          {nexusData.whatsapp ? (
           <Card
             title={
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <CheckCircleOutlined style={{ color: '#10b981', fontSize: 18 }} />
+                <WhatsAppOutlined style={{ color: '#10b981', fontSize: 18 }} />
                 <span style={{ color: '#1e293b', fontWeight: 700, fontSize: 16 }}>
-                  WhatsApp Account Profile Intelligence for "{targetPhone}"
+                  WhatsApp Account Profile Intelligence
                 </span>
               </div>
             }
@@ -344,7 +401,7 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
               <Col xs={24} sm={6} style={{ textAlign: 'center' }}>
                 <Avatar
                   size={130}
-                  src={whatsappData.image}
+                  src={nexusData.whatsapp.image}
                   icon={<UserOutlined />}
                   style={{ border: '4px solid #25D366', boxShadow: '0 4px 20px rgba(37, 211, 102, 0.25)' }}
                 />
@@ -353,22 +410,22 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
                 <Descriptions column={1} size="small" bordered={false} style={{ background: '#f8fafc', padding: 16, borderRadius: 12 }}>
                   <Descriptions.Item label={<strong>Target Phone Node</strong>}>
                     <Tag color="cyan" style={{ fontSize: 13, padding: '2px 10px', fontWeight: 700, borderRadius: 6 }}>
-                      <MobileOutlined /> {whatsappData.phone || targetPhone}
+                      <MobileOutlined /> {nexusData.whatsapp.phone || targetPhone}
                     </Tag>
                   </Descriptions.Item>
                   <Descriptions.Item label={<strong>Display Name</strong>}>
                     <Text strong style={{ fontSize: 16, color: '#1e293b' }}>
-                      {whatsappData.name || <span style={{ color: '#94a3b8' }}>N/A (Hidden Profile)</span>}
+                      {nexusData.whatsapp.name || <span style={{ color: '#94a3b8' }}>N/A (Hidden Profile)</span>}
                     </Text>
                   </Descriptions.Item>
                   <Descriptions.Item label={<strong>About Status Update</strong>}>
                     <Text italic style={{ fontSize: 14, color: '#475569', fontWeight: 500 }}>
-                      "{whatsappData.status || 'No status bio set'}"
+                      "{nexusData.whatsapp.status || 'No status bio set'}"
                     </Text>
                   </Descriptions.Item>
                   <Descriptions.Item label={<strong>Account Classification</strong>}>
-                    <Tag color={whatsappData.is_business ? 'green' : 'blue'} style={{ fontWeight: 700, borderRadius: 6 }}>
-                      {whatsappData.is_business ? 'BUSINESS NODE' : 'PERSONAL NODE'}
+                    <Tag color={nexusData.whatsapp.is_business ? 'green' : 'blue'} style={{ fontWeight: 700, borderRadius: 6 }}>
+                      {nexusData.whatsapp.is_business ? 'BUSINESS NODE' : 'PERSONAL NODE'}
                     </Tag>
                   </Descriptions.Item>
                   <Descriptions.Item label={<strong>Network Status</strong>}>
@@ -376,10 +433,10 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
                       <SafetyCertificateOutlined /> VERIFIED REGISTERED
                     </Tag>
                   </Descriptions.Item>
-                  {whatsappData.last_updated && (
+                  {nexusData.whatsapp.last_updated && (
                     <Descriptions.Item label={<strong>Recon Date</strong>}>
                       <Text style={{ fontSize: 12, color: '#64748b', fontWeight: 500 }}>
-                        <CalendarOutlined /> {new Date(whatsappData.last_updated).toLocaleString()}
+                        <CalendarOutlined /> {new Date(nexusData.whatsapp.last_updated).toLocaleString()}
                       </Text>
                     </Descriptions.Item>
                   )}
@@ -387,10 +444,13 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
               </Col>
             </Row>
           </Card>
+          ) : (
+            <Alert message="WhatsApp Profile not found for this number." type="warning" showIcon style={{ marginBottom: 24, borderRadius: 12 }} />
+          )}
 
           <Card style={{ borderRadius: 16, background: '#f8fafc', border: '1px solid #e2e8f0' }} bodyStyle={{ padding: 14 }}>
             <p style={{ color: '#64748b', fontSize: 12, margin: 0, fontWeight: 500 }}>
-              <strong>Detection Engine:</strong> WhatsOSINT Core | <strong>Audit Status:</strong> SUCCESS
+              <strong>Detection Engine:</strong> NexusOSINT Core | <strong>Audit Status:</strong> SUCCESS
             </p>
           </Card>
         </>
