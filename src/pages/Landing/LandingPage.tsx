@@ -1,31 +1,75 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+// Inline SVG icons for each tool
+const SherlockIcon = () => (
+  <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#a78bfa" strokeWidth="2">
+    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+    <line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
+  </svg>
+);
+const PhoneInfogaIcon = () => (
+  <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#38bdf8" strokeWidth="2">
+    <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+    <path d="M14.5 6.5s1 0 2 1 1 2 1 2" /><path d="M14.5 2s3 0 5 2 2 5 2 5" />
+  </svg>
+);
+const WhatsAppIcon = () => (
+  <svg viewBox="0 0 32 32" width="30" height="30" fill="#25D366">
+    <path d="M16 0C7.163 0 0 7.163 0 16c0 2.833.737 5.49 2.027 7.8L0 32l8.418-2.007A15.93 15.93 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.29 13.29 0 01-6.77-1.85l-.487-.29-5.003 1.193 1.227-4.867-.32-.5A13.267 13.267 0 012.667 16C2.667 8.82 8.82 2.667 16 2.667c7.18 0 13.333 6.153 13.333 13.333 0 7.18-6.153 13.333-13.333 13.333zm7.307-9.973c-.4-.2-2.367-1.167-2.733-1.3-.367-.133-.633-.2-.9.2-.267.4-1.033 1.3-1.267 1.567-.233.267-.467.3-.867.1-.4-.2-1.687-.62-3.213-1.98-1.187-1.06-1.987-2.367-2.22-2.767-.233-.4-.025-.617.175-.817.18-.18.4-.467.6-.7.2-.233.267-.4.4-.667.133-.267.067-.5-.033-.7-.1-.2-.9-2.167-1.233-2.967-.333-.8-.667-.7-.9-.713h-.767c-.267 0-.7.1-1.067.5s-1.4 1.367-1.4 3.333 1.433 3.867 1.633 4.133c.2.267 2.82 4.307 6.833 6.033.953.413 1.7.66 2.28.847.958.307 1.83.263 2.52.16.768-.113 2.367-.967 2.7-1.9.333-.933.333-1.733.233-1.9-.1-.167-.367-.267-.767-.467z" />
+  </svg>
+);
+const HoleheIcon = () => (
+  <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#f97316" strokeWidth="2">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+    <polyline points="22,6 12,13 2,6" />
+  </svg>
+);
+const WhoisIcon = () => (
+  <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#34d399" strokeWidth="2">
+    <circle cx="12" cy="12" r="10" />
+    <line x1="2" y1="12" x2="22" y2="12" />
+    <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+  </svg>
+);
+const ExifToolIcon = () => (
+  <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#e879f9" strokeWidth="2">
+    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+    <circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
+  </svg>
+);
+const GeminiIcon = () => (
+  <svg viewBox="0 0 24 24" width="30" height="30" fill="none">
+    <defs><linearGradient id="gm" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#4285F4" /><stop offset="100%" stopColor="#34A853" /></linearGradient></defs>
+    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z" fill="url(#gm)" />
+    <path d="M12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm0 10c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4z" fill="url(#gm)" />
+  </svg>
+);
+
 const TOOLS = [
-  { name: 'Sherlock', icon: '🔍', desc: 'Username hunting across 300+ platforms' },
-  { name: 'PhoneInfoga', icon: '📡', desc: 'Deep carrier & telecom intelligence' },
-  { name: 'WhatsApp Intel', icon: '💬', desc: 'Profile & business classification' },
-  { name: 'Holehe / Mosint', icon: '📧', desc: 'Email footprint & breach detection' },
-  { name: 'Nmap', icon: '🛰️', desc: 'Network topology & port recon' },
-  { name: 'Whois', icon: '🌐', desc: 'Domain ownership intelligence' },
-  { name: 'ExifTool', icon: '🖼️', desc: 'Metadata forensic extraction' },
-  { name: 'AI Reports', icon: '🤖', desc: 'Gemini AI relationship graph & dossier' },
+  { name: 'Sherlock', Icon: SherlockIcon, desc: 'Username hunting across 300+ social platforms' },
+  { name: 'PhoneInfoga', Icon: PhoneInfogaIcon, desc: 'Deep carrier & telecom intelligence recon' },
+  { name: 'WhatsApp Intel', Icon: WhatsAppIcon, desc: 'Profile photo & business account classification' },
+  { name: 'Holehe', Icon: HoleheIcon, desc: 'Email footprint & account registration detection' },
+  { name: 'Whois', Icon: WhoisIcon, desc: 'Domain ownership & registrar intelligence' },
+  { name: 'ExifTool', Icon: ExifToolIcon, desc: 'File metadata forensic extraction' },
+  { name: 'Gemini AI Reports', Icon: GeminiIcon, desc: 'AI relationship graphs & structured dossiers' },
 ];
 
 const STATS = [
   { value: '300+', label: 'Platforms Scanned' },
-  { value: '8', label: 'OSINT Engines' },
+  { value: '7', label: 'OSINT Engines' },
   { value: 'AI', label: 'Powered Reports' },
   { value: '100%', label: 'Open Source' },
 ];
 
 const FEATURES = [
-  { icon: '🕵️', title: 'Multi-Source Intelligence', desc: 'Combine data from phone, email, username, and domain recon into a single unified dossier.' },
-  { icon: '🧠', title: 'AI Relationship Graphs', desc: 'Gemini AI extracts entity relationships and renders interactive knowledge graphs from raw OSINT data.' },
-  { icon: '📊', title: 'PDF Report Export', desc: 'Generate professional FBI-style or corporate intelligence reports exported as PDFs in one click.' },
-  { icon: '🔐', title: 'Secure & Private', desc: 'All investigation data is encrypted in transit. Cases stored securely in your private MongoDB instance.' },
-  { icon: '⚡', title: 'Real-time Scanning', desc: 'Live server-sent events stream Sherlock results in real time as they are discovered.' },
-  { icon: '🌍', title: 'Global Threat Detection', desc: 'Cross-reference findings against known threat databases and reputation APIs.' },
+  { title: 'Multi-Source Intelligence', desc: 'Combine data from phone, email, username, and domain recon into a single unified dossier.' },
+  { title: 'AI Relationship Graphs', desc: 'Gemini AI extracts entity relationships and renders interactive knowledge graphs from raw OSINT data.' },
+  { title: 'PDF Report Export', desc: 'Generate professional FBI-style or corporate intelligence reports exported as PDFs in one click.' },
+  { title: 'Secure & Private', desc: 'All investigation data is encrypted in transit. Cases stored securely in your private MongoDB instance.' },
+  { title: 'Real-time Scanning', desc: 'Live server-sent events stream Sherlock results in real time as they are discovered.' },
+  { title: 'Global Threat Detection', desc: 'Cross-reference findings against known threat databases and reputation APIs.' },
 ];
 
 const TYPEWRITER_WORDS = ['OSINT Intelligence', 'Phone Recon', 'Username Hunting', 'AI Reports', 'Threat Detection'];
@@ -212,7 +256,6 @@ const LandingPage: React.FC = () => {
             <div key={f.title} style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(14,165,233,0.12)', borderRadius: 16, padding: 28, transition: 'all 0.3s', cursor: 'default' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(14,165,233,0.4)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 20px 40px rgba(14,165,233,0.1)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(14,165,233,0.12)'; (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = ''; }}>
-              <div style={{ fontSize: 32, marginBottom: 14 }}>{f.icon}</div>
               <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 10, color: '#e2e8f0' }}>{f.title}</div>
               <div style={{ color: '#94a3b8', fontSize: 14, lineHeight: 1.6 }}>{f.desc}</div>
             </div>
@@ -230,7 +273,9 @@ const LandingPage: React.FC = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
             {TOOLS.map(t => (
               <div key={t.name} style={{ background: 'rgba(2,6,23,0.9)', border: '1px solid rgba(139,92,246,0.15)', borderRadius: 14, padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 16 }}>
-                <div style={{ fontSize: 28, flexShrink: 0 }}>{t.icon}</div>
+                <div style={{ flexShrink: 0, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(14,165,233,0.08)', borderRadius: 10, border: '1px solid rgba(14,165,233,0.1)' }}>
+                  <t.Icon />
+                </div>
                 <div>
                   <div style={{ fontWeight: 800, fontSize: 15, color: '#c4b5fd', marginBottom: 4 }}>{t.name}</div>
                   <div style={{ color: '#64748b', fontSize: 12, lineHeight: 1.5 }}>{t.desc}</div>
@@ -269,7 +314,7 @@ const LandingPage: React.FC = () => {
 
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
           {[
-            { label: 'GitHub', href: 'https://github.com/fsociety-pk', icon: '🐙' },
+            { label: 'GitHub', href: 'https://github.com/orgs/fsociety-pk', icon: '🐙' },
             { label: 'LinkedIn', href: 'https://linkedin.com/company/fsociety-pk', icon: '💼' },
             { label: 'Discord', href: 'https://discord.gg/fsociety-pk', icon: '🎮' },
           ].map(link => (
