@@ -513,6 +513,9 @@ input:-webkit-autofill:active {
 [style*="#e6edf3"],
 [style*="#f9fafb"],
 [style*="#ffffff"],
+[style*="#e5e7eb"],
+[style*="#cbd5e1"],
+[style*="#a5b4fc"],
 [style*="rgb(230, 237, 243)"],
 [style*="rgb(249, 250, 251)"],
 [style*="rgb(255, 255, 255)"] {
@@ -522,6 +525,7 @@ input:-webkit-autofill:active {
 [style*="#8b949e"],
 [style*="#9ca3af"],
 [style*="#6b7280"],
+[style*="#94a3b8"],
 [style*="rgb(139, 148, 158)"],
 [style*="rgb(156, 163, 175)"],
 [style*="rgb(107, 114, 128)"] {
@@ -863,4 +867,66 @@ textarea::placeholder {
   color: var(--cyber-blue) !important;
   transform: translateY(-2px) !important;
   box-shadow: 0 4px 12px rgba(14, 165, 233, 0.1) !important;
+}
+
+/* ========== CUSTOM THEME AND TEXT VISIBILITY CORRECTIONS ========== */
+
+/* Styling for cyber gradient banner to ensure text contrast */
+.cyber-gradient-banner .ant-typography {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+}
+
+/* Glassmorphic white button for gradient banners */
+.btn-glass-white {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.35) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+.btn-glass-white:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  border-color: rgba(255, 255, 255, 0.5) !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Custom Header Buttons with higher specificity and !important to override global button styles */
+.btn-header-armory {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%) !important;
+  border: 1px solid #4f46e5 !important;
+  color: #4f46e5 !important;
+}
+.btn-header-armory:hover {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%) !important;
+  border-color: #4f46e5 !important;
+  color: #4f46e5 !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.15) !important;
+}
+
+.btn-header-signout {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(248, 113, 113, 0.1) 100%) !important;
+  border: 1px solid #ef4444 !important;
+  color: #ef4444 !important;
+}
+.btn-header-signout:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(248, 113, 113, 0.2) 100%) !important;
+  border-color: #ef4444 !important;
+  color: #ef4444 !important;
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15) !important;
+}
+
+.btn-header-admin {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%) !important;
+  border: 1px solid var(--cyber-blue) !important;
+  color: var(--cyber-blue) !important;
+}
+.btn-header-admin:hover {
+  background: linear-gradient(135deg, rgba(14, 165, 233, 0.2) 0%, rgba(139, 92, 246, 0.2) 100%) !important;
+  border-color: var(--cyber-blue) !important;
+  color: var(--cyber-blue) !important;
+  box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15) !important;
 }

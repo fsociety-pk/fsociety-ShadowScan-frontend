@@ -48,25 +48,22 @@ const Dashboard: React.FC = () => {
 
   return (
     <div style={{ paddingBottom: 40 }}>
-      <div style={{ marginBottom: 40, padding: '24px 32px', background: 'var(--cyber-gradient)', borderRadius: 16, color: 'white', boxShadow: '0 10px 30px rgba(14, 165, 233, 0.2)', position: 'relative', overflow: 'hidden' }}>
+      <div className="cyber-gradient-banner" style={{ marginBottom: 40, padding: '24px 32px', background: 'var(--cyber-gradient)', borderRadius: 16, color: 'white', boxShadow: '0 10px 30px rgba(14, 165, 233, 0.2)', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'relative', zIndex: 1 }}>
           <Title level={2} style={{ margin: 0, color: 'white', fontWeight: 800, letterSpacing: 1 }}>OPERATIONAL DASHBOARD</Title>
           <Paragraph style={{ color: 'rgba(255,255,255,0.9)', fontSize: 16, marginTop: 8, marginBottom: 0 }}>
             Welcome back, {user.user?.username || 'Agent'}. Your intelligence workspace is secure and active.
           </Paragraph>
           <Button 
-            type="primary" 
+            type="default" 
+            className="btn-glass-white"
             icon={<SafetyCertificateOutlined />} 
             size="large" 
             onClick={() => setOverviewOpen(true)}
             style={{
               marginTop: 18,
-              background: 'rgba(255, 255, 255, 0.15)',
-              borderColor: 'rgba(255, 255, 255, 0.35)',
-              color: 'white',
               fontWeight: 800,
-              borderRadius: 8,
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+              borderRadius: 8
             }}
           >
             VIEW TOOL ARMORY OVERVIEW 🛡️

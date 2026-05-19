@@ -121,14 +121,12 @@ const AppContent: React.FC = () => {
         <Space size="middle" align="center">
           {user && (
             <Button
-              type="primary"
+              type="default"
+              className="btn-header-armory"
               icon={<InfoCircleOutlined />}
               size="large"
               onClick={() => setOverviewOpen(true)}
               style={{
-                background: 'linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
-                borderColor: '#4f46e5',
-                color: '#4f46e5',
                 fontWeight: 700,
                 letterSpacing: 1,
               }}
@@ -146,14 +144,12 @@ const AppContent: React.FC = () => {
           )}
           {user && user.role === 'admin' && (
             <Button
-              type="primary"
+              type="default"
+              className="btn-header-admin"
               icon={<SafetyCertificateOutlined />}
               size="large"
               onClick={() => navigate('/admin/dashboard')}
               style={{
-                background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)',
-                borderColor: 'var(--cyber-blue)',
-                color: 'var(--cyber-blue)',
                 fontWeight: 700,
                 letterSpacing: 1,
               }}
@@ -183,14 +179,12 @@ const AppContent: React.FC = () => {
                 <UserOutlined />
               </div>
               <Button
-                type="primary"
+                type="default"
+                className="btn-header-signout"
                 icon={<LogoutOutlined />}
                 size="large"
                 onClick={handleLogout}
                 style={{
-                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(248, 113, 113, 0.1) 100%)',
-                  borderColor: '#ef4444',
-                  color: '#ef4444',
                   fontWeight: 700,
                   letterSpacing: 1,
                 }}
