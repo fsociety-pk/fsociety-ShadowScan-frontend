@@ -26,6 +26,7 @@ import EditCase from './pages/Cases/EditCase';
 import OsintChatbot from './components/OsintChatbot';
 import ToolOverviewModal from './components/ToolOverviewModal';
 import WelcomeTourModal from './components/WelcomeTourModal';
+import LandingPage from './pages/Landing/LandingPage';
 
 import AdminLayout from './pages/admin/AdminLayout';
 import AdminGuard from './pages/admin/AdminGuard';
@@ -45,7 +46,7 @@ const { Header, Content, Footer } = Layout;
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const userStr = localStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : null;
-  return user ? <>{children}</> : <Navigate to="/login" replace />;
+  return user ? <>{children}</> : <Navigate to="/" replace />;
 };
 
 /** Top-level nav links — reordered: OSINT Tools → New Case → My Cases. My Dossier removed from sidebar (profile moved to topbar). */
@@ -63,7 +64,7 @@ const AppContent: React.FC = () => {
   const user = userStr ? JSON.parse(userStr) : null;
   const [overviewOpen, setOverviewOpen] = React.useState(false);
 
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/';
 
   const onSearch = (value: string) => {
     if (value.trim()) {
@@ -74,7 +75,7 @@ const AppContent: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
-    navigate('/login');
+    navigate('/');
   };
 
 
@@ -249,7 +250,7 @@ const AppContent: React.FC = () => {
             height: isAuthPage ? '100vh' : 'auto'
           }}>
             <Routes>
-              <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+              <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <LandingPage />} />
               
               {/* Protected Routes */}
               <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
