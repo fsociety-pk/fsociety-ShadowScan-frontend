@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserOutlined, GithubOutlined, LinkedinOutlined, MessageOutlined } from '@ant-design/icons';
+import { UserOutlined } from '@ant-design/icons';
 
 // Inline SVG icons for each tool
 const SherlockIcon = () => (
@@ -15,96 +15,31 @@ const SherlockIcon = () => (
 
 // ... rest of file unchanged until the nav section
 
-// NAV
-<nav style={{
-  position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-  background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(20px)',
-  borderBottom: '1px solid rgba(14,165,233,0.15)',
-  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-  padding: '0 40px', height: 64,
-}}>
-  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-    <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
-      <UserOutlined style={{ fontSize: 18, color: '#fff' }} />
-    </div>
-    <div>
-      <div style={{ fontWeight: 900, fontSize: 16, letterSpacing: 3, color: '#0ea5e9' }}>SHADOW SCAN</div>
-      <div style={{ fontSize: 9, color: '#475569', letterSpacing: 1.5, fontWeight: 600 }}>OSINT INTELLIGENCE</div>
-    </div>
-  </div>
-  <div style={{ display: 'flex', gap: 12 }}>
-    <button onClick={() => navigate('/login')} style={{ background: 'transparent', border: '1px solid rgba(14,165,233,0.4)', color: '#0ea5e9', padding: '8px 20px', borderRadius: 8, cursor: 'pointer', fontWeight: 700, letterSpacing: 1, fontSize: 13 }}>
-      SIGN IN
-    </button>
-    <button onClick={() => navigate('/register')} style={{ background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', border: 'none', color: '#fff', padding: '8px 20px', borderRadius: 8, cursor: 'pointer', fontWeight: 700, letterSpacing: 1, fontSize: 13, boxShadow: '0 0 20px rgba(14,165,233,0.3)' }}>
-      GET STARTED
-    </button>
-  </div>
-</nav>
 
-// ... rest unchanged until footer section
-<footer style={{ position: 'relative', zIndex: 1, borderTop: '1px solid rgba(14,165,233,0.1)', padding: '48px 40px', textAlign: 'center' }}>
-  <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-    <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
-      <UserOutlined style={{ fontSize: 16, color: '#fff' }} />
-    </div>
-    <span style={{ fontWeight: 900, letterSpacing: 3, color: '#0ea5e9', fontSize: 15 }}>SHADOW SCAN</span>
-  </div>
 
-  <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
-    {[
-      { label: 'GitHub', href: 'https://github.com/orgs/fsociety-pk', icon: <GithubOutlined style={{ fontSize: 16, color: '#fff' }} /> },
-      { label: 'LinkedIn', href: 'https://www.linkedin.com/company/113114181', icon: <LinkedinOutlined style={{ fontSize: 16, color: '#fff' }} /> },
-      { label: 'Discord', href: 'https://discord.gg/fsociety-pk', icon: <MessageOutlined style={{ fontSize: 16, color: '#fff' }} /> },
-    ].map(link => (
-      <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer"
-         style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8', padding: '10px 20px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14, transition: 'all 0.2s' }}
-         onMouseEnter={e => { e.currentTarget.style.background = 'rgba(14,165,233,0.18)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
-         onMouseLeave={e => { e.currentTarget.style.background = 'rgba(14,165,233,0.08)'; e.currentTarget.style.transform = ''; }}>
-        {link.icon}<span>{link.label}</span>
-      </a>
-    ))}
-  </div>
 
-  <div style={{ color: '#334155', fontSize: 12, letterSpacing: 1.5, fontWeight: 600 }}>
-    © {new Date().getFullYear()} FSOCIETY PK — DEVELOPED BY FSOCIETY PK • ALL RIGHTS RESERVED
-  </div>
-  <div style={{ color: '#1e3a5f', fontSize: 11, marginTop: 6, letterSpacing: 1 }}>
-    FOR AUTHORIZED OSINT INVESTIGATIONS ONLY
-  </div>
 
-  <style>{`
-    @keyframes blink { 50% { opacity: 0; } }
-  `}</style>
-</footer>
 
-// ... rest of file unchanged
-import { useNavigate } from 'react-router-dom';
-
-// Inline SVG icons for each tool
-const SherlockIcon = () => (
-  <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#a78bfa" strokeWidth="2">
-    <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-    <line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
-  </svg>
-);
 const PhoneInfogaIcon = () => (
   <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#38bdf8" strokeWidth="2">
     <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
     <path d="M14.5 6.5s1 0 2 1 1 2 1 2" /><path d="M14.5 2s3 0 5 2 2 5 2 5" />
   </svg>
 );
+
 const WhatsAppIcon = () => (
   <svg viewBox="0 0 32 32" width="30" height="30" fill="#25D366">
     <path d="M16 0C7.163 0 0 7.163 0 16c0 2.833.737 5.49 2.027 7.8L0 32l8.418-2.007A15.93 15.93 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm0 29.333a13.29 13.29 0 01-6.77-1.85l-.487-.29-5.003 1.193 1.227-4.867-.32-.5A13.267 13.267 0 012.667 16C2.667 8.82 8.82 2.667 16 2.667c7.18 0 13.333 6.153 13.333 13.333 0 7.18-6.153 13.333-13.333 13.333zm7.307-9.973c-.4-.2-2.367-1.167-2.733-1.3-.367-.133-.633-.2-.9.2-.267.4-1.033 1.3-1.267 1.567-.233.267-.467.3-.867.1-.4-.2-1.687-.62-3.213-1.98-1.187-1.06-1.987-2.367-2.22-2.767-.233-.4-.025-.617.175-.817.18-.18.4-.467.6-.7.2-.233.267-.4.4-.667.133-.267.067-.5-.033-.7-.1-.2-.9-2.167-1.233-2.967-.333-.8-.667-.7-.9-.713h-.767c-.267 0-.7.1-1.067.5s-1.4 1.367-1.4 3.333 1.433 3.867 1.633 4.133c.2.267 2.82 4.307 6.833 6.033.953.413 1.7.66 2.28.847.958.307 1.83.263 2.52.16.768-.113 2.367-.967 2.7-1.9.333-.933.333-1.733.233-1.9-.1-.167-.367-.267-.767-.467z" />
   </svg>
 );
+
 const HoleheIcon = () => (
   <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#f97316" strokeWidth="2">
     <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
     <polyline points="22,6 12,13 2,6" />
   </svg>
 );
+
 const WhoisIcon = () => (
   <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#34d399" strokeWidth="2">
     <circle cx="12" cy="12" r="10" />
@@ -112,12 +47,14 @@ const WhoisIcon = () => (
     <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
   </svg>
 );
+
 const ExifToolIcon = () => (
   <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#e879f9" strokeWidth="2">
     <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
     <circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
   </svg>
 );
+
 const GeminiIcon = () => (
   <svg viewBox="0 0 24 24" width="30" height="30" fill="none">
     <defs><linearGradient id="gm" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#4285F4" /><stop offset="100%" stopColor="#34A853" /></linearGradient></defs>
@@ -269,7 +206,9 @@ const LandingPage: React.FC = () => {
         padding: '0 40px', height: 64,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>🕵️</div>
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+            <UserOutlined style={{ fontSize: 18, color: '#fff' }} />
+          </div>
           <div>
             <div style={{ fontWeight: 900, fontSize: 16, letterSpacing: 3, color: '#0ea5e9' }}>SHADOW SCAN</div>
             <div style={{ fontSize: 9, color: '#475569', letterSpacing: 1.5, fontWeight: 600 }}>OSINT INTELLIGENCE</div>
