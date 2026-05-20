@@ -103,7 +103,7 @@ const Register: React.FC = () => {
       <div style={{
         width: '50%',
         minHeight: '100vh',
-        background: 'linear-gradient(160deg, #0f172a 0%, #1e1b4b 100%)',
+        background: '#ffffff',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -140,11 +140,11 @@ const Register: React.FC = () => {
           {/* Glow accent line */}
           <div style={{ width: 60, height: 3, background: 'linear-gradient(90deg,#8b5cf6,#0ea5e9)', borderRadius: 99, marginBottom: 24 }} />
 
-          <Title level={2} style={{ margin: '0 0 8px', fontWeight: 900, color: '#f8fafc', letterSpacing: 1 }}>
-            OPERATIVE REGISTRATION
+          <Title level={2} style={{ margin: '0 0 8px', fontWeight: 800, color: '#0f172a', letterSpacing: 0.6 }}>
+            Create an account
           </Title>
-          <Text style={{ display: 'block', color: '#64748b', fontSize: 14, marginBottom: 40 }}>
-            Create your dossier and join the network.
+          <Text style={{ display: 'block', color: '#475569', fontSize: 14, marginBottom: 40 }}>
+            Create your account to access Shadow Scan.
           </Text>
 
           <Form name="register" onFinish={onFinish} layout="vertical" size="large" requiredMark={false}>
@@ -154,14 +154,15 @@ const Register: React.FC = () => {
               rules={[{ required: true, message: 'Alias required.' }]}
             >
               <Input
-                prefix={<UserOutlined style={{ color: '#8b5cf6' }} />}
-                placeholder="Choose your operative alias"
+                prefix={<UserOutlined style={{ color: '#0ea5e9' }} />}
+                placeholder="Choose your username"
                 style={{
-                  background: 'rgba(139,92,246,0.05)',
-                  border: '1px solid rgba(139,92,246,0.25)',
-                  borderRadius: 10,
-                  color: '#f8fafc',
+                  background: '#ffffff',
+                  border: '1px solid #e6eef6',
+                  borderRadius: 12,
+                  color: '#0f172a',
                   height: 52,
+                  boxShadow: '0 6px 18px rgba(16,24,40,0.06)'
                 }}
               />
             </Form.Item>
@@ -173,14 +174,15 @@ const Register: React.FC = () => {
               style={{ marginBottom: 32 }}
             >
               <Input.Password
-                prefix={<LockOutlined style={{ color: '#8b5cf6' }} />}
+                prefix={<LockOutlined style={{ color: '#0ea5e9' }} />}
                 placeholder="Create a strong password"
                 style={{
-                  background: 'rgba(139,92,246,0.05)',
-                  border: '1px solid rgba(139,92,246,0.25)',
-                  borderRadius: 10,
-                  color: '#f8fafc',
+                  background: '#ffffff',
+                  border: '1px solid #e6eef6',
+                  borderRadius: 12,
+                  color: '#0f172a',
                   height: 52,
+                  boxShadow: '0 6px 18px rgba(16,24,40,0.06)'
                 }}
               />
             </Form.Item>
@@ -194,15 +196,15 @@ const Register: React.FC = () => {
                   width: '100%',
                   height: 54,
                   borderRadius: 12,
-                  background: 'linear-gradient(135deg, #8b5cf6, #0ea5e9)',
+                  background: 'linear-gradient(135deg, #0ea5e9, #06b6d4)',
                   border: 'none',
-                  fontWeight: 800,
+                  fontWeight: 700,
                   fontSize: 15,
-                  letterSpacing: 2,
-                  boxShadow: '0 8px 30px rgba(139,92,246,0.35)',
+                  letterSpacing: 1,
+                  boxShadow: '0 10px 30px rgba(14,165,233,0.18)',
                 }}
               >
-                CREATE OPERATIVE DOSSIER
+                Create Account
               </Button>
             </Form.Item>
           </Form>
@@ -223,11 +225,12 @@ const Register: React.FC = () => {
           div[style*="width: 50%"][style*="1e1b4b"] { width: 100% !important; }
         }
         .ant-input, .ant-input-password, .ant-input-affix-wrapper {
-          background: rgba(139,92,246,0.05) !important;
-          border-color: rgba(139,92,246,0.25) !important;
-          color: #f8fafc !important;
+          background: #ffffff !important;
+          border-color: #e6eef6 !important;
+          color: #0f172a !important;
+          box-shadow: 0 6px 18px rgba(16,24,40,0.06) !important;
         }
-        .ant-input::placeholder, .ant-input-password input::placeholder { color: #475569 !important; }
+        .ant-input::placeholder, .ant-input-password input::placeholder { color: #94a3b8 !important; }
         .ant-input-password .ant-input { background: transparent !important; }
       `}</style>
     </div>
