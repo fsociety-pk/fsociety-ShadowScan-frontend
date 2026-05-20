@@ -92,12 +92,12 @@ const ToolOverview: React.FC = () => {
       tags: ["Username Lookup", "Social Footprint", "Identity Mapping"]
     },
     {
-      title: "Mosint",
-      description: "A comprehensive email intelligence framework. It doesn't just verify emails; it uncovers data breaches, professional profiles, and connected social accounts.",
+      title: "Holehe",
+      description: "A precision email intelligence engine. Verifies email registrations across 120+ platforms, maps breach exposure, and surfaces connected social accounts without direct contact.",
       icon: <MailOutlined />,
       color: "#ff4d4f",
-      useCase: "Determining if an email has been compromised in a breach and finding who it belongs to.",
-      tags: ["Email Intelligence", "Breach Discovery", "Profile Mapping"]
+      useCase: "Determining if an email has been compromised in a breach and finding every platform it is registered on.",
+      tags: ["Email Intelligence", "Breach Discovery", "Platform Mapping"]
     },
     {
       title: "WhatsOSINT",

@@ -34,7 +34,7 @@ const WORKFLOW_REPLY = `Here's the **3-Step OSINT Workflow** for Shadow Scan:
 **Step 1 — Run OSINT Tools**
 Navigate to the [OSINT Tools](/tools) section and choose your reconnaissance engine:
 - **Sherlock** → username presence across 300+ platforms
-- **Holehe / Mosint** → email account discovery & intelligence
+- **Holehe** → email account discovery & intelligence
 - **WhatsOSINT** → phone number & WhatsApp intelligence
 - **Whois / DNS** → domain ownership & infrastructure records
 - **Metadata Extractor** → hidden metadata in images, PDFs & documents

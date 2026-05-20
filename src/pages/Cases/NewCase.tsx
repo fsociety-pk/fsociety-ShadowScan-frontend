@@ -1,7 +1,7 @@
 /**
  * NewCase — Intelligence dossier creation with AI-powered report generation.
  *
- * Users paste raw OSINT findings using a guided free-text format:
+ * Users paste raw intelligence findings using a guided free-text format:
  *   "contact: +923001234567"
  *   "friend: John Doe"
  *   "email: target@example.com"
@@ -255,7 +255,7 @@ const NewCase: React.FC = () => {
 
     try {
       const res = await api.post('/chat', {
-        message: `Analyse these raw OSINT findings and produce a brief structured summary with: key entities (names, contacts, usernames, IPs, domains), inferred relationships, and a risk rating (Low/Medium/High/Critical). Format clearly.\n\nFindings:\n${rawFindings}`,
+        message: `Analyse these raw intelligence findings and produce a brief structured summary with: key entities (names, contacts, usernames, IPs, domains), inferred relationships, and a risk rating (Low/Medium/High/Critical). Format clearly.\n\nFindings:\n${rawFindings}`,
         history: [],
       });
       clearInterval(progressInterval);
@@ -345,7 +345,7 @@ note: Late-night login pattern (22:00-02:00 UTC), recurrent VPN exits in NYC and
           NEW TARGET CLASSIFICATION
         </Title>
         <Paragraph style={{ color: '#e2e8f0', fontSize: 15, maxWidth: 700, margin: '0 auto', marginBottom: 20 }}>
-          Paste your raw OSINT findings with contextual labels. The AI engine will extract entities,
+          Paste your raw intelligence findings with contextual labels. The AI engine will extract entities,
           map relationships, apply colour-coded tags, and produce a structured forensic intelligence report.
         </Paragraph>
         <Button 
@@ -707,7 +707,7 @@ note: Late-night login pattern (22:00-02:00 UTC), recurrent VPN exits in NYC and
               </Paragraph>
               <Space orientation="vertical" style={{ width: '100%', marginBottom: 16 }}>
                 <Tag color="blue" style={{ width: '100%', padding: '6px 10px', borderRadius: 8, fontWeight: 600 }}>
-                  <RobotOutlined style={{ marginRight: 6 }} />Mosint — Email Intelligence
+                  <RobotOutlined style={{ marginRight: 6 }} />Email Intelligence — Email Analysis
                 </Tag>
                 <Tag color="green" style={{ width: '100%', padding: '6px 10px', borderRadius: 8, fontWeight: 600 }}>
                   <RobotOutlined style={{ marginRight: 6 }} />WhatsOSINT — Phone Analysis

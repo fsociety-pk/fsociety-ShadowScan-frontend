@@ -23,7 +23,7 @@ const steps = [
     tag: 'STEP 1',
     title: 'Run OSINT Tools',
     description:
-      'Navigate to the OSINT Tools panel and choose your reconnaissance engine. Run Sherlock for username discovery, Holehe/Mosint for email intelligence, WhatsOSINT for phone lookup, Whois for domain records, or the Metadata Extractor to analyse files.',
+      'Navigate to the OSINT Tools panel and choose your reconnaissance engine. Run Sherlock for username discovery, Holehe for email intelligence, WhatsOSINT for phone lookup, Whois for domain records, or the Metadata Extractor to analyse files.',
     tip: 'Tip: You can run multiple tools and combine their outputs.',
   },
   {
