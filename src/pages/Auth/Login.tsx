@@ -100,10 +100,10 @@ const Login: React.FC = () => {
           {/* Right form panel */}
           <Col xs={24} md={14} style={{ padding: '48px 52px', background: 'transparent' }}>
             <div style={{ textAlign: 'center', marginBottom: 36 }}>
-              <Title level={3} style={{ margin: 0, fontWeight: 800, color: '#0f172a' }}>
+              <Title level={3} style={{ margin: 0, fontWeight: 800, color: '#f8fafc' }}>
                 OPERATIVE AUTHENTICATION
               </Title>
-              <Text style={{ display: 'block', color: '#475569', fontSize: 14, marginTop: 8 }}>
+              <Text style={{ display: 'block', color: '#cbd5e1', fontSize: 14, marginTop: 8 }}>
                 Enter your credentials to access the grid.
               </Text>
             </div>
@@ -111,7 +111,7 @@ const Login: React.FC = () => {
             <Form name="login" onFinish={onFinish} layout="vertical" size="large" requiredMark="optional">
               <Form.Item
                 name="username"
-                label={<Text strong style={{ color: '#1e293b', fontSize: 14 }}>Agent Identifier</Text>}
+                label={<Text strong style={{ color: '#e2e8f0', fontSize: 14 }}>Agent Identifier</Text>}
                 rules={[{ required: true, message: 'Identifier required.' }]}
               >
                 <Input prefix={<UserOutlined style={{ color: '#0ea5e9' }} />} placeholder="Enter your username" />
@@ -119,7 +119,7 @@ const Login: React.FC = () => {
 
               <Form.Item
                 name="password"
-                label={<Text strong style={{ color: '#1e293b', fontSize: 14 }}>Decryption Key</Text>}
+                label={<Text strong style={{ color: '#e2e8f0', fontSize: 14 }}>Decryption Key</Text>}
                 rules={[{ required: true, message: 'Key required.' }]}
               >
                 <Input.Password prefix={<LockOutlined style={{ color: '#0ea5e9' }} />} placeholder="Enter your password" />
@@ -147,7 +147,7 @@ const Login: React.FC = () => {
               </Form.Item>
             </Form>
 
-            <div style={{ textAlign: 'center', marginTop: 28, fontSize: '14px', color: '#64748b' }}>
+            <div style={{ textAlign: 'center', marginTop: 28, fontSize: '14px', color: '#cbd5e1' }}>
               Not an operative?{' '}
               <Link to="/register" style={{ color: '#0ea5e9', fontWeight: 700, borderBottom: '1px dashed #0ea5e9' }}>
                 Request Access
