@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserOutlined } from '@ant-design/icons';
+import { UserOutlined, GithubOutlined, LinkedinOutlined, WechatOutlined } from '@ant-design/icons';
 
 // Inline SVG icons for each tool
 const SherlockIcon = () => (
@@ -327,20 +327,22 @@ const LandingPage: React.FC = () => {
       {/* FOOTER */}
       <footer style={{ position: 'relative', zIndex: 1, borderTop: '1px solid rgba(14,165,233,0.1)', padding: '48px 40px', textAlign: 'center' }}>
         <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
-          <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>🕵️</div>
+          <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
+            <UserOutlined style={{ fontSize: 16, color: '#fff' }} />
+          </div>
           <span style={{ fontWeight: 900, letterSpacing: 3, color: '#0ea5e9', fontSize: 15 }}>SHADOW SCAN</span>
         </div>
 
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
           {[
-            { label: 'GitHub', href: 'https://github.com/orgs/fsociety-pk', icon: '🐙' },
-            { label: 'LinkedIn', href: 'https://www.linkedin.com/company/113114181', icon: '💼' },
-            { label: 'Discord', href: 'https://discord.gg/fsociety-pk', icon: '🎮' },
+            { label: 'GitHub', href: 'https://github.com/orgs/fsociety-pk', icon: <GithubOutlined /> },
+            { label: 'LinkedIn', href: 'https://www.linkedin.com/company/113114181', icon: <LinkedinOutlined /> },
+            { label: 'Discord', href: 'https://discord.gg/fsociety-pk', icon: <WechatOutlined /> },
           ].map(link => (
             <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8', padding: '10px 20px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14, transition: 'all 0.2s' }}
               onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(14,165,233,0.18)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(14,165,233,0.08)'; (e.currentTarget as HTMLElement).style.transform = ''; }}>
-              <span>{link.icon}</span>{link.label}
+              <span style={{ fontSize: 16 }}>{link.icon}</span>{link.label}
             </a>
           ))}
         </div>

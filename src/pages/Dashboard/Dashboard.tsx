@@ -66,7 +66,7 @@ const Dashboard: React.FC = () => {
               borderRadius: 8
             }}
           >
-            VIEW TOOL ARMORY OVERVIEW 🛡️
+            VIEW TOOL ARMORY OVERVIEW
           </Button>
         </div>
         <div style={{ position: 'absolute', top: '-50%', right: '-5%', fontSize: 200, opacity: 0.1, transform: 'rotate(-15deg)' }}>

@@ -31,7 +31,7 @@ const WORKFLOW_TRIGGERS = [
 /** The 3-step workflow explanation returned for help keywords. */
 const WORKFLOW_REPLY = `Here's the **3-Step OSINT Workflow** for Shadow Scan:
 
-**Step 1 — Run OSINT Tools 🔍**
+**Step 1 — Run OSINT Tools**
 Navigate to the [OSINT Tools](/tools) section and choose your reconnaissance engine:
 - **Sherlock** → username presence across 300+ platforms
 - **Holehe / Mosint** → email account discovery & intelligence
@@ -39,13 +39,13 @@ Navigate to the [OSINT Tools](/tools) section and choose your reconnaissance eng
 - **Whois / DNS** → domain ownership & infrastructure records
 - **Metadata Extractor** → hidden metadata in images, PDFs & documents
 
-**Step 2 — Paste Raw Findings 📋**
+**Step 2 — Paste Raw Findings**
 Copy all raw output from the tools and paste it into the **Report Generator** textarea. You can also attach supporting files (screenshots, docs, exports).
 
-**Step 3 — Generate AI Report 🤖**
+**Step 3 — Generate AI Report**
 Click **"Generate Intelligence Report"**. The AI engine will analyse your findings, extract entities, build relationship mappings, and produce a structured forensic report.
 
-> 💡 Use the [Intelligence Analyst](/tools) tool to auto-extract entities from any unstructured text before generating a report.
+> Pro Tip: Use the [Intelligence Analyst](/tools) tool to auto-extract entities from any unstructured text before generating a report.
 
 Ask me anything about a specific tool or step!`;
 
@@ -56,7 +56,7 @@ const OsintChatbot: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'assistant',
-      content: `Hello, Operative! 👋 I'm your **OSINT AI Assistant**.
+      content: `Hello, Operative! I'm your **OSINT AI Assistant**.
 
 I can help you with:
 - **Guidance** on the 3-step investigation workflow
@@ -112,7 +112,7 @@ Type **"help"** or **"guide me"** to see the full workflow, or ask me anything!`
     html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, label, url) => {
       const isInternal = url.startsWith('/') || url.includes('localhost') || url.includes('shadow-scan');
       if (isInternal) {
-        return `<a href="${url}" data-internal="true" style="color: #10b981; font-weight: 800; text-decoration: none; background: rgba(16, 185, 129, 0.08); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.25); display: inline-flex; align-items: center; gap: 4px; transition: all 0.3s; margin: 4px 2px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.06); cursor: pointer;">${label} 🔍</a>`;
+        return `<a href="${url}" data-internal="true" style="color: #10b981; font-weight: 800; text-decoration: none; background: rgba(16, 185, 129, 0.08); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.25); display: inline-flex; align-items: center; gap: 4px; transition: all 0.3s; margin: 4px 2px; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.06); cursor: pointer;">${label} ↗</a>`;
       }
       return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color: #7c3aed; font-weight: 700; text-decoration: underline; cursor: pointer;">${label} ↗</a>`;
     });

@@ -29,6 +29,13 @@ import {
   LoadingOutlined,
   ThunderboltOutlined,
   RocketOutlined,
+  AimOutlined,
+  FireOutlined,
+  LaptopOutlined,
+  VideoCameraOutlined,
+  PlayCircleOutlined,
+  UsergroupAddOutlined,
+  BulbOutlined,
 } from '@ant-design/icons';
 import api from '../../api/axiosConfig';
 
@@ -135,7 +142,7 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
         { timeout: 120000 }
       );
 
-      setProgressMessage('✅ Scan complete!');
+      setProgressMessage('Scan complete!');
       setProgress(100);
       setResults(response.data);
     } catch (err: unknown) {
@@ -193,7 +200,7 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
       render: (verified: boolean) =>
         verified ? (
           <Tag icon={<CheckCircleOutlined />} color="green" style={{ background: 'rgba(16, 185, 129, 0.15)', border: '1px solid #10b981' }}>
-            Verified ✓
+            Verified
           </Tag>
         ) : (
           <Tag style={{ background: 'rgba(107, 114, 128, 0.15)', border: '1px solid #6b7280' }}>
@@ -237,7 +244,7 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 18 }}>
             <ThunderboltOutlined style={{ color: 'var(--cyber-blue)', fontSize: 24 }} />
             <span style={{ background: 'var(--cyber-gradient)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent' }}>
-              🎯 SHADOW SCAN - Social Media Finder
+              <AimOutlined style={{ marginRight: 8 }} /> SHADOW SCAN - Social Media Finder
             </span>
           </div>
         }
@@ -249,7 +256,7 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
         }}
       >
         <p style={{ color: 'var(--text-muted)', marginBottom: 20, fontSize: 14, fontWeight: 500 }}>
-          🔥 Powerful FREE OSINT tool • Searches 50+ major platforms instantly • Find ANY username or email across the internet
+          <FireOutlined style={{ color: '#ff4d4f', marginRight: 8 }} /> Powerful FREE OSINT tool • Searches 50+ major platforms instantly • Find ANY username or email across the internet
         </p>
 
         <Form form={form} onFinish={handleSearch} layout="vertical">
@@ -274,7 +281,7 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
               </Form.Item>
             </Col>
             <Col xs={24} sm={8}>
-              <Form.Item label={<span style={{ color: 'var(--cyber-blue)', fontWeight: 600 }}>⚡ Mode</span>}>
+              <Form.Item label={<span style={{ color: 'var(--cyber-blue)', fontWeight: 600 }}><ThunderboltOutlined style={{ marginRight: 4 }} /> Mode</span>}>
                 <div style={{ display: 'flex', gap: 8 }}>
                   <Button
                     size="large"
@@ -332,13 +339,13 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
               textShadow: '0 0 8px rgba(0,0,0,0.2)',
             }}
           >
-            {loading ? 'SCANNING...' : '🎯 SCAN NOW'}
+            {loading ? 'SCANNING...' : <><AimOutlined style={{ marginRight: 8 }} /> SCAN NOW</>}
           </Button>
         </Form>
 
         {!loading && (
           <Alert
-            message="💡 Pro Tip"
+            message={<><BulbOutlined /> Pro Tip</>}
             description={`Use ${searchType === 'quick' ? 'Deep Search for comprehensive results (1-3 min)' : 'Quick Search for fast results on top 15 platforms (30 sec)'}`}
             type="info"
             showIcon
@@ -509,7 +516,7 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
                     key: 'all',
                     label: (
                       <span style={{ fontWeight: 600, fontSize: 13 }}>
-                        ✅ All Profiles <Badge count={results.profiles.length} style={{ background: 'var(--cyber-blue)', color: '#000' }} />
+                        <CheckCircleOutlined style={{ marginRight: 4 }} /> All Profiles <Badge count={results.profiles.length} style={{ background: 'var(--cyber-blue)', color: '#000' }} />
                       </span>
                     ),
                     children: (
@@ -530,7 +537,7 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
                     key: 'social',
                     label: (
                       <span style={{ fontWeight: 600, fontSize: 13 }}>
-                        👥 Social <Badge count={results.byCategory.social_networks.length} style={{ background: '#1DA1F2' }} />
+                        <UsergroupAddOutlined style={{ marginRight: 4 }} /> Social <Badge count={results.byCategory.social_networks.length} style={{ background: '#1DA1F2' }} />
                       </span>
                     ),
                     children:
@@ -553,7 +560,7 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
                     key: 'dev',
                     label: (
                       <span style={{ fontWeight: 600, fontSize: 13 }}>
-                        💻 Developer <Badge count={results.byCategory.developer.length} style={{ background: '#6366f1' }} />
+                        <LaptopOutlined style={{ marginRight: 4 }} /> Developer <Badge count={results.byCategory.developer.length} style={{ background: '#6366f1' }} />
                       </span>
                     ),
                     children:
@@ -576,7 +583,7 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
                     key: 'content',
                     label: (
                       <span style={{ fontWeight: 600, fontSize: 13 }}>
-                        📹 Content <Badge count={results.byCategory.content.length} style={{ background: '#FF0000' }} />
+                        <VideoCameraOutlined style={{ marginRight: 4 }} /> Content <Badge count={results.byCategory.content.length} style={{ background: '#FF0000' }} />
                       </span>
                     ),
                     children:
@@ -599,7 +606,7 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
                     key: 'gaming',
                     label: (
                       <span style={{ fontWeight: 600, fontSize: 13 }}>
-                        🎮 Gaming <Badge count={results.byCategory.gaming.length} style={{ background: '#9146FF' }} />
+                        <PlayCircleOutlined style={{ marginRight: 4 }} /> Gaming <Badge count={results.byCategory.gaming.length} style={{ background: '#9146FF' }} />
                       </span>
                     ),
                     children:
@@ -622,7 +629,7 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
                     key: 'other',
                     label: (
                       <span style={{ fontWeight: 600, fontSize: 13 }}>
-                        🔗 Other <Badge count={results.byCategory.other.length} style={{ background: '#10b981' }} />
+                        <LinkOutlined style={{ marginRight: 4 }} /> Other <Badge count={results.byCategory.other.length} style={{ background: '#10b981' }} />
                       </span>
                     ),
                     children:

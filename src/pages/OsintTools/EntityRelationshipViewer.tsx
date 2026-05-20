@@ -5,6 +5,11 @@ import {
   PhoneOutlined,
   EnvironmentOutlined,
   UserOutlined,
+  ShareAltOutlined,
+  PieChartOutlined,
+  AimOutlined,
+  LinkOutlined,
+  BulbOutlined,
 } from '@ant-design/icons';
 
 interface Entity {
@@ -79,7 +84,7 @@ const EntityRelationshipViewer: React.FC<EntityRelationshipViewerProps> = ({ ent
   return (
     <div style={{ width: '100%' }}>
       <Card
-        title="🔗 Entity Relationship Network"
+        title={<span style={{ fontWeight: 600 }}><ShareAltOutlined style={{ marginRight: 8 }} /> Entity Relationship Network</span>}
         style={{
           background: 'linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(0, 212, 255, 0.05) 100%)',
         }}
@@ -146,7 +151,7 @@ const EntityRelationshipViewer: React.FC<EntityRelationshipViewerProps> = ({ ent
             </div>
 
             <div style={{ marginTop: '16px', padding: '12px', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '4px' }}>
-              <small style={{ color: '#888' }}>💡 Click on entities to highlight connections</small>
+              <small style={{ color: '#888' }}><BulbOutlined style={{ marginRight: 4 }} /> Click on entities to highlight connections</small>
             </div>
           </Col>
 
@@ -154,7 +159,7 @@ const EntityRelationshipViewer: React.FC<EntityRelationshipViewerProps> = ({ ent
             {/* Statistics */}
             <Card style={{ background: 'rgba(0, 0, 0, 0.3)' }}>
               <div style={{ marginBottom: '16px' }}>
-                <h4 style={{ color: 'var(--cyber-blue)', marginBottom: '12px' }}>📊 Network Statistics</h4>
+                <h4 style={{ color: 'var(--cyber-blue)', marginBottom: '12px' }}><PieChartOutlined style={{ marginRight: 8 }} /> Network Statistics</h4>
                 <p>
                   <strong>Total Entities:</strong> <Tag color="cyan">{entities.length}</Tag>
                 </p>
@@ -167,7 +172,7 @@ const EntityRelationshipViewer: React.FC<EntityRelationshipViewerProps> = ({ ent
               </div>
 
               <div style={{ marginBottom: '16px' }}>
-                <h4 style={{ color: 'var(--cyber-blue)', marginBottom: '12px' }}>🎯 Entity Types</h4>
+                <h4 style={{ color: 'var(--cyber-blue)', marginBottom: '12px' }}><AimOutlined style={{ marginRight: 8 }} /> Entity Types</h4>
                 {[...new Set(entities.map((e) => e.type))].map((type) => {
                   const count = entities.filter((e) => e.type === type).length;
                   return (
@@ -182,7 +187,7 @@ const EntityRelationshipViewer: React.FC<EntityRelationshipViewerProps> = ({ ent
               </div>
 
               <div>
-                <h4 style={{ color: 'var(--cyber-blue)', marginBottom: '12px' }}>🔗 Relationship Strength</h4>
+                <h4 style={{ color: 'var(--cyber-blue)', marginBottom: '12px' }}><LinkOutlined style={{ marginRight: 8 }} /> Relationship Strength</h4>
                 <div style={{ marginBottom: '8px' }}>
                   <span style={{ marginRight: '8px', color: '#ff4d4f' }}>●</span>
                   <span style={{ color: '#ddd', fontSize: '12px' }}>Strong (&gt; 0.8)</span>

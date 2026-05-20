@@ -1,16 +1,16 @@
 /**
- * Login — Operative authentication page.
- * Displays a split-panel layout: branded dark-blue left panel + white form on the right.
- * Logo is centred in the left panel and visible (white filter applied on dark bg).
+ * Login — Cyberpunk operative authentication page.
+ * Full-screen split: animated dark panel left + glassmorphism form right.
+ * No card/white-box. Logo displays correctly without brightness(0) filter.
  */
 import React, { useState } from 'react';
-import { Form, Input, Button, Card, Typography, message, Row, Col, Divider } from 'antd';
-import { LockOutlined, UserOutlined, GlobalOutlined, RadarChartOutlined, KeyOutlined, EyeOutlined, SafetyCertificateOutlined, CodeOutlined } from '@ant-design/icons';
+import { Form, Input, Button, Typography, message } from 'antd';
+import { LockOutlined, UserOutlined, ArrowLeftOutlined, SafetyCertificateOutlined, RadarChartOutlined, GlobalOutlined, CodeOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import logoImg from '../../assets/logo.png';
 
-const { Title, Text, Paragraph } = Typography;
+const { Title, Text } = Typography;
 
 const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -34,132 +34,205 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="auth-wrapper" style={{ padding: '20px', position: 'relative' }}>
-      {/* Back to Home button */}
-      <Button
-        type="default"
-        onClick={() => navigate('/')}
-        style={{ position: 'absolute', top: 20, left: 20, zIndex: 20 }}
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      fontFamily: "'Space Grotesk', sans-serif",
+      position: 'relative',
+      overflow: 'hidden',
+      background: '#020817',
+    }}>
+      {/* ── Left Panel ── */}
+      <div style={{
+        width: '50%',
+        minHeight: '100vh',
+        background: 'linear-gradient(160deg, #0ea5e9 0%, #1e1b4b 50%, #0f172a 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '60px 48px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+        className="auth-left-panel"
       >
-        Back to Home
-      </Button>
+        {/* Decorative glowing orbs */}
+        <div style={{ position: 'absolute', top: '10%', left: '15%', width: 200, height: 200, borderRadius: '50%', background: 'radial-gradient(circle, rgba(14,165,233,0.25) 0%, transparent 70%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', bottom: '15%', right: '10%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%)', pointerEvents: 'none' }} />
 
-      {/* Floating decorative icons */}
-      <GlobalOutlined className="auth-icon-floating" style={{ top: '10%', left: '10%', fontSize: '120px', opacity: 0.05 }} />
-      <RadarChartOutlined className="auth-icon-floating" style={{ top: '60%', right: '10%', fontSize: '150px', opacity: 0.05 }} />
-      <KeyOutlined className="auth-icon-floating" style={{ bottom: '15%', left: '15%', fontSize: '80px', opacity: 0.05 }} />
-      <EyeOutlined className="auth-icon-floating" style={{ top: '20%', right: '20%', fontSize: '70px', opacity: 0.05 }} />
+        {/* Floating icons */}
+        <SafetyCertificateOutlined style={{ position: 'absolute', top: '8%', right: '8%', fontSize: 140, opacity: 0.04, color: '#fff' }} />
+        <RadarChartOutlined style={{ position: 'absolute', bottom: '12%', left: '5%', fontSize: 120, opacity: 0.04, color: '#fff' }} />
 
-      <Card
-        style={{ width: '100%', maxWidth: 900, zIndex: 10, padding: 0, overflow: 'hidden', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}
-        className="auth-card"
-        bodyStyle={{ padding: 0 }}
-      >
-        <Row align="middle" style={{ minHeight: '520px' }}>
-          {/* Left branded panel */}
-          <Col
-            xs={0}
-            md={10}
-            style={{
-              background: 'linear-gradient(160deg, #0ea5e9 0%, #1e3a5f 60%, #0f172a 100%)',
-              minHeight: '520px',
-              padding: '48px 36px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-          >
-            <div style={{ position: 'absolute', top: -30, right: -30, opacity: 0.06, fontSize: 200, color: '#fff' }}>
-              <SafetyCertificateOutlined />
-            </div>
-            <img
-              src={logoImg}
-              alt="Shadow Scan Logo"
-              style={{ width: 90, height: 90, objectFit: 'contain', marginBottom: 20, filter: 'brightness(0) invert(1) drop-shadow(0 0 14px rgba(255,255,255,0.35))' }}
-            />
-            <Title level={2} style={{ color: '#ffffff', fontWeight: 900, margin: 0, letterSpacing: 3, textAlign: 'center' }}>
-              SHADOW SCAN
-            </Title>
-            <Text style={{ color: '#bae6fd', fontSize: 13, letterSpacing: 1.5, marginBottom: 24, display: 'block', textAlign: 'center' }}>
-              INTELLIGENCE GATHERING NETWORK
-            </Text>
-            <Divider style={{ borderColor: 'rgba(255,255,255,0.2)', margin: '0 0 20px' }} />
-            <Paragraph style={{ color: '#e2e8f0', fontSize: 13, textAlign: 'center', lineHeight: 1.7 }}>
-              Authorized operatives only. All connection attempts are monitored, logged, and traced by the FSociety Security Matrix.
-            </Paragraph>
-            <div style={{ marginTop: 28, display: 'flex', gap: 16, color: '#bae6fd' }}>
-              <CodeOutlined style={{ fontSize: 20 }} />
-              <GlobalOutlined style={{ fontSize: 20 }} />
-              <RadarChartOutlined style={{ fontSize: 20 }} />
-            </div>
-          </Col>
+        {/* Logo — no brightness filter, just a glow shadow */}
+        <img
+          src={logoImg}
+          alt="Shadow Scan Logo"
+          style={{
+            width: 100,
+            height: 100,
+            objectFit: 'contain',
+            marginBottom: 24,
+            filter: 'drop-shadow(0 0 20px rgba(14,165,233,0.6))',
+            borderRadius: 20,
+          }}
+        />
 
-          {/* Right form panel */}
-          <Col xs={24} md={14} style={{ padding: '48px 52px', background: 'transparent' }}>
-            <div style={{ textAlign: 'center', marginBottom: 36 }}>
-              <Title level={3} style={{ margin: 0, fontWeight: 800, color: '#f8fafc' }}>
-                OPERATIVE AUTHENTICATION
-              </Title>
-              <Text style={{ display: 'block', color: '#cbd5e1', fontSize: 14, marginTop: 8 }}>
-                Enter your credentials to access the grid.
-              </Text>
-            </div>
+        <Title level={1} style={{ color: '#ffffff', fontWeight: 900, margin: 0, letterSpacing: 4, textAlign: 'center', fontSize: 28 }}>
+          SHADOW SCAN
+        </Title>
+        <Text style={{ color: '#bae6fd', fontSize: 12, letterSpacing: 3, marginBottom: 32, display: 'block', textAlign: 'center', marginTop: 6 }}>
+          INTELLIGENCE GATHERING NETWORK
+        </Text>
 
-            <Form name="login" onFinish={onFinish} layout="vertical" size="large" requiredMark="optional">
-              <Form.Item
-                name="username"
-                label={<Text strong style={{ color: '#e2e8f0', fontSize: 14 }}>Agent Identifier</Text>}
-                rules={[{ required: true, message: 'Identifier required.' }]}
+        <div style={{ width: '100%', maxWidth: 360, height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)', marginBottom: 28 }} />
+
+        <Text style={{ color: '#e2e8f0', fontSize: 14, textAlign: 'center', lineHeight: 1.8, maxWidth: 340 }}>
+          Authorized operatives only. All connection attempts are monitored, logged, and traced by the FSociety Security Matrix.
+        </Text>
+
+        <div style={{ marginTop: 36, display: 'flex', gap: 20, color: '#bae6fd' }}>
+          <CodeOutlined style={{ fontSize: 22 }} />
+          <GlobalOutlined style={{ fontSize: 22 }} />
+          <RadarChartOutlined style={{ fontSize: 22 }} />
+        </div>
+      </div>
+
+      {/* ── Right Panel ── */}
+      <div style={{
+        width: '50%',
+        minHeight: '100vh',
+        background: 'linear-gradient(160deg, #0f172a 0%, #1e1b4b 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '60px 64px',
+        position: 'relative',
+      }}>
+        {/* Back to Home */}
+        <Button
+          type="text"
+          icon={<ArrowLeftOutlined />}
+          onClick={() => navigate('/')}
+          style={{
+            position: 'absolute',
+            top: 28,
+            left: 32,
+            color: '#38bdf8',
+            fontWeight: 700,
+            fontSize: 14,
+            border: '1px solid rgba(56,189,248,0.3)',
+            borderRadius: 8,
+            padding: '4px 16px',
+            height: 38,
+            background: 'rgba(14,165,233,0.08)',
+          }}
+        >
+          Back to Home
+        </Button>
+
+        {/* Decorative grid lines */}
+        <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(14,165,233,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.03) 1px, transparent 1px)', backgroundSize: '40px 40px', pointerEvents: 'none' }} />
+
+        <div style={{ width: '100%', maxWidth: 420, position: 'relative', zIndex: 1 }}>
+          {/* Glow accent line */}
+          <div style={{ width: 60, height: 3, background: 'linear-gradient(90deg,#0ea5e9,#8b5cf6)', borderRadius: 99, marginBottom: 24 }} />
+
+          <Title level={2} style={{ margin: '0 0 8px', fontWeight: 900, color: '#f8fafc', letterSpacing: 1 }}>
+            OPERATIVE AUTHENTICATION
+          </Title>
+          <Text style={{ display: 'block', color: '#64748b', fontSize: 14, marginBottom: 40 }}>
+            Enter your credentials to access the grid.
+          </Text>
+
+          <Form name="login" onFinish={onFinish} layout="vertical" size="large" requiredMark={false}>
+            <Form.Item
+              name="username"
+              label={<Text style={{ color: '#94a3b8', fontSize: 13, fontWeight: 600, letterSpacing: 1 }}>AGENT IDENTIFIER</Text>}
+              rules={[{ required: true, message: 'Identifier required.' }]}
+            >
+              <Input
+                prefix={<UserOutlined style={{ color: '#0ea5e9' }} />}
+                placeholder="Enter your username"
+                style={{
+                  background: 'rgba(14,165,233,0.05)',
+                  border: '1px solid rgba(14,165,233,0.2)',
+                  borderRadius: 10,
+                  color: '#f8fafc',
+                  height: 52,
+                }}
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="password"
+              label={<Text style={{ color: '#94a3b8', fontSize: 13, fontWeight: 600, letterSpacing: 1 }}>DECRYPTION KEY</Text>}
+              rules={[{ required: true, message: 'Key required.' }]}
+              style={{ marginBottom: 32 }}
+            >
+              <Input.Password
+                prefix={<LockOutlined style={{ color: '#0ea5e9' }} />}
+                placeholder="Enter your password"
+                style={{
+                  background: 'rgba(14,165,233,0.05)',
+                  border: '1px solid rgba(14,165,233,0.2)',
+                  borderRadius: 10,
+                  color: '#f8fafc',
+                  height: 52,
+                }}
+              />
+            </Form.Item>
+
+            <Form.Item style={{ marginBottom: 0 }}>
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+                style={{
+                  width: '100%',
+                  height: 54,
+                  borderRadius: 12,
+                  background: 'linear-gradient(135deg, #0ea5e9, #8b5cf6)',
+                  border: 'none',
+                  fontWeight: 800,
+                  fontSize: 15,
+                  letterSpacing: 2,
+                  boxShadow: '0 8px 30px rgba(14,165,233,0.35)',
+                }}
               >
-                <Input prefix={<UserOutlined style={{ color: '#0ea5e9' }} />} placeholder="Enter your username" />
-              </Form.Item>
+                INITIATE SECURE HANDSHAKE
+              </Button>
+            </Form.Item>
+          </Form>
 
-              <Form.Item
-                name="password"
-                label={<Text strong style={{ color: '#e2e8f0', fontSize: 14 }}>Decryption Key</Text>}
-                rules={[{ required: true, message: 'Key required.' }]}
-              >
-                <Input.Password prefix={<LockOutlined style={{ color: '#0ea5e9' }} />} placeholder="Enter your password" />
-              </Form.Item>
+          <div style={{ textAlign: 'center', marginTop: 32, fontSize: 14, color: '#475569' }}>
+            Not an operative?{' '}
+            <Link to="/register" style={{ color: '#0ea5e9', fontWeight: 700 }}>
+              Request Access
+            </Link>
+          </div>
+        </div>
+      </div>
 
-              <Form.Item style={{ marginTop: 32, marginBottom: 0 }}>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  loading={loading}
-                  style={{
-                    width: '100%',
-                    height: 50,
-                    borderRadius: 12,
-                    background: 'linear-gradient(135deg, #0ea5e9, #8b5cf6)',
-                    border: 'none',
-                    fontWeight: 700,
-                    fontSize: 16,
-                    letterSpacing: 1,
-                    boxShadow: '0 4px 20px rgba(14, 165, 233, 0.35)',
-                  }}
-                >
-                  INITIATE SECURE HANDSHAKE
-                </Button>
-              </Form.Item>
-            </Form>
-
-            <div style={{ textAlign: 'center', marginTop: 28, fontSize: '14px', color: '#cbd5e1' }}>
-              Not an operative?{' '}
-              <Link to="/register" style={{ color: '#0ea5e9', fontWeight: 700, borderBottom: '1px dashed #0ea5e9' }}>
-                Request Access
-              </Link>
-            </div>
-          </Col>
-        </Row>
-      </Card>
+      {/* Mobile fallback: stack vertically */}
+      <style>{`
+        @media (max-width: 768px) {
+          .auth-left-panel { display: none !important; }
+          div[style*="width: 50%"][style*="1e1b4b"] { width: 100% !important; }
+        }
+        .ant-input, .ant-input-password, .ant-input-affix-wrapper {
+          background: rgba(14,165,233,0.05) !important;
+          border-color: rgba(14,165,233,0.2) !important;
+          color: #f8fafc !important;
+        }
+        .ant-input::placeholder, .ant-input-password input::placeholder { color: #475569 !important; }
+        .ant-input-password .ant-input { background: transparent !important; }
+        .ant-form-item-label label { color: #94a3b8 !important; }
+      `}</style>
     </div>
   );
 };
 
 export default Login;
-
-

@@ -217,7 +217,7 @@ const KaliNmapScan: React.FC = () => {
           ) : (
             <Card style={{ marginBottom: 20, background: '#ffffff' }}>
               <p style={{ color: 'var(--text-muted)', textAlign: 'center' }}>
-                ✅ No open ports detected in the scanned range.
+                No open ports detected in the scanned range.
               </p>
             </Card>
           )}

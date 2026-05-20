@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Typography, Descriptions, Tag, Button, Input, message, Spin, Tabs, Table, Empty, Row, Col, Space } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { SaveOutlined, ArrowLeftOutlined, SnippetsOutlined, SearchOutlined, EditOutlined } from '@ant-design/icons';
+import { SaveOutlined, ArrowLeftOutlined, SnippetsOutlined, SearchOutlined, EditOutlined, PieChartOutlined, FileTextOutlined } from '@ant-design/icons';
 import api from '../../api/axiosConfig';
 import ReportGenerator from '../../components/ReportGenerator';
 import ReactMarkdown from 'react-markdown';
@@ -314,7 +314,7 @@ const CaseDetail: React.FC = () => {
                 },
                 ...(reports.length > 0 ? [{
                   key: 'report',
-                  label: <span style={{ padding: '0 12px' }}>📊 AI Intelligence Report</span>,
+                  label: <span style={{ padding: '0 12px' }}><PieChartOutlined style={{ marginRight: 8 }} /> AI Intelligence Report</span>,
                   children: (
                     <div style={{ padding: 16 }}>
                       {reports[0].visualReport ? (
@@ -456,7 +456,7 @@ const CaseDetail: React.FC = () => {
                 }] : []),
                 {
                   key: 'notes',
-                  label: <span style={{ padding: '0 12px' }}>📝 Intelligence Log</span>,
+                  label: <span style={{ padding: '0 12px' }}><FileTextOutlined style={{ marginRight: 8 }} /> Intelligence Log</span>,
                   children: (
                     <div style={{ padding: 16 }}>
                       <TextArea 
