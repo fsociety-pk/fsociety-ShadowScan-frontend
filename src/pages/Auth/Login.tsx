@@ -5,10 +5,7 @@
  */
 import React, { useState } from 'react';
 import { Form, Input, Button, Card, Typography, message, Row, Col, Divider } from 'antd';
-import {
-  LockOutlined, UserOutlined, GlobalOutlined, RadarChartOutlined,
-  KeyOutlined, EyeOutlined, SafetyCertificateOutlined, CodeOutlined,
-} from '@ant-design/icons';
+import { LockOutlined, UserOutlined, GlobalOutlined, RadarChartOutlined, KeyOutlined, EyeOutlined, SafetyCertificateOutlined, CodeOutlined } from '@ant-design/icons';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../../api/axiosConfig';
 import logoImg from '../../assets/logo.png';
@@ -25,7 +22,6 @@ const Login: React.FC = () => {
       const response = await api.post('/auth/login', values);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data));
-      // Clear the tour flag so the guided tour shows for this session
       localStorage.removeItem('shadowscan_tour_seen');
       message.success('Access Granted.');
       navigate('/dashboard');
@@ -38,22 +34,32 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="auth-wrapper" style={{ padding: '20px' }}>
-      {/* Decorative floating OSINT icons */}
-      <GlobalOutlined className="auth-icon-floating" style={{ top: '10%', left: '10%', fontSize: '120px', animationDelay: '0s', opacity: 0.05 }} />
-      <RadarChartOutlined className="auth-icon-floating" style={{ top: '60%', right: '10%', fontSize: '150px', animationDelay: '1s', opacity: 0.05 }} />
-      <KeyOutlined className="auth-icon-floating" style={{ bottom: '15%', left: '15%', fontSize: '80px', animationDelay: '2s', opacity: 0.05 }} />
-      <EyeOutlined className="auth-icon-floating" style={{ top: '20%', right: '20%', fontSize: '70px', animationDelay: '0.5s', opacity: 0.05 }} />
+    <div className="auth-wrapper" style={{ padding: '20px', position: 'relative' }}>
+      {/* Back to Home button */}
+      <Button
+        type="default"
+        onClick={() => navigate('/')}
+        style={{ position: 'absolute', top: 20, left: 20, zIndex: 20 }}
+      >
+        Back to Home
+      </Button>
+
+      {/* Floating decorative icons */}
+      <GlobalOutlined className="auth-icon-floating" style={{ top: '10%', left: '10%', fontSize: '120px', opacity: 0.05 }} />
+      <RadarChartOutlined className="auth-icon-floating" style={{ top: '60%', right: '10%', fontSize: '150px', opacity: 0.05 }} />
+      <KeyOutlined className="auth-icon-floating" style={{ bottom: '15%', left: '15%', fontSize: '80px', opacity: 0.05 }} />
+      <EyeOutlined className="auth-icon-floating" style={{ top: '20%', right: '20%', fontSize: '70px', opacity: 0.05 }} />
 
       <Card
-        style={{ width: '100%', maxWidth: 900, zIndex: 10, padding: 0, overflow: 'hidden' }}
+        style={{ width: '100%', maxWidth: 900, zIndex: 10, padding: 0, overflow: 'hidden', background: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(10px)' }}
         className="auth-card"
         bodyStyle={{ padding: 0 }}
       >
         <Row align="middle" style={{ minHeight: '520px' }}>
-          {/* ── Left branded panel ── */}
+          {/* Left branded panel */}
           <Col
-            xs={0} md={10}
+            xs={0}
+            md={10}
             style={{
               background: 'linear-gradient(160deg, #0ea5e9 0%, #1e3a5f 60%, #0f172a 100%)',
               minHeight: '520px',
@@ -66,31 +72,15 @@ const Login: React.FC = () => {
               overflow: 'hidden',
             }}
           >
-            {/* decorative watermark */}
             <div style={{ position: 'absolute', top: -30, right: -30, opacity: 0.06, fontSize: 200, color: '#fff' }}>
               <SafetyCertificateOutlined />
             </div>
-
-            {/* Centred logo + branding */}
             <img
               src={logoImg}
               alt="Shadow Scan Logo"
-              style={{
-                width: 90, height: 90, objectFit: 'contain',
-                marginBottom: 20,
-                filter: 'brightness(0) invert(1) drop-shadow(0 0 14px rgba(255,255,255,0.35))',
-              }}
+              style={{ width: 90, height: 90, objectFit: 'contain', marginBottom: 20, filter: 'brightness(0) invert(1) drop-shadow(0 0 14px rgba(255,255,255,0.35))' }}
             />
-            <Title
-              level={2}
-              style={{
-                color: '#ffffff', fontWeight: 900, margin: 0,
-                letterSpacing: 3, textAlign: 'center',
-                // override gradient heading rule
-                background: 'none', WebkitBackgroundClip: 'unset',
-                WebkitTextFillColor: '#ffffff',
-              }}
-            >
+            <Title level={2} style={{ color: '#ffffff', fontWeight: 900, margin: 0, letterSpacing: 3, textAlign: 'center' }}>
               SHADOW SCAN
             </Title>
             <Text style={{ color: '#bae6fd', fontSize: 13, letterSpacing: 1.5, marginBottom: 24, display: 'block', textAlign: 'center' }}>
@@ -107,17 +97,10 @@ const Login: React.FC = () => {
             </div>
           </Col>
 
-          {/* ── Right form panel ── */}
-          <Col xs={24} md={14} style={{ padding: '48px 52px', background: '#ffffff' }}>
+          {/* Right form panel */}
+          <Col xs={24} md={14} style={{ padding: '48px 52px', background: 'transparent' }}>
             <div style={{ textAlign: 'center', marginBottom: 36 }}>
-              <Title
-                level={3}
-                style={{
-                  margin: 0, fontWeight: 800, color: '#0f172a',
-                  background: 'none', WebkitBackgroundClip: 'unset',
-                  WebkitTextFillColor: '#0f172a',
-                }}
-              >
+              <Title level={3} style={{ margin: 0, fontWeight: 800, color: '#0f172a' }}>
                 OPERATIVE AUTHENTICATION
               </Title>
               <Text style={{ display: 'block', color: '#475569', fontSize: 14, marginTop: 8 }}>
@@ -125,13 +108,7 @@ const Login: React.FC = () => {
               </Text>
             </div>
 
-            <Form
-              name="login"
-              onFinish={onFinish}
-              layout="vertical"
-              size="large"
-              requiredMark="optional"
-            >
+            <Form name="login" onFinish={onFinish} layout="vertical" size="large" requiredMark="optional">
               <Form.Item
                 name="username"
                 label={<Text strong style={{ color: '#1e293b', fontSize: 14 }}>Agent Identifier</Text>}
@@ -154,9 +131,14 @@ const Login: React.FC = () => {
                   htmlType="submit"
                   loading={loading}
                   style={{
-                    width: '100%', height: 50, borderRadius: 12,
+                    width: '100%',
+                    height: 50,
+                    borderRadius: 12,
                     background: 'linear-gradient(135deg, #0ea5e9, #8b5cf6)',
-                    border: 'none', fontWeight: 700, fontSize: 16, letterSpacing: 1,
+                    border: 'none',
+                    fontWeight: 700,
+                    fontSize: 16,
+                    letterSpacing: 1,
                     boxShadow: '0 4px 20px rgba(14, 165, 233, 0.35)',
                   }}
                 >
@@ -179,3 +161,5 @@ const Login: React.FC = () => {
 };
 
 export default Login;
+
+

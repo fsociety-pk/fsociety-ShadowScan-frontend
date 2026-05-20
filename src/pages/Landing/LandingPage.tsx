@@ -1,5 +1,85 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { UserOutlined, GithubOutlined, LinkedinOutlined, MessageOutlined } from '@ant-design/icons';
+
+// Inline SVG icons for each tool
+const SherlockIcon = () => (
+  <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#a78bfa" strokeWidth="2">
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    <line x1="11" y1="8" x2="11" y2="14" />
+    <line x1="8" y1="11" x2="14" y2="11" />
+  </svg>
+);
+// ... (other icons unchanged)
+
+// ... rest of file unchanged until the nav section
+
+// NAV
+<nav style={{
+  position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+  background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(20px)',
+  borderBottom: '1px solid rgba(14,165,233,0.15)',
+  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+  padding: '0 40px', height: 64,
+}}>
+  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+      <UserOutlined style={{ fontSize: 18, color: '#fff' }} />
+    </div>
+    <div>
+      <div style={{ fontWeight: 900, fontSize: 16, letterSpacing: 3, color: '#0ea5e9' }}>SHADOW SCAN</div>
+      <div style={{ fontSize: 9, color: '#475569', letterSpacing: 1.5, fontWeight: 600 }}>OSINT INTELLIGENCE</div>
+    </div>
+  </div>
+  <div style={{ display: 'flex', gap: 12 }}>
+    <button onClick={() => navigate('/login')} style={{ background: 'transparent', border: '1px solid rgba(14,165,233,0.4)', color: '#0ea5e9', padding: '8px 20px', borderRadius: 8, cursor: 'pointer', fontWeight: 700, letterSpacing: 1, fontSize: 13 }}>
+      SIGN IN
+    </button>
+    <button onClick={() => navigate('/register')} style={{ background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', border: 'none', color: '#fff', padding: '8px 20px', borderRadius: 8, cursor: 'pointer', fontWeight: 700, letterSpacing: 1, fontSize: 13, boxShadow: '0 0 20px rgba(14,165,233,0.3)' }}>
+      GET STARTED
+    </button>
+  </div>
+</nav>
+
+// ... rest unchanged until footer section
+<footer style={{ position: 'relative', zIndex: 1, borderTop: '1px solid rgba(14,165,233,0.1)', padding: '48px 40px', textAlign: 'center' }}>
+  <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
+    <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
+      <UserOutlined style={{ fontSize: 16, color: '#fff' }} />
+    </div>
+    <span style={{ fontWeight: 900, letterSpacing: 3, color: '#0ea5e9', fontSize: 15 }}>SHADOW SCAN</span>
+  </div>
+
+  <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
+    {[
+      { label: 'GitHub', href: 'https://github.com/orgs/fsociety-pk', icon: <GithubOutlined style={{ fontSize: 16, color: '#fff' }} /> },
+      { label: 'LinkedIn', href: 'https://www.linkedin.com/company/113114181', icon: <LinkedinOutlined style={{ fontSize: 16, color: '#fff' }} /> },
+      { label: 'Discord', href: 'https://discord.gg/fsociety-pk', icon: <MessageOutlined style={{ fontSize: 16, color: '#fff' }} /> },
+    ].map(link => (
+      <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer"
+         style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8', padding: '10px 20px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14, transition: 'all 0.2s' }}
+         onMouseEnter={e => { e.currentTarget.style.background = 'rgba(14,165,233,0.18)'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+         onMouseLeave={e => { e.currentTarget.style.background = 'rgba(14,165,233,0.08)'; e.currentTarget.style.transform = ''; }}>
+        {link.icon}<span>{link.label}</span>
+      </a>
+    ))}
+  </div>
+
+  <div style={{ color: '#334155', fontSize: 12, letterSpacing: 1.5, fontWeight: 600 }}>
+    © {new Date().getFullYear()} FSOCIETY PK — DEVELOPED BY FSOCIETY PK • ALL RIGHTS RESERVED
+  </div>
+  <div style={{ color: '#1e3a5f', fontSize: 11, marginTop: 6, letterSpacing: 1 }}>
+    FOR AUTHORIZED OSINT INVESTIGATIONS ONLY
+  </div>
+
+  <style>{`
+    @keyframes blink { 50% { opacity: 0; } }
+  `}</style>
+</footer>
+
+// ... rest of file unchanged
+import { useNavigate } from 'react-router-dom';
 
 // Inline SVG icons for each tool
 const SherlockIcon = () => (
