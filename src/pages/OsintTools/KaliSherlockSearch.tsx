@@ -10,7 +10,7 @@ import {
   LinkOutlined, EyeOutlined, SafetyCertificateOutlined, AlertOutlined,
   AimOutlined,
 } from '@ant-design/icons';
-import axios from 'axios';
+import api from '../../api/axiosConfig';
 
 interface FoundPlatform {
   platform: string;
@@ -103,14 +103,7 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
     }, 500);
 
     try {
-      const base = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
-      const token = localStorage.getItem('token');
-
-      const response = await axios.post(
-        `${base}/kali-tools/sherlock`,
-        { username },
-        { headers: { Authorization: `Bearer ${token}` } },
-      );
+      const response = await api.post('/kali-tools/sherlock', { username });
 
       clearInterval(progressInterval);
       if (timerRef.current) clearInterval(timerRef.current);

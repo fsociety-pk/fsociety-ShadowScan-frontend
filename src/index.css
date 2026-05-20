@@ -631,6 +631,32 @@ input:-webkit-autofill:active {
   width: 420px;
 }
 
+/* ===== AUTH PAGES LEFT PANEL FIX ===== */
+.auth-left-panel h1,
+.auth-left-panel h2,
+.auth-left-panel h3,
+.auth-left-panel h4,
+.auth-left-panel h5,
+.auth-left-panel h6 {
+  background: none !important;
+  -webkit-text-fill-color: initial !important;
+  color: #ffffff !important;
+}
+
+.auth-left-panel .ant-typography,
+.auth-left-panel span,
+.auth-left-panel p {
+  color: #e2e8f0 !important;
+}
+
+.auth-left-panel .ant-typography.title-highlight {
+  color: #ffffff !important;
+}
+
+.auth-left-panel .ant-typography.subtitle-highlight {
+  color: #bae6fd !important;
+}
+
 /* ===== GLOBAL TEXT COLOR FIX (WHITE BG) ===== */
 
 /* All Ant Design text should use dark color on white bg */
@@ -648,7 +674,7 @@ input:-webkit-autofill:active {
 .ant-typography p,
 .ant-typography span,
 .ant-typography div {
-  color: var(--text-main) !important;
+  color: var(--text-main);
 }
 
 .ant-form-item-label > label {

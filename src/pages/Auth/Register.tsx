@@ -79,10 +79,10 @@ const Register: React.FC = () => {
           }}
         />
 
-        <Title level={1} style={{ color: '#ffffff', fontWeight: 900, margin: 0, letterSpacing: 4, textAlign: 'center', fontSize: 28 }}>
+        <Title level={1} className="title-highlight" style={{ fontWeight: 900, margin: 0, letterSpacing: 4, textAlign: 'center', fontSize: 28 }}>
           SHADOW SCAN
         </Title>
-        <Text style={{ color: '#ddd6fe', fontSize: 12, letterSpacing: 3, marginBottom: 32, display: 'block', textAlign: 'center', marginTop: 6 }}>
+        <Text className="subtitle-highlight" style={{ fontSize: 12, letterSpacing: 3, marginBottom: 32, display: 'block', textAlign: 'center', marginTop: 6 }}>
           INTELLIGENCE GATHERING NETWORK
         </Text>
 
@@ -150,7 +150,7 @@ const Register: React.FC = () => {
           <Form name="register" onFinish={onFinish} layout="vertical" size="large" requiredMark={false}>
             <Form.Item
               name="username"
-              label={<Text style={{ color: '#94a3b8', fontSize: 13, fontWeight: 600, letterSpacing: 1 }}>AGENT ALIAS</Text>}
+              label={<Text style={{ color: '#334155', fontSize: 13, fontWeight: 700, letterSpacing: 1 }}>AGENT ALIAS</Text>}
               rules={[{ required: true, message: 'Alias required.' }]}
             >
               <Input
@@ -169,7 +169,7 @@ const Register: React.FC = () => {
 
             <Form.Item
               name="password"
-              label={<Text style={{ color: '#94a3b8', fontSize: 13, fontWeight: 600, letterSpacing: 1 }}>SECURE ACCESS KEY</Text>}
+              label={<Text style={{ color: '#334155', fontSize: 13, fontWeight: 700, letterSpacing: 1 }}>SECURE ACCESS KEY</Text>}
               rules={[{ required: true, message: 'Key required.' }]}
               style={{ marginBottom: 32 }}
             >

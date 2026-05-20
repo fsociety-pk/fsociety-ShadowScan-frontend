@@ -11,7 +11,7 @@
  * The Claude AI engine processes all inputs, extracts relationships,
  * applies colour-coded tags, and produces a structured forensic report.
  */
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Card, Typography, Form, Input, Select, Button, message,
   Row, Col, Space, Tag, Divider, Alert, Progress, Segmented,
@@ -111,6 +111,37 @@ const NewCase: React.FC = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // --- LOCAL STORAGE PERSISTENCE ---
+  useEffect(() => {
+    const saved = localStorage.getItem('shadowScanNewCaseState');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.formValues) form.setFieldsValue(parsed.formValues);
+        if (parsed.structuredRows) setStructuredRows(parsed.structuredRows);
+        if (parsed.inputMode) setInputMode(parsed.inputMode);
+        if (parsed.attachedImages) setAttachedImages(parsed.attachedImages);
+      } catch (e) {
+        console.error('Failed to parse saved case state');
+      }
+    }
+  }, [form]);
+
+  // Save to local storage whenever form or structured rows change
+  const saveToLocalStorage = () => {
+    const stateToSave = {
+      formValues: form.getFieldsValue(),
+      structuredRows,
+      inputMode,
+      attachedImages
+    };
+    localStorage.setItem('shadowScanNewCaseState', JSON.stringify(stateToSave));
+  };
+
+  useEffect(() => {
+    saveToLocalStorage();
+  }, [structuredRows, inputMode, attachedImages]);
 
   /** Read a File as a base64 data URL. */
   const readFileAsDataUrl = (file: File): Promise<string> =>
@@ -217,6 +248,7 @@ const NewCase: React.FC = () => {
       setSubmitProgress(100);
       setSubmitStep('Done');
       message.success('Case created and AI report generated successfully.');
+      localStorage.removeItem('shadowScanNewCaseState'); // Clear persistent state on success
       navigate(`/cases/${caseId}`);
     } catch (err: unknown) {
       const apiErr = err as { response?: { data?: { message?: string } }; message?: string };
@@ -274,48 +306,49 @@ const NewCase: React.FC = () => {
 
   /** Fast-fill sample data for presentation */
   const loadSampleData = () => {
-    const sampleRaw = `contact: +1 212 555 0198
-friend: Angela Moss (met at Allsafe)
-email: elliot@mrrobot.com
-username: samsepi0l
-username: fsociety_redline
-alias: Mr. Robot
-location: New York City
-ip: 192.168.1.55
-ip: 198.51.100.24
-domain: fsociety.io
-domain: redline-mail.net
-github: https://github.com/samsepi0l
-x_profile: https://x.com/samsepi0l
-linkedin: Elliot Alderson - Cybersecurity Engineer
-organization: Allsafe Cybersecurity
-organization: E Corp (former contractor)
+    const sampleRaw = `contact: +92 300 1234567
+friend: Usman Ali (met at FAST NUCES)
+email: ahmed.hacker@gmail.com
+username: fsociety_pk
+username: shadow_khan99
+alias: Ahmed Khan
+location: Islamabad, Pakistan
+ip: 111.68.100.55
+ip: 203.215.160.24
+domain: fsociety.pk
+domain: redline-mail.com.pk
+github: https://github.com/fsociety_pk
+x_profile: https://x.com/shadow_khan99
+linkedin: Ahmed Khan - Cybersecurity Engineer
+organization: Allsafe Cybersecurity Pakistan
+organization: Jazz (former contractor)
 wallet: 0x9b2fAa44E9f9f6f6A194d2Df8A74d1E1f89b14C2
-vehicle: Honda Civic, NY-4A12
-location: Coney Island, NYC
-known_associate: Darlene Alderson (device-sharing evidence)
-known_associate: Tyrell Wellick (corporate communication logs)
-phone: +1 646 555 0132 (secondary number observed in Telegram dump)
-telegram: @mrrobot_ops
-discord: fsociety#1337
-data_leak_reference: Pastebin dump ID - redline_0912
+vehicle: Honda Civic, LEB-1234
+location: Blue Area, Islamabad
+known_associate: Fatima Ali (device-sharing evidence)
+known_associate: Tariq Mehmood (corporate communication logs)
+phone: +92 333 555 0132 (secondary number observed in Telegram dump)
+telegram: @shadow_ops_pk
+discord: fsociety_pk#1337
+data_leak_reference: Pastebin dump ID - redline_pk_0912
 tool_result_sherlock: 37 social accounts found with same username pattern
 tool_result_holehe: email registered on GitHub, Spotify, Dropbox, Discord, Reddit
-tool_result_whatsosint: profile image available, status text "we are fsociety"
-employer: Allsafe Cybersecurity
-note: Late-night login pattern (22:00-02:00 UTC), recurrent VPN exits in NYC and Newark, possible command-and-control coordination through disposable domains.`;
+tool_result_whatsosint: profile image available, status text "we are fsociety pk"
+employer: Systems Limited
+note: Late-night login pattern (02:00-05:00 PKT), recurrent VPN exits in Islamabad and Lahore, possible command-and-control coordination through disposable domains.`;
 
     form.setFieldsValue({
-      title: 'Operation Redline (Demo)',
+      title: 'Operation Redline Islamabad (Demo)',
       category: 'Cyber',
       priority: 'Critical',
-      targetName: 'Elliot Alderson',
-      targetEmail: 'elliot@mrrobot.com',
-      targetPhone: '+1 212 555 0198',
-      targetSocial: '@samsepi0l, @fsociety_redline',
+      targetName: 'Ahmed Khan',
+      targetEmail: 'ahmed.hacker@gmail.com',
+      targetPhone: '+92 300 1234567',
+      targetSocial: '@fsociety_pk, @shadow_khan99',
       rawFindings: sampleRaw,
     });
     setStructuredRows(parseRawToStructured(sampleRaw));
+    saveToLocalStorage();
     message.success('Sample data loaded for presentation!');
   };
 
@@ -361,7 +394,13 @@ note: Late-night login pattern (22:00-02:00 UTC), recurrent VPN exits in NYC and
         </Button>
       </div>
 
-      <Form form={form} layout="vertical" onFinish={onFinish} requiredMark="optional">
+      <Form 
+        form={form} 
+        layout="vertical" 
+        onFinish={onFinish} 
+        requiredMark="optional"
+        onValuesChange={() => saveToLocalStorage()}
+      >
         <Row gutter={24}>
 
           {/* ── Left: Core Data ── */}

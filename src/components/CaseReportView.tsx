@@ -2,6 +2,7 @@ import React from 'react';
 import { Alert, Button, Card, Col, Divider, Row, Space, Tag, Timeline, Typography } from 'antd';
 import { CopyOutlined, DownloadOutlined, FileTextOutlined, RadarChartOutlined, SafetyOutlined, UserOutlined } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
+import { MailOutlined, PhoneOutlined, GlobalOutlined, CompassOutlined, SafetyCertificateOutlined, LinkOutlined, ApiOutlined } from '@ant-design/icons';
 
 const { Paragraph, Text, Title } = Typography;
 
@@ -66,6 +67,26 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
   const visual = report.visualReport;
   const entityGroups = visual ? Object.entries(visual.entitiesByType) : [];
   const highlightedFindings = visual?.highlightedFindings || [];
+
+  const getEntityIcon = (type: string) => {
+    const t = type.toLowerCase();
+    if (t.includes('email')) return <MailOutlined style={{ color: '#0ea5e9', fontSize: 20 }} />;
+    if (t.includes('phone') || t.includes('number') || t.includes('contact')) return <PhoneOutlined style={{ color: '#10b981', fontSize: 20 }} />;
+    if (t.includes('social') || t.includes('account') || t.includes('username') || t.includes('telegram') || t.includes('discord')) return <GlobalOutlined style={{ color: '#8b5cf6', fontSize: 20 }} />;
+    if (t.includes('location')) return <CompassOutlined style={{ color: '#f59e0b', fontSize: 20 }} />;
+    if (t.includes('name') || t.includes('friend') || t.includes('associate')) return <UserOutlined style={{ color: '#ec4899', fontSize: 20 }} />;
+    return <SafetyCertificateOutlined style={{ color: '#64748b', fontSize: 20 }} />;
+  };
+
+  const getEntityTheme = (type: string) => {
+    const t = type.toLowerCase();
+    if (t.includes('email')) return { bg: '#f0f9ff', border: '#bae6fd', color: '#0ea5e9' };
+    if (t.includes('phone') || t.includes('number') || t.includes('contact')) return { bg: '#f0fdf4', border: '#bbf7d0', color: '#10b981' };
+    if (t.includes('social') || t.includes('account') || t.includes('username') || t.includes('telegram') || t.includes('discord')) return { bg: '#f5f3ff', border: '#ddd6fe', color: '#8b5cf6' };
+    if (t.includes('location')) return { bg: '#fffbeb', border: '#fde68a', color: '#f59e0b' };
+    if (t.includes('name') || t.includes('friend') || t.includes('associate')) return { bg: '#fdf2f8', border: '#fbcfe8', color: '#ec4899' };
+    return { bg: '#f8fafc', border: '#e2e8f0', color: '#64748b' };
+  };
 
   return (
     <div style={{ background: '#ffffff', borderRadius: 20, padding: 0, border: '1px solid #e5e7eb', overflow: 'hidden' }}>
@@ -150,65 +171,102 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
 
         <Row gutter={[16, 16]}>
         <Col xs={24} lg={14}>
-          <Card
-            title={<span><UserOutlined style={{ marginRight: 8, color: '#0ea5e9' }} />Identity Summary</span>}
-            bordered
-            style={{ borderRadius: 16, marginBottom: 16, borderColor: '#e5e7eb', boxShadow: '0 8px 20px rgba(15, 23, 42, 0.04)' }}
-          >
-            <Row gutter={[12, 12]}>
-              {entityGroups.length > 0 ? entityGroups.map(([type, values]) => (
+          <Title level={4} style={{ color: '#0f172a', marginBottom: 16 }}>
+            <SafetyOutlined style={{ color: '#0ea5e9', marginRight: 8 }} />
+            Entity Extraction Matrix
+          </Title>
+          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+            {entityGroups.length > 0 ? entityGroups.map(([type, values]) => {
+              const theme = getEntityTheme(type);
+              return (
                 <Col xs={24} md={12} key={type}>
-                  <div style={{ border: '1px solid #e2e8f0', borderRadius: 14, padding: 14, background: '#f8fbff', minHeight: 108 }}>
-                    <Text style={{ display: 'block', fontSize: 11, letterSpacing: 1.2, textTransform: 'uppercase', color: '#64748b', marginBottom: 8 }}>
-                      {type}
-                    </Text>
-                    <Space wrap>
-                      {values.slice(0, 10).map((value) => (
-                        <Tag key={value} color={tagColorFor(type)} style={{ margin: 0, borderRadius: 999, padding: '3px 10px' }}>
+                  <Card
+                    bordered={false}
+                    style={{
+                      background: theme.bg,
+                      border: `1px solid ${theme.border}`,
+                      borderRadius: 16,
+                      height: '100%',
+                      boxShadow: '0 4px 15px rgba(0,0,0,0.02)'
+                    }}
+                    styles={{ body: { padding: 20 } }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+                      <div style={{ background: '#ffffff', width: 40, height: 40, borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                        {getEntityIcon(type)}
+                      </div>
+                      <Text style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: theme.color }}>
+                        {type.replace(/_/g, ' ')}
+                      </Text>
+                    </div>
+                    <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                      {values.map((value) => (
+                        <div key={value} style={{ background: '#ffffff', border: `1px solid ${theme.border}`, padding: '8px 12px', borderRadius: 8, fontSize: 14, color: '#1e293b', wordBreak: 'break-all', fontWeight: 500 }}>
                           {value}
-                        </Tag>
+                        </div>
                       ))}
                     </Space>
-                  </div>
+                  </Card>
                 </Col>
-              )) : (
-                <Col span={24}>
+              );
+            }) : (
+              <Col span={24}>
+                <Card style={{ borderRadius: 16, textAlign: 'center', padding: 30, border: '1px dashed #cbd5e1' }}>
                   <Text style={{ color: '#64748b' }}>No structured entities were extracted from this case.</Text>
-                </Col>
-              )}
-            </Row>
-          </Card>
+                </Card>
+              </Col>
+            )}
+          </Row>
 
           <Card
-            title={<span><RadarChartOutlined style={{ marginRight: 8, color: '#7c3aed' }} />Relationship Overview</span>}
+            title={<span><ApiOutlined style={{ marginRight: 8, color: '#7c3aed' }} />Relationship Matrix Graph</span>}
             bordered
             style={{ borderRadius: 16, marginBottom: 16, borderColor: '#e5e7eb', boxShadow: '0 8px 20px rgba(15, 23, 42, 0.04)' }}
           >
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 14 }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20 }}>
               {visual?.tags?.map((tag) => (
-                <Tag key={tag} color={tagColorFor(tag)} style={{ borderRadius: 999, padding: '4px 12px', margin: 0 }}>
-                  {tag}
+                <Tag key={tag} color={tagColorFor(tag)} style={{ borderRadius: 6, padding: '4px 12px', margin: 0, fontWeight: 600 }}>
+                  {tag.toUpperCase()}
                 </Tag>
               ))}
             </div>
-            <Divider style={{ margin: '12px 0' }} />
             {visual?.relationshipGraph.edges.length ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {visual.relationshipGraph.edges.slice(0, 10).map((edge, index) => {
-                  const source = visual.relationshipGraph.nodes.find((node) => node.id === edge.source)?.label || edge.source;
-                  const target = visual.relationshipGraph.nodes.find((node) => node.id === edge.target)?.label || edge.target;
-                  return (
-                    <div key={`${edge.source}-${edge.target}-${index}`} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', border: '1px solid #e2e8f0', borderRadius: 12, background: '#ffffff' }}>
-                      <Tag color={edge.strength === 'strong' ? 'red' : edge.strength === 'medium' ? 'blue' : 'default'} style={{ margin: 0 }}>
-                        {edge.strength.toUpperCase()}
-                      </Tag>
-                      <Text style={{ color: '#0f172a', fontWeight: 600 }}>{source}</Text>
-                      <Text style={{ color: '#64748b' }}>→</Text>
-                      <Text style={{ color: '#0f172a', fontWeight: 600 }}>{target}</Text>
-                      <Text style={{ marginLeft: 'auto', color: '#64748b' }}>{edge.relation}</Text>
-                    </div>
-                  );
-                })}
+              <div style={{ background: '#0f172a', padding: 24, borderRadius: 16, position: 'relative', overflow: 'hidden' }}>
+                {/* Cyberpunk grid background */}
+                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, opacity: 0.05, backgroundImage: 'linear-gradient(#38bdf8 1px, transparent 1px), linear-gradient(90deg, #38bdf8 1px, transparent 1px)', backgroundSize: '20px 20px' }} />
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'relative', zIndex: 1 }}>
+                  {visual.relationshipGraph.edges.map((edge, index) => {
+                    const source = visual.relationshipGraph.nodes.find((node) => node.id === edge.source)?.label || edge.source;
+                    const target = visual.relationshipGraph.nodes.find((node) => node.id === edge.target)?.label || edge.target;
+                    
+                    const strColor = edge.strength === 'strong' ? '#ef4444' : edge.strength === 'medium' ? '#3b82f6' : '#64748b';
+                    
+                    return (
+                      <div key={`${edge.source}-${edge.target}-${index}`} style={{ display: 'flex', alignItems: 'stretch' }}>
+                        <div style={{ width: 140, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '10px 14px', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                          <Text style={{ color: '#e2e8f0', fontWeight: 600, fontSize: 13, wordBreak: 'break-word' }}>{source}</Text>
+                        </div>
+                        
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', position: 'relative', padding: '0 10px' }}>
+                          <div style={{ color: strColor, fontSize: 11, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', marginBottom: 4 }}>
+                            {edge.relation}
+                          </div>
+                          <div style={{ width: '100%', height: 2, background: `linear-gradient(90deg, rgba(255,255,255,0) 0%, ${strColor} 50%, rgba(255,255,255,0) 100%)`, position: 'relative' }}>
+                            <div style={{ position: 'absolute', right: '25%', top: -4, width: 0, height: 0, borderTop: '5px solid transparent', borderBottom: '5px solid transparent', borderLeft: `6px solid ${strColor}` }} />
+                          </div>
+                          <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 9, marginTop: 4, fontFamily: 'monospace' }}>
+                            STRENGTH: {edge.strength.toUpperCase()}
+                          </div>
+                        </div>
+
+                        <div style={{ width: 140, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', padding: '10px 14px', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
+                          <Text style={{ color: '#e2e8f0', fontWeight: 600, fontSize: 13, wordBreak: 'break-word' }}>{target}</Text>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             ) : (
               <Text style={{ color: '#64748b' }}>No confirmed relationship links were detected.</Text>
