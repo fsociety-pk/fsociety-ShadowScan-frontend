@@ -79,16 +79,16 @@ const Register: React.FC = () => {
           }}
         />
 
-        <Title level={1} className="title-highlight" style={{ fontWeight: 900, margin: 0, letterSpacing: 4, textAlign: 'center', fontSize: 28 }}>
+        <Title level={1} className="title-highlight" style={{ fontWeight: 900, margin: 0, letterSpacing: 4, textAlign: 'center', fontSize: 28, color: '#ffffff' }}>
           SHADOW SCAN
         </Title>
-        <Text className="subtitle-highlight" style={{ fontSize: 12, letterSpacing: 3, marginBottom: 32, display: 'block', textAlign: 'center', marginTop: 6 }}>
+        <Text className="subtitle-highlight" style={{ fontSize: 12, letterSpacing: 3, marginBottom: 32, display: 'block', textAlign: 'center', marginTop: 6, color: '#e2e8f0' }}>
           INTELLIGENCE GATHERING NETWORK
         </Text>
 
         <div style={{ width: '100%', maxWidth: 360, height: 1, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)', marginBottom: 28 }} />
 
-        <Text style={{ color: '#e2e8f0', fontSize: 14, textAlign: 'center', lineHeight: 1.8, maxWidth: 340 }}>
+        <Text style={{ color: '#ffffff', fontSize: 14, textAlign: 'center', lineHeight: 1.8, maxWidth: 340 }}>
           Register your operative alias. Your digital footprint on this platform will be encrypted and anonymized. Welcome to the grid.
         </Text>
 

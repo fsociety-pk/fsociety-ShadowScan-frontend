@@ -4,7 +4,7 @@
  * Features a simulated radar animation and dynamic step readout during the scan.
  */
 import React, { useState, useEffect, useRef } from 'react';
-import { Form, Input, Button, Card, Tag, Row, Col, Progress } from 'antd';
+import { Form, Input, Button, Card, Tag, Row, Col, Progress, Segmented } from 'antd';
 import {
   SearchOutlined, CheckCircleOutlined, CloseCircleOutlined,
   LinkOutlined, EyeOutlined, SafetyCertificateOutlined, AlertOutlined,
@@ -15,8 +15,12 @@ import api from '../../api/axiosConfig';
 interface FoundPlatform {
   platform: string;
   url: string;
+  status: 'found' | 'not_found' | 'rate_limit' | 'error';
   statusCode: number;
+  message?: string;
 }
+
+type SherlockFilter = 'all' | 'found' | 'not_found' | 'rate_limit' | 'error';
 
 /** Extracts a favicon URL from a platform profile URL using Google's favicon service. */
 const getPlatformFavicon = (url: string) => {
@@ -37,6 +41,7 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [foundPlatforms, setFoundPlatforms] = useState<FoundPlatform[]>([]);
+  const [resultFilter, setResultFilter] = useState<SherlockFilter>('all');
   const [done, setDone] = useState(false);
   const [targetUsername, setTargetUsername] = useState('');
   const [scanStats, setScanStats] = useState({
@@ -47,6 +52,30 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
 
   const [currentStep, setCurrentStep] = useState('System Idle');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const normalizePlatforms = (platforms: any[]): FoundPlatform[] =>
+    platforms.map((platform) => {
+      const status: FoundPlatform['status'] = platform?.status
+        ? platform.status
+        : platform?.found
+          ? 'found'
+          : 'not_found';
+      return {
+        platform: platform?.platform || platform?.name || 'Unknown Platform',
+        url: platform?.url || platform?.link || '',
+        status,
+        statusCode: typeof platform?.statusCode === 'number'
+          ? platform.statusCode
+          : status === 'found'
+            ? 200
+            : status === 'rate_limit'
+              ? 429
+              : status === 'error'
+                ? 500
+                : 404,
+        message: platform?.message || platform?.detail || '',
+      };
+    });
 
   // Status messages cycled during scan animation
   const steps = [
@@ -109,10 +138,10 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
       if (timerRef.current) clearInterval(timerRef.current);
       setProgress(100);
 
-      const platforms = response.data?.platforms || [];
-      const discovered: FoundPlatform[] = platforms.filter((p: { found: boolean }) => p.found);
-      setFoundPlatforms(discovered);
+      const platforms = normalizePlatforms(response.data?.platforms || []);
+      setFoundPlatforms(platforms);
 
+      const discovered = platforms.filter((p) => p.status === 'found');
       let threat = 'SECURE';
       if (discovered.length > 10) threat = 'EXPANSIVE';
       else if (discovered.length > 4) threat = 'MODERATE';
@@ -322,6 +351,23 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
             </Col>
           </Row>
 
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+            <div style={{ color: '#475569', fontSize: 13, fontWeight: 600 }}>
+              Showing {foundPlatforms.filter((p) => resultFilter === 'all' || p.status === resultFilter).length} of {foundPlatforms.length} results
+            </div>
+            <Segmented
+              value={resultFilter}
+              onChange={(value) => setResultFilter(value as SherlockFilter)}
+              options={[
+                { label: 'All', value: 'all' },
+                { label: 'Confirmed', value: 'found' },
+                { label: 'Not Found', value: 'not_found' },
+                { label: 'Rate Limit', value: 'rate_limit' },
+                { label: 'Error', value: 'error' },
+              ]}
+            />
+          </div>
+
           {/* Platform discovery grid */}
           {foundPlatforms.length > 0 ? (
             <Card
@@ -339,9 +385,11 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
               }}
             >
               <Row gutter={[16, 16]}>
-                {foundPlatforms.map((p, idx) => (
+                {foundPlatforms
+                  .filter((p) => resultFilter === 'all' || p.status === resultFilter)
+                  .map((p, idx) => (
                   <Col key={idx} xs={24} sm={12} lg={8}>
-                    <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                    <a href={p.url || '#'} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
                       <div
                         style={{
                           border: '1px solid #f1f5f9', background: '#f8fafc', borderRadius: 14,
@@ -395,11 +443,13 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
 
                         {/* Found badge */}
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
-                          <Tag color="green" style={{
+                          <Tag style={{
                             margin: 0, fontWeight: 700, fontSize: 11, borderRadius: 6,
-                            padding: '2px 8px', border: 'none', background: '#dcfce7', color: '#15803d',
+                            padding: '2px 8px', border: 'none',
+                            background: p.status === 'found' ? '#dcfce7' : p.status === 'rate_limit' ? '#ffedd5' : p.status === 'error' ? '#fee2e2' : '#f1f5f9',
+                            color: p.status === 'found' ? '#15803d' : p.status === 'rate_limit' ? '#ea580c' : p.status === 'error' ? '#dc2626' : '#64748b',
                           }}>
-                            FOUND
+                            {p.status === 'found' ? 'CONFIRMED' : p.status === 'not_found' ? 'NOT FOUND' : p.status === 'rate_limit' ? 'RATE LIMIT' : 'ERROR'}
                           </Tag>
                           <LinkOutlined style={{ color: '#6366f1', fontSize: 13 }} />
                         </div>

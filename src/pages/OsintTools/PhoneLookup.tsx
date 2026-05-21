@@ -36,10 +36,29 @@ interface NexusResult {
   whatsapp?: WhatsAppProfile | null;
   phoneinfoga?: {
     country_code: number;
+    country?: string;
     international: string;
     e164: string;
     carrier: string;
     line_type: string;
+    exists: boolean;
+    reputation: {
+      score: number;
+      level: 'Low' | 'Medium' | 'High';
+      reports: string[];
+      socialMedia: boolean;
+      disposable: boolean;
+      notes: string[];
+    };
+    footprint: {
+      externalApis: string[];
+      phoneBooks: string[];
+      searchEngines: string[];
+      reputationReports: string[];
+      socialMediaHints: string[];
+      disposableIndicators: string[];
+    };
+    sources: string[];
     success: boolean;
   } | null;
 }
@@ -64,6 +83,7 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
 
   const [currentStep, setCurrentStep] = useState('System Idle');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const phoneInfoga = nexusData?.phoneinfoga;
 
   // Status messages cycled during scan animation
   const steps = [
@@ -341,43 +361,163 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
             </Col>
           </Row>
 
-          {/* PhoneInfoga details card */}
-          {nexusData.phoneinfoga && (
+          {/* PhoneInfoga intelligence dashboard */}
+          {phoneInfoga && (
             <Card
-              title={
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <GlobalOutlined style={{ color: '#3b82f6', fontSize: 18 }} />
-                  <span style={{ color: '#1e293b', fontWeight: 700, fontSize: 16 }}>
-                    PhoneInfoga Telecom Intelligence
-                  </span>
-                </div>
-              }
               style={{
-                borderRadius: 16, border: '1px solid #e2e8f0',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.02)', marginBottom: 24,
+                marginBottom: 24,
+                borderRadius: 20,
+                overflow: 'hidden',
+                border: '1px solid #dbeafe',
+                boxShadow: '0 14px 34px rgba(2, 132, 199, 0.08)',
               }}
+              bodyStyle={{ padding: 0 }}
             >
-              <Descriptions column={{ xs: 1, sm: 2, md: 3 }} size="small" bordered={false} style={{ background: '#f8fafc', padding: 16, borderRadius: 12 }}>
-                <Descriptions.Item label={<strong>International Format</strong>}>
-                  <Text strong>{nexusData.phoneinfoga.international || 'N/A'}</Text>
-                </Descriptions.Item>
-                <Descriptions.Item label={<strong>E.164 Format</strong>}>
-                  <Text strong>{nexusData.phoneinfoga.e164 || 'N/A'}</Text>
-                </Descriptions.Item>
-                <Descriptions.Item label={<strong>Country Code</strong>}>
-                  <Tag color="geekblue" style={{ fontWeight: 700, borderRadius: 6 }}>
-                    +{nexusData.phoneinfoga.country_code || 'N/A'}
-                  </Tag>
-                </Descriptions.Item>
-                <Descriptions.Item label={<strong>Carrier</strong>}>
-                  <Text strong>{nexusData.phoneinfoga.carrier}</Text>
-                </Descriptions.Item>
-                <Descriptions.Item label={<strong>Line Type</strong>}>
-                  <Tag color="purple" style={{ fontWeight: 700, borderRadius: 6 }}>
-                    {nexusData.phoneinfoga.line_type.toUpperCase()}
-                  </Tag>
-                </Descriptions.Item>
-              </Descriptions>
+              <div style={{
+                padding: '22px 24px',
+                background: 'linear-gradient(135deg, #0f172a 0%, #0ea5e9 55%, #22c55e 100%)',
+                color: '#fff',
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                      <GlobalOutlined style={{ fontSize: 20 }} />
+                      <span style={{ fontSize: 18, fontWeight: 800, letterSpacing: 0.4 }}>PhoneInfoga Intelligence Matrix</span>
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13 }}>
+                      Existence, telecom metadata, footprinting, reputation, social-media, and disposable-number signals.
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                    <Tag color={phoneInfoga.exists ? 'green' : 'red'} style={{ margin: 0, border: 'none', fontWeight: 800, padding: '4px 10px', borderRadius: 8 }}>
+                      {phoneInfoga.exists ? 'NUMBER EXISTS' : 'NO CLEAR SIGNAL'}
+                    </Tag>
+                    <Tag color="blue" style={{ margin: 0, border: 'none', fontWeight: 800, padding: '4px 10px', borderRadius: 8 }}>
+                      REPUTATION {phoneInfoga.reputation.level.toUpperCase()}
+                    </Tag>
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ padding: 24, background: '#ffffff' }}>
+                <Row gutter={[16, 16]} style={{ marginBottom: 18 }}>
+                  <Col xs={24} sm={12} lg={6}>
+                    <Card size="small" style={{ borderRadius: 14, border: '1px solid #e2e8f0', background: 'linear-gradient(135deg, #f8fafc, #ffffff)' }} bodyStyle={{ padding: 16 }}>
+                      <Text style={{ color: '#64748b', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}>Exists</Text>
+                      <div style={{ fontSize: 22, fontWeight: 800, color: phoneInfoga.exists ? '#10b981' : '#ef4444', marginTop: 6 }}>
+                        {phoneInfoga.exists ? 'Yes' : 'No'}
+                      </div>
+                    </Card>
+                  </Col>
+                  <Col xs={24} sm={12} lg={6}>
+                    <Card size="small" style={{ borderRadius: 14, border: '1px solid #e2e8f0', background: 'linear-gradient(135deg, #f8fafc, #ffffff)' }} bodyStyle={{ padding: 16 }}>
+                      <Text style={{ color: '#64748b', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}>Country</Text>
+                      <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', marginTop: 6 }}>
+                        {phoneInfoga.country || `+${phoneInfoga.country_code || 'N/A'}`}
+                      </div>
+                    </Card>
+                  </Col>
+                  <Col xs={24} sm={12} lg={6}>
+                    <Card size="small" style={{ borderRadius: 14, border: '1px solid #e2e8f0', background: 'linear-gradient(135deg, #f8fafc, #ffffff)' }} bodyStyle={{ padding: 16 }}>
+                      <Text style={{ color: '#64748b', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}>Carrier</Text>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', marginTop: 6, lineHeight: 1.3 }}>
+                        {phoneInfoga.carrier}
+                      </div>
+                    </Card>
+                  </Col>
+                  <Col xs={24} sm={12} lg={6}>
+                    <Card size="small" style={{ borderRadius: 14, border: '1px solid #e2e8f0', background: 'linear-gradient(135deg, #f8fafc, #ffffff)' }} bodyStyle={{ padding: 16 }}>
+                      <Text style={{ color: '#64748b', fontSize: 12, fontWeight: 700, textTransform: 'uppercase' }}>Line Type</Text>
+                      <div style={{ marginTop: 8 }}>
+                        <Tag color="purple" style={{ fontWeight: 800, borderRadius: 8, padding: '4px 10px', border: 'none' }}>
+                          {(phoneInfoga.line_type || 'Unknown').toUpperCase()}
+                        </Tag>
+                      </div>
+                    </Card>
+                  </Col>
+                </Row>
+
+                <Row gutter={[16, 16]} style={{ marginBottom: 18 }}>
+                  <Col xs={24} lg={12}>
+                    <Card title="Telecom Identity" size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0' }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
+                      <Descriptions column={1} size="small" bordered={false}>
+                        <Descriptions.Item label={<strong>International Format</strong>}>
+                          <Text strong>{phoneInfoga.international || 'N/A'}</Text>
+                        </Descriptions.Item>
+                        <Descriptions.Item label={<strong>E.164 Format</strong>}>
+                          <Text strong>{phoneInfoga.e164 || 'N/A'}</Text>
+                        </Descriptions.Item>
+                        <Descriptions.Item label={<strong>Country Code</strong>}>
+                          <Tag color="geekblue" style={{ fontWeight: 700, borderRadius: 6 }}>
+                            +{phoneInfoga.country_code || 'N/A'}
+                          </Tag>
+                        </Descriptions.Item>
+                      </Descriptions>
+                    </Card>
+                  </Col>
+
+                  <Col xs={24} lg={12}>
+                    <Card title="Reputation & Disposable Signals" size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0' }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12, flexWrap: 'wrap' }}>
+                        <Tag color={phoneInfoga.reputation.level === 'High' ? 'red' : phoneInfoga.reputation.level === 'Medium' ? 'orange' : 'green'} style={{ margin: 0, fontWeight: 800, borderRadius: 8, border: 'none' }}>
+                          SCORE {phoneInfoga.reputation.score}
+                        </Tag>
+                        <Tag color="blue" style={{ margin: 0, fontWeight: 800, borderRadius: 8, border: 'none' }}>
+                          {phoneInfoga.reputation.socialMedia ? 'SOCIAL MEDIA LINKABLE' : 'NO SOCIAL MEDIA SIGNAL'}
+                        </Tag>
+                        <Tag color={phoneInfoga.reputation.disposable ? 'volcano' : 'default'} style={{ margin: 0, fontWeight: 800, borderRadius: 8, border: 'none' }}>
+                          {phoneInfoga.reputation.disposable ? 'DISPOSABLE FLAGGED' : 'NO DISPOSABLE FLAG'}
+                        </Tag>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        {phoneInfoga.reputation.reports.map((item) => (
+                          <div key={item} style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 10, padding: '8px 12px', color: '#334155', fontSize: 13 }}>
+                            {item}
+                          </div>
+                        ))}
+                        {phoneInfoga.reputation.notes.map((item) => (
+                          <div key={item} style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 10, padding: '8px 12px', color: '#1d4ed8', fontSize: 13 }}>
+                            {item}
+                          </div>
+                        ))}
+                      </div>
+                    </Card>
+                  </Col>
+                </Row>
+
+                <Row gutter={[16, 16]}>
+                  <Col xs={24} lg={8}>
+                    <Card title="External APIs" size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0' }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                        {phoneInfoga.footprint.externalApis.map((item) => <Tag key={item} color="blue" style={{ margin: 0 }}>{item}</Tag>)}
+                      </div>
+                    </Card>
+                  </Col>
+                  <Col xs={24} lg={8}>
+                    <Card title="Phone Books & Search" size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0' }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div><Text strong>Phone books:</Text> {phoneInfoga.footprint.phoneBooks.join(' · ')}</div>
+                        <div><Text strong>Search engines:</Text> {phoneInfoga.footprint.searchEngines.join(' · ')}</div>
+                      </div>
+                    </Card>
+                  </Col>
+                  <Col xs={24} lg={8}>
+                    <Card title="Social & Disposable" size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0' }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div><Text strong>Social media:</Text> {phoneInfoga.footprint.socialMediaHints.join(' · ')}</div>
+                        <div><Text strong>Reputation reports:</Text> {phoneInfoga.footprint.reputationReports.join(' · ')}</div>
+                        <div><Text strong>Disposable checks:</Text> {phoneInfoga.footprint.disposableIndicators.join(' · ')}</div>
+                      </div>
+                    </Card>
+                  </Col>
+                </Row>
+
+                <Card title="Source Matrix" size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0', marginTop: 16 }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                    {phoneInfoga.sources.map((item) => <Tag key={item} color="geekblue" style={{ margin: 0 }}>{item}</Tag>)}
+                  </div>
+                </Card>
+              </div>
             </Card>
           )}
 

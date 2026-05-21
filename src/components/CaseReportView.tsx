@@ -322,7 +322,7 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
               <Card bordered={false} style={{ borderRadius: 16, marginBottom: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
                 title={<span style={{ fontWeight: 700, color: '#1e293b' }}><ClockCircleOutlined style={{ color: '#6366f1', marginRight: 8 }} />Investigation Timeline</span>}>
                 <Timeline
-                  items={(v?.timeline || []).map((t, i) => ({
+                  items={(v?.timeline || []).map((t) => ({
                     color: 'blue',
                     children: (
                       <div>

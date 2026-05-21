@@ -186,7 +186,7 @@ const LandingPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ background: '#020617', color: '#e2e8f0', fontFamily: "'Space Grotesk', 'Inter', sans-serif", overflowX: 'hidden' }}>
+    <div style={{ background: 'linear-gradient(180deg, #ffffff 0%, #f5f8fc 55%, #eef4fb 100%)', color: '#0f172a', fontFamily: "'Space Grotesk', 'Inter', sans-serif", overflowX: 'hidden' }}>
       {/* Particle background */}
       <canvas ref={canvasRef} style={{ position: 'fixed', top: 0, left: 0, zIndex: 0, pointerEvents: 'none' }} />
 
@@ -200,8 +200,8 @@ const LandingPage: React.FC = () => {
       {/* NAV */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: 'rgba(2,6,23,0.85)', backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(14,165,233,0.15)',
+        background: 'rgba(255,255,255,0.82)', backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(15,23,42,0.08)',
         display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 40px', height: 64,
       }}>
@@ -210,15 +210,15 @@ const LandingPage: React.FC = () => {
             <UserOutlined style={{ fontSize: 18, color: '#fff' }} />
           </div>
           <div>
-            <div style={{ fontWeight: 900, fontSize: 16, letterSpacing: 3, color: '#0ea5e9' }}>SHADOW SCAN</div>
-            <div style={{ fontSize: 9, color: '#475569', letterSpacing: 1.5, fontWeight: 600 }}>OSINT INTELLIGENCE</div>
+            <div style={{ fontWeight: 900, fontSize: 16, letterSpacing: 3, color: '#0284c7' }}>SHADOW SCAN</div>
+            <div style={{ fontSize: 9, color: '#64748b', letterSpacing: 1.5, fontWeight: 600 }}>OSINT INTELLIGENCE</div>
           </div>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
-          <button onClick={() => navigate('/login')} style={{ background: 'transparent', border: '1px solid rgba(14,165,233,0.4)', color: '#0ea5e9', padding: '8px 20px', borderRadius: 8, cursor: 'pointer', fontWeight: 700, letterSpacing: 1, fontSize: 13 }}>
+          <button onClick={() => navigate('/login')} style={{ background: 'transparent', border: '1px solid rgba(2,132,199,0.35)', color: '#0284c7', padding: '8px 20px', borderRadius: 8, cursor: 'pointer', fontWeight: 700, letterSpacing: 1, fontSize: 13 }}>
             SIGN IN
           </button>
-          <button onClick={() => navigate('/register')} style={{ background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', border: 'none', color: '#fff', padding: '8px 20px', borderRadius: 8, cursor: 'pointer', fontWeight: 700, letterSpacing: 1, fontSize: 13, boxShadow: '0 0 20px rgba(14,165,233,0.3)' }}>
+          <button onClick={() => navigate('/register')} style={{ background: 'linear-gradient(135deg,#0ea5e9,#2563eb)', border: 'none', color: '#fff', padding: '8px 20px', borderRadius: 8, cursor: 'pointer', fontWeight: 700, letterSpacing: 1, fontSize: 13, boxShadow: '0 0 20px rgba(14,165,233,0.18)' }}>
             GET STARTED
           </button>
         </div>
@@ -226,29 +226,29 @@ const LandingPage: React.FC = () => {
 
       {/* HERO */}
       <section style={{ position: 'relative', zIndex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '100px 20px 60px' }}>
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.3)', borderRadius: 999, padding: '6px 16px', marginBottom: 32, fontSize: 12, color: '#38bdf8', letterSpacing: 2, fontWeight: 700 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', borderRadius: 999, padding: '6px 16px', marginBottom: 32, fontSize: 12, color: '#0284c7', letterSpacing: 2, fontWeight: 700 }}>
           ◆ POWERED BY FSOCIETY PK ◆
         </div>
 
         <h1 style={{ fontSize: 'clamp(36px, 6vw, 80px)', fontWeight: 900, lineHeight: 1.1, marginBottom: 16, letterSpacing: -1 }}>
-          <span style={{ color: '#e2e8f0' }}>Open Source</span>
+          <span style={{ color: '#0f172a' }}>Open Source</span>
           <br />
           <span style={{ background: 'linear-gradient(135deg, #0ea5e9, #8b5cf6, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             {twText}<span style={{ animation: 'blink 1s step-end infinite', opacity: 1 }}>|</span>
           </span>
         </h1>
 
-        <p style={{ fontSize: 18, color: '#94a3b8', maxWidth: 640, lineHeight: 1.7, marginBottom: 40 }}>
+        <p style={{ fontSize: 18, color: '#475569', maxWidth: 640, lineHeight: 1.7, marginBottom: 40 }}>
           Professional-grade OSINT investigation platform. Combine AI-powered analysis, multi-source reconnaissance, and relationship mapping into stunning intelligence reports.
         </p>
 
         <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
-          <button onClick={() => navigate('/register')} style={{ background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', border: 'none', color: '#fff', padding: '14px 36px', borderRadius: 12, cursor: 'pointer', fontWeight: 800, fontSize: 16, letterSpacing: 1, boxShadow: '0 0 40px rgba(14,165,233,0.4)', transition: 'all 0.3s' }}
+          <button onClick={() => navigate('/register')} style={{ background: 'linear-gradient(135deg,#0ea5e9,#2563eb)', border: 'none', color: '#fff', padding: '14px 36px', borderRadius: 12, cursor: 'pointer', fontWeight: 800, fontSize: 16, letterSpacing: 1, boxShadow: '0 0 28px rgba(14,165,233,0.22)', transition: 'all 0.3s' }}
             onMouseEnter={e => (e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)')}
             onMouseLeave={e => (e.currentTarget.style.transform = '')}>
             START FREE INVESTIGATION →
           </button>
-          <button onClick={() => navigate('/login')} style={{ background: 'transparent', border: '1px solid rgba(14,165,233,0.4)', color: '#0ea5e9', padding: '14px 36px', borderRadius: 12, cursor: 'pointer', fontWeight: 700, fontSize: 16, letterSpacing: 1 }}>
+          <button onClick={() => navigate('/login')} style={{ background: 'transparent', border: '1px solid rgba(2,132,199,0.35)', color: '#0284c7', padding: '14px 36px', borderRadius: 12, cursor: 'pointer', fontWeight: 700, fontSize: 16, letterSpacing: 1 }}>
             SIGN IN
           </button>
         </div>
@@ -257,7 +257,7 @@ const LandingPage: React.FC = () => {
         <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap', justifyContent: 'center', marginTop: 64 }}>
           {STATS.map(s => (
             <div key={s.label} style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 36, fontWeight: 900, background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{s.value}</div>
+              <div style={{ fontSize: 36, fontWeight: 900, background: 'linear-gradient(135deg,#0284c7,#2563eb)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{s.value}</div>
               <div style={{ fontSize: 12, color: '#64748b', letterSpacing: 1.5, fontWeight: 600 }}>{s.label}</div>
             </div>
           ))}
@@ -267,16 +267,16 @@ const LandingPage: React.FC = () => {
       {/* FEATURES */}
       <section style={{ position: 'relative', zIndex: 1, padding: '80px 40px', maxWidth: 1200, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <div style={{ fontSize: 12, color: '#0ea5e9', letterSpacing: 3, fontWeight: 700, marginBottom: 12 }}>CAPABILITIES</div>
-          <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 900, color: '#e2e8f0' }}>Intelligence at Every Layer</h2>
+          <div style={{ fontSize: 12, color: '#0284c7', letterSpacing: 3, fontWeight: 700, marginBottom: 12 }}>CAPABILITIES</div>
+          <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 900, color: '#0f172a' }}>Intelligence at Every Layer</h2>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
           {FEATURES.map(f => (
-            <div key={f.title} style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(14,165,233,0.12)', borderRadius: 16, padding: 28, transition: 'all 0.3s', cursor: 'default' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(14,165,233,0.4)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 20px 40px rgba(14,165,233,0.1)'; }}
-              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(14,165,233,0.12)'; (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = ''; }}>
-              <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 10, color: '#e2e8f0' }}>{f.title}</div>
-              <div style={{ color: '#94a3b8', fontSize: 14, lineHeight: 1.6 }}>{f.desc}</div>
+            <div key={f.title} style={{ background: '#ffffff', border: '1px solid rgba(14,165,233,0.12)', borderRadius: 16, padding: 28, transition: 'all 0.3s', cursor: 'default', boxShadow: '0 16px 30px rgba(15,23,42,0.04)' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(14,165,233,0.4)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-4px)'; (e.currentTarget as HTMLElement).style.boxShadow = '0 20px 40px rgba(14,165,233,0.08)'; }}
+              onMouseLeave={e => { (e.currentTarget as HTMLElement).style.borderColor = 'rgba(14,165,233,0.12)'; (e.currentTarget as HTMLElement).style.transform = ''; (e.currentTarget as HTMLElement).style.boxShadow = '0 16px 30px rgba(15,23,42,0.04)'; }}>
+              <div style={{ fontWeight: 800, fontSize: 17, marginBottom: 10, color: '#0f172a' }}>{f.title}</div>
+              <div style={{ color: '#475569', fontSize: 14, lineHeight: 1.6 }}>{f.desc}</div>
             </div>
           ))}
         </div>
@@ -287,16 +287,16 @@ const LandingPage: React.FC = () => {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 56 }}>
             <div style={{ fontSize: 12, color: '#0ea5e9', letterSpacing: 3, fontWeight: 700, marginBottom: 12 }}>ARSENAL</div>
-            <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 900, color: '#e2e8f0' }}>Supported OSINT Tools</h2>
+            <h2 style={{ fontSize: 'clamp(28px, 4vw, 48px)', fontWeight: 900, color: '#0f172a' }}>Supported OSINT Tools</h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
             {TOOLS.map(t => (
-              <div key={t.name} style={{ background: 'rgba(2,6,23,0.9)', border: '1px solid rgba(139,92,246,0.15)', borderRadius: 14, padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 16 }}>
+              <div key={t.name} style={{ background: '#ffffff', border: '1px solid rgba(139,92,246,0.15)', borderRadius: 14, padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 16, boxShadow: '0 16px 30px rgba(15,23,42,0.04)' }}>
                 <div style={{ flexShrink: 0, width: 40, height: 40, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(14,165,233,0.08)', borderRadius: 10, border: '1px solid rgba(14,165,233,0.1)' }}>
                   <t.Icon />
                 </div>
                 <div>
-                  <div style={{ fontWeight: 800, fontSize: 15, color: '#c4b5fd', marginBottom: 4 }}>{t.name}</div>
+                  <div style={{ fontWeight: 800, fontSize: 15, color: '#0f172a', marginBottom: 4 }}>{t.name}</div>
                   <div style={{ color: '#64748b', fontSize: 12, lineHeight: 1.5 }}>{t.desc}</div>
                 </div>
               </div>
@@ -308,29 +308,29 @@ const LandingPage: React.FC = () => {
       {/* FAQ */}
       <section style={{ position: 'relative', zIndex: 1, padding: '80px 40px', maxWidth: 800, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
-          <div style={{ fontSize: 12, color: '#0ea5e9', letterSpacing: 3, fontWeight: 700, marginBottom: 12 }}>FAQ</div>
-          <h2 style={{ fontSize: 'clamp(24px, 3vw, 40px)', fontWeight: 900, color: '#e2e8f0' }}>Common Questions</h2>
+          <div style={{ fontSize: 12, color: '#0284c7', letterSpacing: 3, fontWeight: 700, marginBottom: 12 }}>FAQ</div>
+          <h2 style={{ fontSize: 'clamp(24px, 3vw, 40px)', fontWeight: 900, color: '#0f172a' }}>Common Questions</h2>
         </div>
         {faqs.map((faq, idx) => (
-          <div key={idx} style={{ background: 'rgba(15,23,42,0.8)', border: '1px solid rgba(14,165,233,0.1)', borderRadius: 12, marginBottom: 12, overflow: 'hidden' }}>
-            <button onClick={() => setFaqOpen(faqOpen === idx ? null : idx)} style={{ width: '100%', background: 'none', border: 'none', padding: '18px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: '#e2e8f0', fontWeight: 700, fontSize: 15, textAlign: 'left' }}>
+          <div key={idx} style={{ background: '#ffffff', border: '1px solid rgba(14,165,233,0.1)', borderRadius: 12, marginBottom: 12, overflow: 'hidden', boxShadow: '0 10px 24px rgba(15,23,42,0.04)' }}>
+            <button onClick={() => setFaqOpen(faqOpen === idx ? null : idx)} style={{ width: '100%', background: 'none', border: 'none', padding: '18px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', color: '#0f172a', fontWeight: 700, fontSize: 15, textAlign: 'left' }}>
               {faq.q}
-              <span style={{ color: '#0ea5e9', fontSize: 20, transition: 'transform 0.3s', transform: faqOpen === idx ? 'rotate(45deg)' : '' }}>+</span>
+              <span style={{ color: '#0284c7', fontSize: 20, transition: 'transform 0.3s', transform: faqOpen === idx ? 'rotate(45deg)' : '' }}>+</span>
             </button>
             {faqOpen === idx && (
-              <div style={{ padding: '0 24px 18px', color: '#94a3b8', fontSize: 14, lineHeight: 1.7 }}>{faq.a}</div>
+              <div style={{ padding: '0 24px 18px', color: '#475569', fontSize: 14, lineHeight: 1.7 }}>{faq.a}</div>
             )}
           </div>
         ))}
       </section>
 
       {/* FOOTER */}
-      <footer style={{ position: 'relative', zIndex: 1, borderTop: '1px solid rgba(14,165,233,0.1)', padding: '48px 40px', textAlign: 'center' }}>
+      <footer style={{ position: 'relative', zIndex: 1, borderTop: '1px solid rgba(14,165,233,0.1)', padding: '48px 40px', textAlign: 'center', background: 'rgba(255,255,255,0.78)' }}>
         <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12 }}>
           <div style={{ width: 32, height: 32, borderRadius: 8, background: 'linear-gradient(135deg,#0ea5e9,#8b5cf6)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16 }}>
             <UserOutlined style={{ fontSize: 16, color: '#fff' }} />
           </div>
-          <span style={{ fontWeight: 900, letterSpacing: 3, color: '#0ea5e9', fontSize: 15 }}>SHADOW SCAN</span>
+          <span style={{ fontWeight: 900, letterSpacing: 3, color: '#0284c7', fontSize: 15 }}>SHADOW SCAN</span>
         </div>
 
         <div style={{ display: 'flex', gap: 16, justifyContent: 'center', marginBottom: 24, flexWrap: 'wrap' }}>
@@ -339,8 +339,8 @@ const LandingPage: React.FC = () => {
             { label: 'LinkedIn', href: 'https://www.linkedin.com/company/113114181', icon: <LinkedinOutlined /> },
             { label: 'Discord', href: 'https://discord.gg/fsociety-pk', icon: <WechatOutlined /> },
           ].map(link => (
-            <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', color: '#38bdf8', padding: '10px 20px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14, transition: 'all 0.2s' }}
-              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(14,165,233,0.18)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
+            <a key={link.label} href={link.href} target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', color: '#0284c7', padding: '10px 20px', borderRadius: 10, textDecoration: 'none', fontWeight: 700, fontSize: 14, transition: 'all 0.2s' }}
+              onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(14,165,233,0.12)'; (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)'; }}
               onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(14,165,233,0.08)'; (e.currentTarget as HTMLElement).style.transform = ''; }}>
               <span style={{ fontSize: 16 }}>{link.icon}</span>{link.label}
             </a>

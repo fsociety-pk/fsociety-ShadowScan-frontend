@@ -4,7 +4,7 @@
  * Features a simulated radar animation and dynamic step readout during the scan.
  */
 import React, { useState, useEffect, useRef } from 'react';
-import { Form, Input, Button, Card, Tag, Row, Col, Progress } from 'antd';
+import { Form, Input, Button, Card, Tag, Row, Col, Progress, Segmented } from 'antd';
 import {
   MailOutlined, SearchOutlined, CheckCircleOutlined, CloseCircleOutlined,
   LinkOutlined, EyeOutlined, AlertOutlined, AimOutlined, SafetyCertificateOutlined,
@@ -17,6 +17,8 @@ interface FoundPlatform {
   status: 'found' | 'not_found' | 'rate_limit' | 'error';
   verified?: boolean;
 }
+
+type HoleheFilter = 'all' | 'found' | 'not_found' | 'rate_limit' | 'error';
 
 /** Extracts a favicon URL from a platform profile URL using Google's favicon service. */
 const getPlatformFavicon = (url: string) => {
@@ -37,6 +39,7 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [foundPlatforms, setFoundPlatforms] = useState<FoundPlatform[]>([]);
+  const [resultFilter, setResultFilter] = useState<HoleheFilter>('all');
   const [done, setDone] = useState(false);
   const [targetEmail, setTargetEmail] = useState('');
   const [scanStats, setScanStats] = useState({
@@ -47,6 +50,14 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
 
   const [currentStep, setCurrentStep] = useState('System Idle');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const normalizePlatforms = (platforms: any[]): FoundPlatform[] =>
+    platforms.map((platform) => ({
+      platform: platform?.platform || platform?.name || 'Unknown Platform',
+      url: platform?.url || platform?.link || '',
+      status: platform?.status || (platform?.found ? 'found' : 'not_found'),
+      verified: platform?.verified,
+    }));
 
   // Status messages cycled during scan animation
   const steps = [
@@ -112,7 +123,7 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
       setProgress(100);
 
       const payload = response.data || {};
-      const socialProfiles: FoundPlatform[] = payload.social_profiles || [];
+      const socialProfiles: FoundPlatform[] = normalizePlatforms(payload.social_profiles || []);
       setFoundPlatforms(socialProfiles);
 
       const confirmedCount = socialProfiles.filter(p => p.status === 'found').length;
@@ -326,6 +337,23 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
             </Col>
           </Row>
 
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+            <div style={{ color: '#475569', fontSize: 13, fontWeight: 600 }}>
+              Showing {foundPlatforms.filter((p) => resultFilter === 'all' || p.status === resultFilter).length} of {foundPlatforms.length} results
+            </div>
+            <Segmented
+              value={resultFilter}
+              onChange={(value) => setResultFilter(value as HoleheFilter)}
+              options={[
+                { label: 'All', value: 'all' },
+                { label: 'Confirmed', value: 'found' },
+                { label: 'Not Found', value: 'not_found' },
+                { label: 'Rate Limit', value: 'rate_limit' },
+                { label: 'Error', value: 'error' },
+              ]}
+            />
+          </div>
+
           {/* Social profile grid */}
           {foundPlatforms.length > 0 ? (
             <Card
@@ -343,9 +371,11 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
               }}
             >
               <Row gutter={[16, 16]}>
-                {foundPlatforms.map((p, idx) => (
+                {foundPlatforms
+                  .filter((p) => resultFilter === 'all' || p.status === resultFilter)
+                  .map((p, idx) => (
                   <Col key={idx} xs={24} sm={12} lg={8}>
-                    <a href={p.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                    <a href={p.url || '#'} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
                       <div
                         style={{
                           border: '1px solid #f1f5f9', background: '#f8fafc', borderRadius: 14,
@@ -399,26 +429,9 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
 
                         {/* Status badge */}
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
-                          {p.status === 'found' && (
-                            <Tag style={{ margin: 0, fontWeight: 700, fontSize: 10, borderRadius: 6, padding: '2px 8px', border: 'none', background: '#dcfce7', color: '#16a34a' }}>
-                              CONFIRMED
-                            </Tag>
-                          )}
-                          {p.status === 'not_found' && (
-                            <Tag style={{ margin: 0, fontWeight: 700, fontSize: 10, borderRadius: 6, padding: '2px 8px', border: 'none', background: '#f1f5f9', color: '#64748b' }}>
-                              NOT FOUND
-                            </Tag>
-                          )}
-                          {p.status === 'rate_limit' && (
-                            <Tag style={{ margin: 0, fontWeight: 700, fontSize: 10, borderRadius: 6, padding: '2px 8px', border: 'none', background: '#ffedd5', color: '#ea580c' }}>
-                              RATE LIMIT
-                            </Tag>
-                          )}
-                          {p.status === 'error' && (
-                            <Tag style={{ margin: 0, fontWeight: 700, fontSize: 10, borderRadius: 6, padding: '2px 8px', border: 'none', background: '#fee2e2', color: '#dc2626' }}>
-                              ERROR
-                            </Tag>
-                          )}
+                          <Tag style={{ margin: 0, fontWeight: 700, fontSize: 10, borderRadius: 6, padding: '2px 8px', border: 'none', background: p.status === 'found' ? '#dcfce7' : p.status === 'rate_limit' ? '#ffedd5' : p.status === 'error' ? '#fee2e2' : '#f1f5f9', color: p.status === 'found' ? '#16a34a' : p.status === 'rate_limit' ? '#ea580c' : p.status === 'error' ? '#dc2626' : '#64748b' }}>
+                            {p.status === 'found' ? 'CONFIRMED' : p.status === 'rate_limit' ? 'RATE LIMIT' : p.status === 'error' ? 'ERROR' : 'NOT FOUND'}
+                          </Tag>
                           <LinkOutlined style={{ color: '#6366f1', fontSize: 13 }} />
                         </div>
                       </div>
