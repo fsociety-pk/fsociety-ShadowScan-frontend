@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Typography, Card, List, Tag, Spin, Row, Col, Space, Empty, Tabs, Avatar, Tooltip, Badge, Progress, Button } from 'antd';
+import { Typography, Card, List, Tag, Spin, Row, Col, Space, Empty, Tabs, Avatar, Tooltip, Badge, Button } from 'antd';
+import ProfessionalProgressCircle from '../../components/ProfessionalProgressCircle';
 import { DatabaseOutlined, SearchOutlined, MailOutlined, UserOutlined, PhoneOutlined, GlobalOutlined, CheckCircleOutlined, ExclamationCircleOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import api from '../../api/axiosConfig';
 
@@ -156,12 +157,10 @@ const SearchResults: React.FC = () => {
 
             <Col xs={24} sm={8} style={{ textAlign: 'right' }}>
               <Space orientation="vertical" align="end">
-                <Progress 
-                  type="circle" 
-                  percent={item.confidence} 
+                <ProfessionalProgressCircle
+                  percent={item.confidence}
                   size={50}
-                  strokeColor={getConfidenceColor(item.confidence)}
-                  format={(p) => <span style={{ fontSize: '12px', color: 'var(--text-main)' }}>{p}%</span>}
+                  colors={[getConfidenceColor(item.confidence), getConfidenceColor(item.confidence)]}
                 />
                 <Text type="secondary" style={{ fontSize: '12px' }}>
                   {new Date(item.createdAt).toLocaleDateString()}

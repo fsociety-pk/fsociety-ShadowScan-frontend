@@ -6,7 +6,7 @@
 import React, { useState, useRef } from 'react';
 import {
   Card, Button, Input, Typography, message, Tag, Row, Col,
-  Progress, Divider, Space, Timeline, Badge, Tooltip,
+  Divider, Space, Timeline, Badge, Tooltip,
 } from 'antd';
 import {
   SearchOutlined, FileTextOutlined, WarningOutlined, SafetyOutlined,
@@ -17,6 +17,8 @@ import {
   MailOutlined, PhoneOutlined, TagOutlined, BankOutlined, EnvironmentOutlined
 } from '@ant-design/icons';
 import api from '../../api/axiosConfig';
+import ProfessionalProgress from '../../components/ProfessionalProgress';
+import ProfessionalProgressCircle from '../../components/ProfessionalProgressCircle';
 
 const { Title, Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -297,12 +299,10 @@ const IntelligenceAnalyst: React.FC = () => {
                 )}
                 <div>
                   <Text style={{ color: '#4b5563', fontSize: 10, letterSpacing: 1.5, display: 'block', marginBottom: 10, textTransform: 'uppercase' }}>Exposure Score</Text>
-                  <Progress
-                    percent={report.digitalFootprintAnalysis.exposureScore}
-                    strokeColor={RISK_COLOR[riskLevel]}
-                    trailColor="#1f2937"
-                    format={p => <Text style={{ color: RISK_COLOR[riskLevel], fontWeight: 700 }}>{p}%</Text>}
-                  />
+                  <ProfessionalProgress percent={report.digitalFootprintAnalysis.exposureScore} />
+                  <div style={{ marginTop: 6 }}>
+                    <Text style={{ color: RISK_COLOR[riskLevel], fontWeight: 700 }}>{report.digitalFootprintAnalysis.exposureScore}%</Text>
+                  </div>
                 </div>
                 {report.digitalFootprintAnalysis.dataExposureRisks.length > 0 && (
                   <div style={{ marginTop: 16 }}>
@@ -349,19 +349,7 @@ const IntelligenceAnalyst: React.FC = () => {
               <Section icon={<WarningOutlined />} title="Risk Assessment" accent={RISK_COLOR[riskLevel]}>
                 <div style={{ textAlign: 'center', marginBottom: 20 }}>
                   <div style={{ position: 'relative', display: 'inline-block' }}>
-                    <Progress
-                      type="circle"
-                      percent={report.riskAssessment.overallRiskScore}
-                      size={120}
-                      strokeColor={RISK_COLOR[riskLevel]}
-                      trailColor="#1f2937"
-                      format={p => (
-                        <div>
-                          <div style={{ color: RISK_COLOR[riskLevel], fontSize: 22, fontWeight: 900 }}>{p}</div>
-                          <div style={{ color: '#4b5563', fontSize: 9, letterSpacing: 1 }}>/ 100</div>
-                        </div>
-                      )}
-                    />
+                    <ProfessionalProgressCircle percent={report.riskAssessment.overallRiskScore} size={120} colors={[RISK_COLOR[riskLevel], RISK_COLOR[riskLevel]]} />
                   </div>
                   <div style={{ marginTop: 10 }}>
                     <Tag style={{ background: RISK_BG[riskLevel], color: RISK_COLOR[riskLevel], border: `1px solid ${RISK_COLOR[riskLevel]}40`, fontSize: 13, padding: '4px 16px', letterSpacing: 2 }}>

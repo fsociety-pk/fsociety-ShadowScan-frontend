@@ -14,8 +14,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Card, Typography, Form, Input, Select, Button, message,
-  Row, Col, Space, Tag, Divider, Alert, Progress, Segmented,
+  Row, Col, Space, Tag, Divider, Alert, Segmented,
 } from 'antd';
+import ProfessionalProgress from '../../components/ProfessionalProgress';
 import {
   PlusOutlined, UserOutlined, GlobalOutlined, MailOutlined,
   PhoneOutlined, RobotOutlined, CompassOutlined, FileSearchOutlined,
@@ -525,13 +526,7 @@ note: Late-night login pattern (02:00-05:00 PKT), recurrent VPN exits in Islamab
 
               {aiLoading && (
                 <div style={{ marginBottom: 16 }}>
-                  <Progress
-                    percent={Math.floor(aiProgress)}
-                    strokeColor={{ from: '#8b5cf6', to: '#0ea5e9' }}
-                    status="active"
-                    showInfo={false}
-                    strokeWidth={6}
-                  />
+                  <ProfessionalProgress percent={Math.floor(aiProgress)} />
                   <Text style={{ color: '#64748b', fontSize: 12 }}>AI is analysing your findings...</Text>
                 </div>
               )}
@@ -783,13 +778,7 @@ note: Late-night login pattern (02:00-05:00 PKT), recurrent VPN exits in Islamab
             <Card style={{ borderRadius: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
               {loading && (
                 <div style={{ marginBottom: 12 }}>
-                  <Progress
-                    percent={Math.floor(submitProgress)}
-                    strokeColor={{ from: '#0ea5e9', to: '#8b5cf6' }}
-                    status="active"
-                    showInfo={false}
-                    strokeWidth={6}
-                  />
+                  <ProfessionalProgress percent={Math.floor(submitProgress)} />
                   <Text style={{ color: '#64748b', fontSize: 12 }}>{submitStep}</Text>
                 </div>
               )}

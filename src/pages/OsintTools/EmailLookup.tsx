@@ -52,12 +52,17 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const normalizePlatforms = (platforms: any[]): FoundPlatform[] =>
-    platforms.map((platform) => ({
-      platform: platform?.platform || platform?.name || 'Unknown Platform',
-      url: platform?.url || platform?.link || '',
-      status: platform?.status || (platform?.found ? 'found' : 'not_found'),
-      verified: platform?.verified,
-    }));
+    platforms.map((platform) => {
+      const raw = platform?.status || (platform?.found ? 'found' : 'not_found');
+      const rawStatus = String(raw || '').toLowerCase();
+      const status: FoundPlatform['status'] = rawStatus === 'found' ? 'found' : rawStatus === 'rate_limit' ? 'rate_limit' : rawStatus === 'error' ? 'error' : 'not_found';
+      return {
+        platform: platform?.platform || platform?.name || 'Unknown Platform',
+        url: platform?.url || platform?.link || '',
+        status,
+        verified: platform?.verified,
+      };
+    });
 
   // Status messages cycled during scan animation
   const steps = [
@@ -240,14 +245,9 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
             </div>
 
             <div style={{ width: '100%', maxWidth: 500, margin: '16px auto 12px' }}>
-              <Progress
-                percent={progress}
-                strokeColor={{ from: '#6366f1', to: '#a855f7' }}
-                trailColor="#1e293b"
-                status="active"
-                showInfo={false}
-                strokeWidth={8}
-              />
+              <div className="pro-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
+                <div className="pro-progress-bar" style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #a855f7)' }} />
+              </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
                 <span>ENRICHING DATA SOCKETS</span>
                 <span style={{ color: '#38bdf8', fontWeight: 700 }}>{progress}% COMPLETE</span>
@@ -488,6 +488,23 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
         .radar-core {
           position: absolute; width: 8px; height: 8px;
           background: #6366f1; border-radius: 50%; box-shadow: 0 0 12px #6366f1;
+        }
+
+        /* Professional progress bar reused across OSINT tools */
+        .pro-progress {
+          width: 100%;
+          height: 10px;
+          background: rgba(255,255,255,0.06);
+          border-radius: 999px;
+          overflow: hidden;
+          border: 1px solid rgba(255,255,255,0.04);
+        }
+        .pro-progress-bar {
+          height: 100%;
+          width: 0%;
+          border-radius: 999px;
+          transition: width 400ms cubic-bezier(.2,.9,.2,1);
+          box-shadow: 0 6px 18px rgba(99,102,241,0.12) inset;
         }
 
         @keyframes radar-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

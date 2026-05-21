@@ -4,7 +4,8 @@
  * Features a simulated radar animation and dynamic step readout during the scan.
  */
 import React, { useState, useEffect, useRef } from 'react';
-import { Form, Input, Button, Card, Tag, Row, Col, Progress, Segmented } from 'antd';
+import { Form, Input, Button, Card, Tag, Row, Col, Segmented } from 'antd';
+import ProfessionalProgress from '../../components/ProfessionalProgress';
 import {
   SearchOutlined, CheckCircleOutlined, CloseCircleOutlined,
   LinkOutlined, EyeOutlined, SafetyCertificateOutlined, AlertOutlined,
@@ -55,11 +56,9 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
 
   const normalizePlatforms = (platforms: any[]): FoundPlatform[] =>
     platforms.map((platform) => {
-      const status: FoundPlatform['status'] = platform?.status
-        ? platform.status
-        : platform?.found
-          ? 'found'
-          : 'not_found';
+      const raw = platform?.status || (platform?.found ? 'found' : 'not_found');
+      const rawStatus = String(raw || '').toLowerCase();
+      const status: FoundPlatform['status'] = rawStatus === 'found' ? 'found' : rawStatus === 'rate_limit' ? 'rate_limit' : rawStatus === 'error' ? 'error' : 'not_found';
       return {
         platform: platform?.platform || platform?.name || 'Unknown Platform',
         url: platform?.url || platform?.link || '',
@@ -195,7 +194,7 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
               >
                 <Input
                   size="large"
-                  placeholder="Enter target username (e.g. thehusnain)"
+                  placeholder="Enter target username (e.g. john_doe)"
                   prefix={<AimOutlined style={{ color: '#6366f1' }} />}
                   disabled={scanning}
                   className="cyber-input"
@@ -228,8 +227,9 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
       {scanning && (
         <Card
           style={{
-            marginBottom: 24, borderRadius: 16, background: '#0f172a',
-            border: '1px solid #1e293b', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)', overflow: 'hidden',
+            marginBottom: 24, borderRadius: 16,
+            border: '1px solid #e6eefc', boxShadow: '0 6px 18px rgba(16,24,40,0.03)', overflow: 'hidden',
+            background: 'linear-gradient(135deg, #ffffff, #f8fafc)'
           }}
           bodyStyle={{ padding: '40px 24px' }}
         >
@@ -245,26 +245,19 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
               }} />
             </div>
 
-            <div style={{ color: '#38bdf8', fontFamily: 'monospace', fontSize: 14, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
+            <div style={{ color: '#475569', fontFamily: 'monospace', fontSize: 14, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
               [SYSTEM ACTIVE: FORENSIC INVESTIGATION IN PROGRESS]
             </div>
 
-            <div style={{ color: '#fff', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
-              Auditing Username: <span style={{ color: '#6366f1', fontFamily: 'monospace' }}>"{targetUsername}"</span>
+            <div style={{ color: '#111827', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
+              Auditing Username: <span style={{ color: '#4f46e5', fontFamily: 'monospace' }}>"{targetUsername}"</span>
             </div>
 
             <div style={{ width: '100%', maxWidth: 500, margin: '16px auto 12px' }}>
-              <Progress
-                percent={progress}
-                strokeColor={{ from: '#6366f1', to: '#a855f7' }}
-                trailColor="#1e293b"
-                status="active"
-                showInfo={false}
-                strokeWidth={8}
-              />
+              <ProfessionalProgress percent={progress} />
               <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
                 <span>PROBING NODES</span>
-                <span style={{ color: '#38bdf8', fontWeight: 700 }}>{progress}% COMPLETE</span>
+                <span style={{ color: '#4f46e5', fontWeight: 700 }}>{progress}% COMPLETE</span>
               </div>
             </div>
 
@@ -507,6 +500,23 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
         .radar-core {
           position: absolute; width: 8px; height: 8px;
           background: #6366f1; border-radius: 50%; box-shadow: 0 0 12px #6366f1;
+        }
+
+        /* Professional progress bar */
+        .pro-progress {
+          width: 100%;
+          height: 10px;
+          background: rgba(255,255,255,0.06);
+          border-radius: 999px;
+          overflow: hidden;
+          border: 1px solid rgba(255,255,255,0.04);
+        }
+        .pro-progress-bar {
+          height: 100%;
+          width: 0%;
+          border-radius: 999px;
+          transition: width 400ms cubic-bezier(.2,.9,.2,1);
+          box-shadow: 0 6px 18px rgba(99,102,241,0.12) inset;
         }
 
         @keyframes radar-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

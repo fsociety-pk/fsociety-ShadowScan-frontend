@@ -19,9 +19,9 @@ import {
   Empty,
   Badge,
   Tooltip,
-  Progress,
   Result,
 } from 'antd';
+import ProfessionalProgressCircle from '../../components/ProfessionalProgressCircle';
 import {
   LinkOutlined,
   UserOutlined,
@@ -399,20 +399,7 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
           </h3>
 
           <div style={{ marginBottom: 20 }}>
-            <Progress
-              type="circle"
-              percent={Math.min(progress, 100)}
-              width={120}
-              strokeColor={{
-                '0%': 'var(--cyber-blue)',
-                '100%': 'var(--cyber-purple)',
-              }}
-              format={() => (
-                <span style={{ fontSize: 24, fontWeight: 700, background: 'var(--cyber-gradient)', backgroundClip: 'text', WebkitBackgroundClip: 'text', color: 'transparent' }}>
-                  {Math.round(Math.min(progress, 100))}%
-                </span>
-              )}
-            />
+            <ProfessionalProgressCircle percent={Math.min(progress, 100)} size={120} colors={["var(--cyber-blue)", "var(--cyber-purple)"]} />
           </div>
 
           <p style={{ color: 'var(--text-muted)', fontSize: 14, marginTop: 15 }}>

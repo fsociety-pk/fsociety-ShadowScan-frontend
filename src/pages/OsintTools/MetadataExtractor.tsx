@@ -5,9 +5,11 @@
  */
 import React, { useState, useRef, useEffect } from 'react';
 import {
-  Upload, Card, Typography, message, Space, Descriptions, Divider, Tag,
-  Button, Row, Col, List, Alert, Progress, Tooltip,
+    Upload, Card, Typography, message, Space, Descriptions, Divider, Tag,
+        Button, Row, Col, List, Alert, Tooltip,
 } from 'antd';
+import ProfessionalProgress from '../../components/ProfessionalProgress';
+import ProfessionalProgressCircle from '../../components/ProfessionalProgressCircle';
 import type { UploadProps } from 'antd';
 import {
   InboxOutlined, FileSearchOutlined, PictureOutlined, EnvironmentOutlined,
@@ -218,47 +220,40 @@ const MetadataExtractor: React.FC<MetadataExtractorProps> = ({ onScanStateChange
                         }} />
                       </div>
 
-                      <div style={{ color: '#38bdf8', fontFamily: 'monospace', fontSize: 13, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
-                        [SYSTEM ACTIVE: DEEP METADATA FORENSICS]
-                      </div>
+                                                    <div style={{ color: '#374151', fontFamily: 'monospace', fontSize: 13, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
+                                                        [SYSTEM ACTIVE: DEEP METADATA FORENSICS]
+                                                    </div>
 
-                      {/* Glowing progress bar */}
-                      <div style={{ width: '100%', maxWidth: 500, margin: '8px auto 12px' }}>
-                        <Progress
-                          percent={uploadProgress}
-                          strokeColor={{ from: '#6366f1', to: '#a855f7' }}
-                          trailColor="#1e293b"
-                          status="active"
-                          showInfo={false}
-                          strokeWidth={8}
-                        />
-                        <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: 11, marginTop: 6, fontFamily: 'monospace' }}>
-                          <span>{uploadProgress < 100 ? 'UPLINK IN PROGRESS' : 'FORENSIC EXTRACTION'}</span>
-                          <span style={{ color: '#38bdf8', fontWeight: 700 }}>{uploadProgress}%</span>
-                        </div>
-                      </div>
+                                            {/* Glowing progress bar (light theme) */}
+                                            <div style={{ width: '100%', maxWidth: 500, margin: '8px auto 12px' }}>
+                                                <ProfessionalProgress percent={uploadProgress} />
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#475569', fontSize: 11, marginTop: 6, fontFamily: 'monospace' }}>
+                                                    <span>{uploadProgress < 100 ? 'UPLINK IN PROGRESS' : 'FORENSIC EXTRACTION'}</span>
+                                                    <span style={{ color: '#4f46e5', fontWeight: 700 }}>{uploadProgress}%</span>
+                                                </div>
+                                            </div>
 
                       {/* Step readout */}
-                      <div style={{
-                        background: '#020617',
-                        border: '1px solid #1e293b',
-                        padding: '12px 20px',
-                        borderRadius: 8,
-                        width: '100%',
-                        maxWidth: 500,
-                        textAlign: 'center',
-                        fontFamily: 'monospace',
-                        fontSize: 11,
-                        color: '#38bdf8',
-                        boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)'
-                      }}>
-                        <span className="blink">{'>'}</span> {
-                          uploadProgress < 30 ? 'Decrypting cryptographic header segments...' :
-                          uploadProgress < 60 ? 'Interrogating EXIF payload matrices...' :
-                          uploadProgress < 85 ? 'Scanning file structures for hidden metadata...' :
-                          'Formulating privacy threat report...'
-                        }
-                      </div>
+                                            <div style={{
+                                                background: '#ffffff',
+                                                border: '1px solid #e6eefc',
+                                                padding: '12px 20px',
+                                                borderRadius: 8,
+                                                width: '100%',
+                                                maxWidth: 500,
+                                                textAlign: 'center',
+                                                fontFamily: 'monospace',
+                                                fontSize: 11,
+                                                color: '#374151',
+                                                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.03)'
+                                            }}>
+                                                <span className="blink">{'>'}</span> {
+                                                    uploadProgress < 30 ? 'Decrypting cryptographic header segments...' :
+                                                    uploadProgress < 60 ? 'Interrogating EXIF payload matrices...' :
+                                                    uploadProgress < 85 ? 'Scanning file structures for hidden metadata...' :
+                                                    'Formulating privacy threat report...'
+                                                }
+                                            </div>
 
                       <div style={{ marginTop: 20 }}>
                         <Button size="small" danger onClick={cancelUpload} style={{ fontFamily: 'monospace', fontSize: 11 }}>
@@ -282,17 +277,10 @@ const MetadataExtractor: React.FC<MetadataExtractorProps> = ({ onScanStateChange
                                 <Card size="small" style={{ background: '#f8fafc', borderColor: getRiskColor(metadata.privacy_assessment?.risk_level) }}>
                                     <Row align="middle" gutter={24}>
                                         <Col xs={24} md={6} style={{ textAlign: 'center' }}>
-                                            <Progress 
-                                                type="dashboard" 
-                                                percent={metadata.privacy_assessment?.risk_score} 
-                                                strokeColor={getRiskColor(metadata.privacy_assessment?.risk_level)}
-                                                trailColor="var(--border-color)"
-                                                format={(percent) => (
-                                                    <div style={{ color: getRiskColor(metadata.privacy_assessment?.risk_level) }}>
-                                                        <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{percent}%</div>
-                                                        <div style={{ fontSize: '10px' }}>RISK</div>
-                                                    </div>
-                                                )}
+                                            <ProfessionalProgressCircle
+                                                percent={metadata.privacy_assessment?.risk_score}
+                                                size={120}
+                                                colors={[getRiskColor(metadata.privacy_assessment?.risk_level), getRiskColor(metadata.privacy_assessment?.risk_level)]}
                                             />
                                         </Col>
                                         <Col xs={24} md={18}>

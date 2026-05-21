@@ -4,7 +4,7 @@
  * Features a simulated radar animation and dynamic step readout during the scan.
  */
 import React, { useState, useEffect, useRef } from 'react';
-import { Button, Card, Tag, Row, Col, Progress, Alert, Descriptions, Avatar, Typography } from 'antd';
+import { Button, Card, Tag, Row, Col, Alert, Descriptions, Avatar, Typography } from 'antd';
 import {
   SearchOutlined, SafetyCertificateOutlined, WhatsAppOutlined, UserOutlined,
   CalendarOutlined, MobileOutlined, AlertOutlined, EyeOutlined, GlobalOutlined
@@ -12,6 +12,7 @@ import {
 import PhoneInputPkg from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import api from '../../api/axiosConfig';
+import ProfessionalProgress from '../../components/ProfessionalProgress';
 
 // react-phone-input-2 ships CommonJS default — handle both module formats
 const PhoneInput = (PhoneInputPkg as { default?: typeof PhoneInputPkg }).default || PhoneInputPkg;
@@ -247,12 +248,13 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
       {/* Radar scanning animation */}
       {scanning && (
         <Card
-          style={{
-            marginBottom: 24, borderRadius: 16, background: '#0f172a',
-            border: '1px solid #1e293b', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)', overflow: 'hidden',
-          }}
-          bodyStyle={{ padding: '40px 24px' }}
-        >
+            style={{
+              marginBottom: 24, borderRadius: 16,
+              border: '1px solid #e6eefc', boxShadow: '0 6px 18px rgba(16,24,40,0.03)', overflow: 'hidden',
+              background: 'linear-gradient(135deg, #ffffff, #f8fafc)'
+            }}
+            bodyStyle={{ padding: '40px 24px' }}
+          >
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             <div className="radar-container" style={{ position: 'relative', width: 140, height: 140, marginBottom: 28 }}>
               <div className="radar-circle" />
@@ -265,26 +267,19 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
               }} />
             </div>
 
-            <div style={{ color: '#38bdf8', fontFamily: 'monospace', fontSize: 14, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
+            <div style={{ color: '#475569', fontFamily: 'monospace', fontSize: 14, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
               [SYSTEM ACTIVE: CONTACT PROBE BRIDGE IN PROGRESS]
             </div>
 
-            <div style={{ color: '#fff', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
-              Scanning Contact: <span style={{ color: '#25D366', fontFamily: 'monospace' }}>"{targetPhone}"</span>
+            <div style={{ color: '#111827', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
+              Scanning Contact: <span style={{ color: '#10b981', fontFamily: 'monospace' }}>"{targetPhone}"</span>
             </div>
 
             <div style={{ width: '100%', maxWidth: 500, margin: '16px auto 12px' }}>
-              <Progress
-                percent={progress}
-                strokeColor={{ from: '#25D366', to: '#128C7E' }}
-                trailColor="#1e293b"
-                status="active"
-                showInfo={false}
-                strokeWidth={8}
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
+              <ProfessionalProgress percent={progress} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#6b7280', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
                 <span>PROBING MATRIX</span>
-                <span style={{ color: '#38bdf8', fontWeight: 700 }}>{progress}% COMPLETE</span>
+                <span style={{ color: '#10b981', fontWeight: 700 }}>{progress}% COMPLETE</span>
               </div>
             </div>
 

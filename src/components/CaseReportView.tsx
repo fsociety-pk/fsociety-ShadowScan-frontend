@@ -152,19 +152,20 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
     duplicatesCount += Math.max(0, (v.riskFactors || []).length - riskFactors.length);
     duplicatesCount += Math.max(0, (v.recommendations || []).length - recommendations.length);
     duplicatesCount += Math.max(0, (v.tags || []).length - tags.length);
-    const fp = v.digitalFootprint || {};
-    const fpKeys = ['emails','phoneNumbers','usernames','socialAccounts','ipAddresses','domains','wallets'];
-    fpKeys.forEach((k) => {
-      const arr = (fp as any)[k] || [];
-      duplicatesCount += Math.max(0, arr.length - uniqueStrings(arr).length);
-    });
-    if (v.entitiesByType) {
-      Object.values(v.entitiesByType).forEach((vals: any) => {
-        const orig = (vals || []).length;
-        const uniq = uniqueStrings(vals || []).length;
-        duplicatesCount += Math.max(0, orig - uniq);
+      const fp = (v.digitalFootprint || {}) as Record<string, string[] | undefined>;
+      const fpKeys = ['emails','phoneNumbers','usernames','socialAccounts','ipAddresses','domains','wallets'];
+      fpKeys.forEach((k) => {
+        const arr = fp[k] || [];
+        duplicatesCount += Math.max(0, arr.length - uniqueStrings(arr).length);
       });
-    }
+      if (v.entitiesByType) {
+        Object.values(v.entitiesByType).forEach((vals) => {
+          const arr = Array.isArray(vals) ? vals as string[] : [];
+          const orig = arr.length;
+          const uniq = uniqueStrings(arr).length;
+          duplicatesCount += Math.max(0, orig - uniq);
+        });
+      }
   }
 
   const footprint = v?.digitalFootprint || {};
@@ -183,21 +184,21 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
 
       {/* ── Banner ── */}
       <div className="case-report-banner" style={{
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0c4a6e 100%)',
+        background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 60%)',
         padding: '36px 36px 28px',
         position: 'relative', overflow: 'hidden',
       }}>
-        {/* cyber grid */}
-        <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: 'linear-gradient(#38bdf8 1px,transparent 1px),linear-gradient(90deg,#38bdf8 1px,transparent 1px)', backgroundSize: '24px 24px' }} />
+        {/* subtle grid */}
+        <div style={{ position: 'absolute', inset: 0, opacity: 0.04, backgroundImage: 'linear-gradient(#e6eefc 1px,transparent 1px),linear-gradient(90deg,#e6eefc 1px,transparent 1px)', backgroundSize: '28px 28px' }} />
         <Row gutter={[16, 16]} align="middle" style={{ position: 'relative', zIndex: 1 }}>
           <Col xs={24} lg={16}>
-            <Tag color={risk.badge} style={{ borderRadius: 999, padding: '3px 14px', fontWeight: 700, marginBottom: 12, fontSize: 12 }}>
+            <Tag style={{ borderRadius: 999, padding: '3px 14px', fontWeight: 700, marginBottom: 12, fontSize: 12, background: '#f3f4f6', color: '#374151', border: '1px solid #e6eefc' }}>
               {(v?.riskLevel || report.riskLevel).toUpperCase()} RISK LEVEL
             </Tag>
-            <Title level={2} style={{ color: '#f1f5f9', margin: '0 0 10px', fontWeight: 800, WebkitTextFillColor: '#f1f5f9' }}>
+            <Title level={2} style={{ color: '#0f172a', margin: '0 0 10px', fontWeight: 800 }}>
               {report.title || caseTitle}
             </Title>
-            <Text style={{ color: '#94a3b8', fontSize: 14, lineHeight: 1.7, display: 'block', maxWidth: 680 }}>
+            <Text style={{ color: '#475569', fontSize: 14, lineHeight: 1.7, display: 'block', maxWidth: 680 }}>
               {v?.summary || 'AI-generated intelligence report from case dossier data.'}
             </Text>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 14 }}>
@@ -216,18 +217,18 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
           <Col xs={24} lg={8}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'flex-end' }}>
               {/* Confidence ring */}
-              <div style={{ textAlign: 'center', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '16px 28px' }}>
-                <div style={{ fontSize: 42, fontWeight: 900, color: risk.text, lineHeight: 1 }}>{v?.confidenceScore ?? '--'}</div>
-                <div style={{ fontSize: 11, color: '#64748b', letterSpacing: 2, marginTop: 4 }}>CONFIDENCE</div>
-              </div>
+                <div style={{ textAlign: 'center', background: '#ffffff', border: '1px solid #e6eefc', borderRadius: 12, padding: '12px 20px' }}>
+                  <div style={{ fontSize: 42, fontWeight: 900, color: risk.text, lineHeight: 1 }}>{v?.confidenceScore ?? '--'}</div>
+                  <div style={{ fontSize: 11, color: '#6b7280', letterSpacing: 2, marginTop: 4 }}>CONFIDENCE</div>
+                </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'flex-end' }}>
                 {onDownloadPdf && (
-                  <Button type="primary" icon={<DownloadOutlined />} onClick={onDownloadPdf} style={{ borderRadius: 8, fontWeight: 700, background: '#0ea5e9', border: 'none' }}>
+                  <Button type="primary" icon={<DownloadOutlined />} onClick={onDownloadPdf} style={{ borderRadius: 8, fontWeight: 700, background: '#0ea5e9', border: 'none', color: '#fff' }}>
                     PDF
                   </Button>
                 )}
                 {onCopyText && (
-                  <Button icon={<CopyOutlined />} onClick={onCopyText} style={{ borderRadius: 8, fontWeight: 600, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', color: '#e2e8f0' }}>
+                  <Button icon={<CopyOutlined />} onClick={onCopyText} style={{ borderRadius: 8, fontWeight: 600, background: '#f3f4f6', border: '1px solid #e6eefc', color: '#0f172a' }}>
                     {copiedToClipboard ? 'Copied!' : 'Copy'}
                   </Button>
                 )}
