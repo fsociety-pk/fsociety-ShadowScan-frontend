@@ -1,18 +1,19 @@
 /**
- * KaliSherlockSearch — Username OSINT scanner powered by the Sherlock backend tool.
- * Probes 350+ social platforms and displays discovered profile cards.
- * Features a simulated radar animation and dynamic step readout during the scan.
+ * KaliSherlockSearch — Username OSINT scanner powered by Sherlock.
+ * Probes 350+ social platforms. Smart filter bar lets users instantly
+ * slice results by status: Found · Not Found · Rate Limited · Error.
  */
 import React, { useState, useEffect, useRef } from 'react';
-import { Form, Input, Button, Card, Tag, Row, Col, Segmented } from 'antd';
+import { Form, Input, Button, Card, Tag, Row, Col } from 'antd';
 import ProfessionalProgress from '../../components/ProfessionalProgress';
 import {
   SearchOutlined, CheckCircleOutlined, CloseCircleOutlined,
   LinkOutlined, EyeOutlined, SafetyCertificateOutlined, AlertOutlined,
-  AimOutlined,
+  AimOutlined, WarningOutlined, StopOutlined,
 } from '@ant-design/icons';
 import api from '../../api/axiosConfig';
 
+// ── Types ─────────────────────────────────────────────────────────────────────
 interface FoundPlatform {
   platform: string;
   url: string;
@@ -23,7 +24,11 @@ interface FoundPlatform {
 
 type SherlockFilter = 'all' | 'found' | 'not_found' | 'rate_limit' | 'error';
 
-/** Extracts a favicon URL from a platform profile URL using Google's favicon service. */
+interface KaliSherlockSearchProps {
+  onScanStateChange?: (isScanning: boolean) => void;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
 const getPlatformFavicon = (url: string) => {
   try {
     const domain = new URL(url).hostname;
@@ -33,140 +38,143 @@ const getPlatformFavicon = (url: string) => {
   }
 };
 
-interface KaliSherlockSearchProps {
-  onScanStateChange?: (isScanning: boolean) => void;
-}
-
-const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChange }) => {
-  const [form] = Form.useForm();
-  const [scanning, setScanning] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [foundPlatforms, setFoundPlatforms] = useState<FoundPlatform[]>([]);
-  const [resultFilter, setResultFilter] = useState<SherlockFilter>('all');
-  const [done, setDone] = useState(false);
-  const [targetUsername, setTargetUsername] = useState('');
-  const [scanStats, setScanStats] = useState({
-    threatLevel: 'CLEAN',
-    exposureCount: 0,
-    elapsedTime: 0,
+const normalizePlatforms = (platforms: any[]): FoundPlatform[] =>
+  platforms.map((p) => {
+    const raw = String(p?.status || (p?.found ? 'found' : 'not_found')).toLowerCase();
+    const status: FoundPlatform['status'] =
+      raw === 'found' ? 'found'
+      : raw === 'rate_limit' ? 'rate_limit'
+      : raw === 'error' ? 'error'
+      : 'not_found';
+    return {
+      platform:   p?.platform || p?.name || 'Unknown',
+      url:        p?.url || p?.link || '',
+      status,
+      statusCode: typeof p?.statusCode === 'number' ? p.statusCode
+        : status === 'found' ? 200 : status === 'rate_limit' ? 429 : status === 'error' ? 500 : 404,
+      message: p?.message || p?.detail || '',
+    };
   });
 
-  const [currentStep, setCurrentStep] = useState('System Idle');
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+// Status label/colour maps
+const STATUS_META: Record<SherlockFilter, { label: string; bg: string; border: string; text: string; icon: React.ReactNode }> = {
+  all:        { label: 'All',         bg: '#f8fafc', border: '#e2e8f0', text: '#475569', icon: <AimOutlined /> },
+  found:      { label: 'Found',       bg: '#dcfce7', border: '#86efac', text: '#15803d', icon: <CheckCircleOutlined /> },
+  not_found:  { label: 'Not Found',   bg: '#f1f5f9', border: '#cbd5e1', text: '#64748b', icon: <CloseCircleOutlined /> },
+  rate_limit: { label: 'Rate Limited',bg: '#ffedd5', border: '#fdba74', text: '#ea580c', icon: <WarningOutlined /> },
+  error:      { label: 'Error',       bg: '#fee2e2', border: '#fca5a5', text: '#dc2626', icon: <StopOutlined /> },
+};
 
-  const normalizePlatforms = (platforms: any[]): FoundPlatform[] =>
-    platforms.map((platform) => {
-      const raw = platform?.status || (platform?.found ? 'found' : 'not_found');
-      const rawStatus = String(raw || '').toLowerCase();
-      const status: FoundPlatform['status'] = rawStatus === 'found' ? 'found' : rawStatus === 'rate_limit' ? 'rate_limit' : rawStatus === 'error' ? 'error' : 'not_found';
-      return {
-        platform: platform?.platform || platform?.name || 'Unknown Platform',
-        url: platform?.url || platform?.link || '',
-        status,
-        statusCode: typeof platform?.statusCode === 'number'
-          ? platform.statusCode
-          : status === 'found'
-            ? 200
-            : status === 'rate_limit'
-              ? 429
-              : status === 'error'
-                ? 500
-                : 404,
-        message: platform?.message || platform?.detail || '',
-      };
-    });
+const SCAN_STEPS = [
+  'Initializing forensic sandbox...',
+  'Loading Sherlock database (450+ sites)...',
+  'Opening validation sockets...',
+  'Interrogating identity signatures...',
+  'Resolving username across social matrices...',
+  'Cross-referencing security policies...',
+  'Evaluating profile checksums...',
+  'Compiling exposure matrices...',
+];
 
-  // Status messages cycled during scan animation
-  const steps = [
-    'Initializing forensic sandbox...',
-    'Loading Sherlock database matrix (450+ profiles)...',
-    'Opening threat validation sockets...',
-    'Interrogating global identity signatures...',
-    'Resolving username across social matrices...',
-    'Analyzing security policies on target nodes...',
-    'Cross-referencing rate limit parameters...',
-    'Evaluating cryptographic profile checksums...',
-    'Compiling username exposure matrices...',
-  ];
+// ── Component ─────────────────────────────────────────────────────────────────
+const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChange }) => {
+  const [form] = Form.useForm();
+  const [scanning, setScanning]           = useState(false);
+  const [progress, setProgress]           = useState(0);
+  const [platforms, setPlatforms]         = useState<FoundPlatform[]>([]);
+  const [activeFilter, setActiveFilter]   = useState<SherlockFilter>('all');
+  const [done, setDone]                   = useState(false);
+  const [error, setError]                 = useState<string | null>(null);
+  const [targetUsername, setTargetUsername] = useState('');
+  const [currentStep, setCurrentStep]     = useState('System Idle');
+  const [scanStats, setScanStats]         = useState({ threatLevel: 'CLEAN', exposureCount: 0, elapsedTime: 0 });
+  const timerRef  = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Rotate the step text every 2.5 seconds while scanning
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
+    if (onScanStateChange) onScanStateChange(scanning);
+    let stepInterval: ReturnType<typeof setInterval>;
     if (scanning) {
       let idx = 0;
-      interval = setInterval(() => {
-        setCurrentStep(steps[idx % steps.length]);
+      stepInterval = setInterval(() => {
+        setCurrentStep(SCAN_STEPS[idx % SCAN_STEPS.length]);
         idx++;
       }, 2500);
     } else {
       setCurrentStep('System Idle');
     }
-    if (onScanStateChange) {
-      onScanStateChange(scanning);
-    }
-    return () => clearInterval(interval);
+    return () => clearInterval(stepInterval);
   }, [scanning, onScanStateChange]);
 
   const handleSearch = async (values: { username: string }) => {
     const username = values.username.trim();
     setTargetUsername(username);
-    setFoundPlatforms([]);
+    setPlatforms([]);
     setProgress(0);
     setDone(false);
+    setError(null);
     setScanning(true);
+    setActiveFilter('all');
 
-    // Elapsed-time counter
+    // Elapsed timer
     let seconds = 0;
     timerRef.current = setInterval(() => {
       seconds += 1;
       setScanStats(prev => ({ ...prev, elapsedTime: seconds }));
     }, 1000);
 
-    // Smoothly increment a simulated progress bar up to 96% before the response arrives
-    let simulatedProgress = 0;
+    // Simulated progress (caps at 96% until response)
+    let sim = 0;
     const progressInterval = setInterval(() => {
-      simulatedProgress += Math.random() * 6;
-      if (simulatedProgress >= 96) simulatedProgress = 96;
-      setProgress(Math.floor(simulatedProgress));
-    }, 500);
+      sim = Math.min(sim + Math.random() * 4, 96);
+      setProgress(Math.floor(sim));
+    }, 600);
 
     try {
-      const response = await api.post('/kali-tools/sherlock', { username });
-
+      const response = await api.post('/kali-tools/sherlock', { username }, { timeout: 300000 });
       clearInterval(progressInterval);
       if (timerRef.current) clearInterval(timerRef.current);
       setProgress(100);
 
-      const platforms = normalizePlatforms(response.data?.platforms || []);
-      setFoundPlatforms(platforms);
+      const parsed = normalizePlatforms(response.data?.platforms || []);
+      setPlatforms(parsed);
 
-      const discovered = platforms.filter((p) => p.status === 'found');
-      let threat = 'SECURE';
-      if (discovered.length > 10) threat = 'EXPANSIVE';
-      else if (discovered.length > 4) threat = 'MODERATE';
-
+      const found = parsed.filter(p => p.status === 'found').length;
       setScanStats(prev => ({
         ...prev,
-        threatLevel: threat,
-        exposureCount: discovered.length,
+        exposureCount: found,
+        threatLevel: found > 10 ? 'EXPANSIVE' : found > 4 ? 'MODERATE' : 'SECURE',
       }));
       setDone(true);
-    } catch {
+    } catch (err: any) {
       clearInterval(progressInterval);
       if (timerRef.current) clearInterval(timerRef.current);
-      setProgress(100);
-      setDone(true);
+      setProgress(0);
+      setError(err?.response?.data?.message || 'Scan failed. Please try again.');
     } finally {
       setScanning(false);
     }
   };
 
+  // Derived counts for the filter bar
+  const counts: Record<SherlockFilter, number> = {
+    all:        platforms.length,
+    found:      platforms.filter(p => p.status === 'found').length,
+    not_found:  platforms.filter(p => p.status === 'not_found').length,
+    rate_limit: platforms.filter(p => p.status === 'rate_limit').length,
+    error:      platforms.filter(p => p.status === 'error').length,
+  };
+
+  const filtered = activeFilter === 'all'
+    ? platforms
+    : platforms.filter(p => p.status === activeFilter);
+
   return (
     <div style={{ padding: '10px 0' }}>
-      {/* Search Input Card */}
+
+      {/* ── Search Card ── */}
       <Card style={{
         marginBottom: 24, background: '#ffffff', borderRadius: 16,
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)', border: '1px solid #f1f5f9',
+        boxShadow: '0 4px 20px rgba(0,0,0,0.04)', border: '1px solid #f1f5f9',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
           <div style={{
@@ -197,8 +205,7 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
                   placeholder="Enter target username (e.g. john_doe)"
                   prefix={<AimOutlined style={{ color: '#6366f1' }} />}
                   disabled={scanning}
-                  className="cyber-input"
-                  style={{ height: 50, fontSize: 15 }}
+                  style={{ height: 50, fontSize: 15, borderRadius: 12, border: '1.5px solid #e2e8f0' }}
                 />
               </Form.Item>
             </Col>
@@ -213,49 +220,58 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
                   width: '100%', height: 50, borderRadius: 12,
                   background: 'linear-gradient(135deg, #4f46e5, #7c3aed)',
                   border: 'none', fontWeight: 700, fontSize: 15,
-                  boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)',
+                  boxShadow: '0 4px 12px rgba(99,102,241,0.2)',
                 }}
               >
-                {scanning ? 'Auditing...' : 'Search Username'}
+                {scanning ? 'Scanning...' : 'Search Username'}
               </Button>
             </Col>
           </Row>
         </Form>
       </Card>
 
-      {/* Radar scanning animation */}
+      {/* ── Error Banner ── */}
+      {error && (
+        <div style={{
+          marginBottom: 20, padding: '14px 20px', borderRadius: 12,
+          background: '#fef2f2', border: '1px solid #fecaca',
+          color: '#991b1b', fontSize: 13, fontWeight: 600,
+          display: 'flex', alignItems: 'center', gap: 10,
+        }}>
+          <StopOutlined style={{ fontSize: 16, color: '#dc2626' }} />
+          {error}
+        </div>
+      )}
+
+      {/* ── Scanning Radar Card ── */}
       {scanning && (
-        <Card
-          style={{
-            marginBottom: 24, borderRadius: 16,
-            border: '1px solid #e6eefc', boxShadow: '0 6px 18px rgba(16,24,40,0.03)', overflow: 'hidden',
-            background: 'linear-gradient(135deg, #ffffff, #f8fafc)'
-          }}
-          bodyStyle={{ padding: '40px 24px' }}
-        >
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <Card style={{
+          marginBottom: 24, borderRadius: 16,
+          border: '1px solid #e6eefc', boxShadow: '0 6px 18px rgba(16,24,40,0.03)',
+          background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
+        }} bodyStyle={{ padding: '40px 24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div className="radar-container" style={{ position: 'relative', width: 140, height: 140, marginBottom: 28 }}>
               <div className="radar-circle" />
               <div className="radar-sweep" />
               <div className="radar-core" />
               <AimOutlined style={{
                 position: 'absolute', top: '50%', left: '50%',
-                transform: 'translate(-50%, -50%)', color: '#6366f1',
-                fontSize: 32, animation: 'pulse 1.5s infinite',
+                transform: 'translate(-50%,-50%)', color: '#6366f1', fontSize: 32,
+                animation: 'pulse 1.5s infinite',
               }} />
             </div>
 
-            <div style={{ color: '#475569', fontFamily: 'monospace', fontSize: 14, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
+            <div style={{ color: '#475569', fontFamily: 'monospace', fontSize: 13, fontWeight: 700, letterSpacing: 1, marginBottom: 6 }}>
               [SYSTEM ACTIVE: FORENSIC INVESTIGATION IN PROGRESS]
             </div>
-
-            <div style={{ color: '#111827', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
-              Auditing Username: <span style={{ color: '#4f46e5', fontFamily: 'monospace' }}>"{targetUsername}"</span>
+            <div style={{ color: '#1e293b', fontSize: 16, fontWeight: 600, marginBottom: 16 }}>
+              Auditing: <span style={{ color: '#4f46e5', fontFamily: 'monospace' }}>"{targetUsername}"</span>
             </div>
 
-            <div style={{ width: '100%', maxWidth: 500, margin: '16px auto 12px' }}>
+            <div style={{ width: '100%', maxWidth: 520, margin: '0 auto 12px' }}>
               <ProfessionalProgress percent={progress} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: 11, marginTop: 6, fontFamily: 'monospace' }}>
                 <span>PROBING NODES</span>
                 <span style={{ color: '#4f46e5', fontWeight: 700 }}>{progress}% COMPLETE</span>
               </div>
@@ -263,7 +279,7 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
 
             <div style={{
               background: '#f8fafc', border: '1px solid #e2e8f0',
-              padding: '12px 20px', borderRadius: 8, width: '100%', maxWidth: 500,
+              padding: '10px 20px', borderRadius: 8, width: '100%', maxWidth: 520,
               textAlign: 'center', fontFamily: 'monospace', fontSize: 12,
               color: '#4f46e5', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
             }}>
@@ -273,183 +289,173 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
         </Card>
       )}
 
-      {/* Scan results */}
+      {/* ── Results ── */}
       {done && !scanning && (
         <>
-          {/* Stats Dashboard */}
+          {/* Stats Row */}
           <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-            <Col xs={24} sm={8}>
-              <Card
-                style={{
-                  borderRadius: 16, border: '1px solid #f1f5f9',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-                  background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
-                }}
-                bodyStyle={{ padding: 20 }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                  <AlertOutlined style={{
-                    fontSize: 18,
-                    color: scanStats.threatLevel === 'EXPANSIVE' ? '#ef4444'
-                      : scanStats.threatLevel === 'MODERATE' ? '#f59e0b' : '#10b981',
-                  }} />
-                  <span style={{ color: '#64748b', fontWeight: 600, fontSize: 13 }}>FOOTPRINT STATUS</span>
-                </div>
-                <div style={{
-                  fontSize: 22, fontWeight: 800, letterSpacing: '0.5px',
-                  color: scanStats.threatLevel === 'EXPANSIVE' ? '#ef4444'
-                    : scanStats.threatLevel === 'MODERATE' ? '#f59e0b' : '#10b981',
-                }}>
-                  {scanStats.threatLevel}
-                </div>
-              </Card>
-            </Col>
-
-            <Col xs={24} sm={8}>
-              <Card
-                style={{
-                  borderRadius: 16, border: '1px solid #f1f5f9',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-                  background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
-                }}
-                bodyStyle={{ padding: 20 }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                  <EyeOutlined style={{ fontSize: 18, color: '#6366f1' }} />
-                  <span style={{ color: '#64748b', fontWeight: 600, fontSize: 13 }}>PROFILES DISCOVERED</span>
-                </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#1e293b' }}>
-                  {scanStats.exposureCount} <span style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>locations</span>
-                </div>
-              </Card>
-            </Col>
-
-            <Col xs={24} sm={8}>
-              <Card
-                style={{
-                  borderRadius: 16, border: '1px solid #f1f5f9',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-                  background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
-                }}
-                bodyStyle={{ padding: 20 }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                  <SafetyCertificateOutlined style={{ fontSize: 18, color: '#3b82f6' }} />
-                  <span style={{ color: '#64748b', fontWeight: 600, fontSize: 13 }}>ELAPSED TIME</span>
-                </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#1e293b' }}>
-                  {scanStats.elapsedTime} <span style={{ fontSize: 14, color: '#64748b', fontWeight: 500 }}>seconds</span>
-                </div>
-              </Card>
-            </Col>
+            {[
+              {
+                icon: <AlertOutlined style={{ fontSize: 18, color: scanStats.threatLevel === 'EXPANSIVE' ? '#ef4444' : scanStats.threatLevel === 'MODERATE' ? '#f59e0b' : '#10b981' }} />,
+                label: 'FOOTPRINT STATUS',
+                value: scanStats.threatLevel,
+                color: scanStats.threatLevel === 'EXPANSIVE' ? '#ef4444' : scanStats.threatLevel === 'MODERATE' ? '#f59e0b' : '#10b981',
+              },
+              { icon: <EyeOutlined style={{ fontSize: 18, color: '#6366f1' }} />, label: 'PROFILES DISCOVERED', value: `${scanStats.exposureCount} locations`, color: '#1e293b' },
+              { icon: <SafetyCertificateOutlined style={{ fontSize: 18, color: '#3b82f6' }} />, label: 'ELAPSED TIME', value: `${scanStats.elapsedTime}s`, color: '#1e293b' },
+            ].map((s, i) => (
+              <Col xs={24} sm={8} key={i}>
+                <Card style={{ borderRadius: 16, border: '1px solid #f1f5f9', boxShadow: '0 4px 12px rgba(0,0,0,0.02)', background: 'linear-gradient(135deg,#ffffff,#f8fafc)' }} bodyStyle={{ padding: 20 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                    {s.icon}
+                    <span style={{ color: '#64748b', fontWeight: 600, fontSize: 12, letterSpacing: 0.5 }}>{s.label}</span>
+                  </div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: s.color }}>{s.value}</div>
+                </Card>
+              </Col>
+            ))}
           </Row>
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
-            <div style={{ color: '#475569', fontSize: 13, fontWeight: 600 }}>
-              Showing {foundPlatforms.filter((p) => resultFilter === 'all' || p.status === resultFilter).length} of {foundPlatforms.length} results
+          {/* ── Smart Filter Bar ── */}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600, letterSpacing: 1, marginBottom: 10, textTransform: 'uppercase' }}>
+              Filter Results
             </div>
-            <Segmented
-              value={resultFilter}
-              onChange={(value) => setResultFilter(value as SherlockFilter)}
-              options={[
-                { label: 'All', value: 'all' },
-                { label: 'Confirmed', value: 'found' },
-                { label: 'Not Found', value: 'not_found' },
-                { label: 'Rate Limit', value: 'rate_limit' },
-                { label: 'Error', value: 'error' },
-              ]}
-            />
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {(Object.keys(STATUS_META) as SherlockFilter[]).map(key => {
+                const meta    = STATUS_META[key];
+                const count   = counts[key];
+                const active  = activeFilter === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setActiveFilter(key)}
+                    style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 6,
+                      padding: '7px 14px', borderRadius: 999, cursor: 'pointer',
+                      fontWeight: 700, fontSize: 13, border: `2px solid`,
+                      borderColor: active ? meta.border : '#e2e8f0',
+                      background:  active ? meta.bg    : '#ffffff',
+                      color:       active ? meta.text  : '#64748b',
+                      boxShadow:   active ? `0 0 0 3px ${meta.border}55` : 'none',
+                      transition:  'all 0.15s ease',
+                      outline: 'none',
+                    }}
+                    onMouseEnter={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.borderColor = meta.border; }}
+                    onMouseLeave={e => { if (!active) (e.currentTarget as HTMLButtonElement).style.borderColor = '#e2e8f0'; }}
+                  >
+                    <span style={{ fontSize: 13 }}>{meta.icon}</span>
+                    {meta.label}
+                    <span style={{
+                      background:  active ? meta.text : '#e2e8f0',
+                      color:       active ? '#fff'    : '#475569',
+                      borderRadius: 999, padding: '1px 8px', fontSize: 11, fontWeight: 800,
+                      minWidth: 22, textAlign: 'center',
+                    }}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
-          {/* Platform discovery grid */}
-          {foundPlatforms.length > 0 ? (
+          {/* ── Platform Grid ── */}
+          {filtered.length > 0 ? (
             <Card
               title={
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <CheckCircleOutlined style={{ color: '#10b981', fontSize: 18 }} />
-                  <span style={{ color: '#1e293b', fontWeight: 700, fontSize: 16 }}>
-                    Discovered Profiles for "{targetUsername}"
+                  <span style={{ color: '#1e293b', fontWeight: 700, fontSize: 15 }}>
+                    {activeFilter === 'all' ? 'All Platforms' : STATUS_META[activeFilter].label} — "{targetUsername}"
+                  </span>
+                  <span style={{ marginLeft: 'auto', fontSize: 12, color: '#94a3b8', fontWeight: 500 }}>
+                    {filtered.length} result{filtered.length !== 1 ? 's' : ''}
                   </span>
                 </div>
               }
-              style={{
-                borderRadius: 16, border: '1px solid #e2e8f0',
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.02)',
-              }}
+              style={{ borderRadius: 16, border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)' }}
+              bodyStyle={{ padding: '16px 20px' }}
             >
-              <Row gutter={[16, 16]}>
-                {foundPlatforms
-                  .filter((p) => resultFilter === 'all' || p.status === resultFilter)
-                  .map((p, idx) => (
-                  <Col key={idx} xs={24} sm={12} lg={8}>
-                    <a href={p.url || '#'} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-                      <div
-                        style={{
-                          border: '1px solid #f1f5f9', background: '#f8fafc', borderRadius: 14,
-                          padding: '16px', display: 'flex', alignItems: 'center', gap: 14,
-                          cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.01)',
-                        }}
-                        onMouseEnter={e => {
-                          const div = e.currentTarget as HTMLDivElement;
-                          div.style.borderColor = '#6366f1';
-                          div.style.background = '#ffffff';
-                          div.style.boxShadow = '0 10px 25px rgba(99, 102, 241, 0.08)';
-                          div.style.transform = 'translateY(-3px)';
-                        }}
-                        onMouseLeave={e => {
-                          const div = e.currentTarget as HTMLDivElement;
-                          div.style.borderColor = '#f1f5f9';
-                          div.style.background = '#f8fafc';
-                          div.style.boxShadow = '0 2px 4px rgba(0,0,0,0.01)';
-                          div.style.transform = 'translateY(0)';
-                        }}
+              <Row gutter={[14, 14]}>
+                {filtered.map((p, idx) => {
+                  const meta = STATUS_META[p.status];
+                  return (
+                    <Col key={idx} xs={24} sm={12} lg={8}>
+                      <a
+                        href={p.url || '#'}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ textDecoration: 'none', display: 'block' }}
                       >
-                        {/* Platform favicon */}
-                        <div style={{
-                          width: 44, height: 44, borderRadius: 10, background: '#ffffff',
-                          display: 'flex', alignItems: 'center', justifyContent: 'center',
-                          border: '1px solid #e2e8f0', flexShrink: 0,
-                        }}>
-                          <img
-                            src={getPlatformFavicon(p.url)}
-                            alt={p.platform}
-                            onError={e => {
-                              (e.currentTarget as HTMLImageElement).src =
-                                'https://www.google.com/s2/favicons?sz=64&domain=github.com';
-                            }}
-                            style={{ width: 24, height: 24, objectFit: 'contain' }}
-                          />
-                        </div>
-
-                        {/* Platform name and URL */}
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: 700, fontSize: 14, color: '#1e293b' }}>{p.platform}</div>
+                        <div
+                          style={{
+                            border: `1px solid #f1f5f9`, background: '#f8fafc', borderRadius: 14,
+                            padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14,
+                            cursor: 'pointer', transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
+                          }}
+                          onMouseEnter={e => {
+                            const d = e.currentTarget as HTMLDivElement;
+                            d.style.borderColor = '#6366f1';
+                            d.style.background  = '#ffffff';
+                            d.style.boxShadow   = '0 8px 24px rgba(99,102,241,0.08)';
+                            d.style.transform   = 'translateY(-2px)';
+                          }}
+                          onMouseLeave={e => {
+                            const d = e.currentTarget as HTMLDivElement;
+                            d.style.borderColor = '#f1f5f9';
+                            d.style.background  = '#f8fafc';
+                            d.style.boxShadow   = 'none';
+                            d.style.transform   = 'translateY(0)';
+                          }}
+                        >
+                          {/* Favicon */}
                           <div style={{
-                            fontSize: 11, color: '#64748b', overflow: 'hidden',
-                            textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                            fontFamily: 'monospace', marginTop: 2,
+                            width: 42, height: 42, borderRadius: 10, background: '#fff',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            border: '1px solid #e2e8f0', flexShrink: 0,
                           }}>
-                            {p.url}
+                            {p.url ? (
+                              <img
+                                src={getPlatformFavicon(p.url)}
+                                alt={p.platform}
+                                onError={e => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                                style={{ width: 22, height: 22, objectFit: 'contain' }}
+                              />
+                            ) : (
+                              <LinkOutlined style={{ color: '#94a3b8', fontSize: 16 }} />
+                            )}
                           </div>
-                        </div>
 
-                        {/* Found badge */}
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                          {/* Platform info */}
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontWeight: 700, fontSize: 14, color: '#1e293b' }}>{p.platform}</div>
+                            <div style={{
+                              fontSize: 11, color: '#94a3b8', overflow: 'hidden',
+                              textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                              fontFamily: 'monospace', marginTop: 2,
+                            }}>
+                              {p.url || p.message || '—'}
+                            </div>
+                          </div>
+
+                          {/* Status badge */}
                           <Tag style={{
                             margin: 0, fontWeight: 700, fontSize: 11, borderRadius: 6,
-                            padding: '2px 8px', border: 'none',
-                            background: p.status === 'found' ? '#dcfce7' : p.status === 'rate_limit' ? '#ffedd5' : p.status === 'error' ? '#fee2e2' : '#f1f5f9',
-                            color: p.status === 'found' ? '#15803d' : p.status === 'rate_limit' ? '#ea580c' : p.status === 'error' ? '#dc2626' : '#64748b',
+                            padding: '3px 9px', border: `1px solid ${meta.border}`,
+                            background: meta.bg, color: meta.text, flexShrink: 0,
                           }}>
-                            {p.status === 'found' ? 'CONFIRMED' : p.status === 'not_found' ? 'NOT FOUND' : p.status === 'rate_limit' ? 'RATE LIMIT' : 'ERROR'}
+                            {meta.icon} {' '}
+                            {p.status === 'found' ? 'FOUND'
+                              : p.status === 'rate_limit' ? 'RATE LIMIT'
+                              : p.status === 'error' ? 'ERROR'
+                              : 'NOT FOUND'}
                           </Tag>
-                          <LinkOutlined style={{ color: '#6366f1', fontSize: 13 }} />
                         </div>
-                      </div>
-                    </a>
-                  </Col>
-                ))}
+                      </a>
+                    </Col>
+                  );
+                })}
               </Row>
             </Card>
           ) : (
@@ -457,74 +463,53 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
               textAlign: 'center', padding: '48px 24px', borderRadius: 16,
               border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0,0,0,0.02)',
             }}>
-              <CloseCircleOutlined style={{ fontSize: 44, color: '#94a3b8', marginBottom: 16 }} />
+              <CloseCircleOutlined style={{ fontSize: 48, color: '#cbd5e1', marginBottom: 16 }} />
               <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', marginBottom: 8 }}>
-                No Active Profiles Found
+                No {activeFilter !== 'all' ? STATUS_META[activeFilter].label : ''} Results
               </div>
               <div style={{ color: '#64748b', fontSize: 14 }}>
-                Username "{targetUsername}" was not registered on any platform.
+                {activeFilter !== 'all'
+                  ? `No platforms with status "${STATUS_META[activeFilter].label}" for "${targetUsername}".`
+                  : `Username "${targetUsername}" was not found on any platform.`}
               </div>
+              {activeFilter !== 'all' && (
+                <button
+                  onClick={() => setActiveFilter('all')}
+                  style={{
+                    marginTop: 16, padding: '8px 20px', borderRadius: 999, cursor: 'pointer',
+                    border: '1.5px solid #6366f1', background: '#ffffff',
+                    color: '#6366f1', fontWeight: 700, fontSize: 13, outline: 'none',
+                  }}
+                >
+                  Show All Results
+                </button>
+              )}
             </Card>
           )}
         </>
       )}
 
-      {/* Shared radar + input animation styles */}
+      {/* ── Shared animation styles ── */}
       <style>{`
-        .cyber-input {
-          border: 1.5px solid #e2e8f0 !important;
-          background: #f8fafc !important;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-        .cyber-input:hover {
-          border-color: #6366f1 !important;
-          box-shadow: 0 0 10px rgba(99, 102, 241, 0.1) !important;
-          background: #ffffff !important;
-        }
-        .cyber-input:focus {
-          border-color: #6366f1 !important;
-          background: #ffffff !important;
-          box-shadow: 0 0 15px rgba(99, 102, 241, 0.25) !important;
-        }
-
         .radar-container { display: flex; align-items: center; justify-content: center; }
         .radar-circle {
           position: absolute; width: 100%; height: 100%;
-          border: 1px solid rgba(99, 102, 241, 0.15); border-radius: 50%;
+          border: 1.5px solid rgba(99,102,241,0.2); border-radius: 50%;
         }
         .radar-sweep {
           position: absolute; width: 100%; height: 100%; border-radius: 50%;
-          background: conic-gradient(from 0deg at 50% 50%, rgba(99, 102, 241, 0.25) 0deg, transparent 90deg);
-          animation: radar-sweep 3s linear infinite;
+          background: conic-gradient(from 0deg at 50% 50%, rgba(99,102,241,0.3) 0deg, transparent 90deg);
+          animation: radar-sweep 2.5s linear infinite;
         }
         .radar-core {
-          position: absolute; width: 8px; height: 8px;
-          background: #6366f1; border-radius: 50%; box-shadow: 0 0 12px #6366f1;
+          position: absolute; width: 10px; height: 10px;
+          background: #6366f1; border-radius: 50%; box-shadow: 0 0 14px #6366f1;
         }
-
-        /* Professional progress bar */
-        .pro-progress {
-          width: 100%;
-          height: 10px;
-          background: rgba(255,255,255,0.06);
-          border-radius: 999px;
-          overflow: hidden;
-          border: 1px solid rgba(255,255,255,0.04);
-        }
-        .pro-progress-bar {
-          height: 100%;
-          width: 0%;
-          border-radius: 999px;
-          transition: width 400ms cubic-bezier(.2,.9,.2,1);
-          box-shadow: 0 6px 18px rgba(99,102,241,0.12) inset;
-        }
-
         @keyframes radar-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes pulse {
-          0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-          50% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.6; }
+          0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+          50%      { transform: translate(-50%,-50%) scale(1.18); opacity: 0.5; }
         }
-
         .blink { animation: blink-anim 1s step-end infinite; }
         @keyframes blink-anim { 50% { opacity: 0; } }
       `}</style>
