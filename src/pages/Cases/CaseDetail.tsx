@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Typography, Descriptions, Tag, Button, Input, message, Spin, Tabs, Table, Empty, Row, Col, Space } from 'antd';
+import { Card, Typography, Tag, Button, message, Spin, Empty, Row, Col, Space } from 'antd';
 import { useParams, useNavigate } from 'react-router-dom';
-import { SaveOutlined, ArrowLeftOutlined, SnippetsOutlined, SearchOutlined, EditOutlined, PieChartOutlined, FileTextOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, EditOutlined } from '@ant-design/icons';
 import api from '../../api/axiosConfig';
 import ReportGenerator from '../../components/ReportGenerator';
 import CaseReportView from '../../components/CaseReportView';
 import type { CaseReport } from '../../components/CaseReportView';
 
-const { Title, Paragraph, Text } = Typography;
-const { TextArea } = Input;
+const { Title } = Typography;
 
 interface InvestigationCase {
   _id: string;
@@ -31,49 +30,16 @@ interface InvestigationCase {
   };
 }
 
-interface Finding {
-  _id: string;
-  findingType: string;
-  source: string;
-  email?: string;
-  username?: string;
-  phone?: string;
-  domain?: string;
-  confidence: number;
-  createdAt: string;
-  data: Record<string, any>;
-}
-
 const CaseDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [investigation, setInvestigation] = useState<InvestigationCase | null>(null);
   const [loading, setLoading] = useState(true);
-  const [savingNotes, setSavingNotes] = useState(false);
-  const [notes, setNotes] = useState('');
-  const [findings, setFindings] = useState<Finding[]>([]);
-  const [findingsLoading, setFindingsLoading] = useState(false);
   const [reports, setReports] = useState<CaseReport[]>([]);
-  const [activeTab, setActiveTab] = useState<'findings' | 'report'>('findings');
-
+  
   useEffect(() => {
     fetchCaseData();
   }, [id]);
-
-  const fetchFindings = async () => {
-    if (!id) return;
-    setFindingsLoading(true);
-    try {
-      const response = await api.get(`/search/findings/case/${id}`);
-      if (response.data.success) {
-        setFindings(response.data.findings);
-      }
-    } catch (error) {
-      console.error('Error fetching findings:', error);
-    } finally {
-      setFindingsLoading(false);
-    }
-  };
 
   const fetchReports = async () => {
     if (!id) return;
@@ -89,39 +55,19 @@ const CaseDetail: React.FC = () => {
 
   useEffect(() => {
     if (investigation?._id) {
-      fetchFindings();
       fetchReports();
     }
   }, [investigation?._id]);
-
-  useEffect(() => {
-    if (reports.length > 0) {
-      setActiveTab('report');
-    }
-  }, [reports.length]);
 
   const fetchCaseData = async () => {
     try {
       const response = await api.get(`/cases/${id}`);
       setInvestigation(response.data);
-      setNotes(response.data.notes || '');
     } catch (_error) {
       message.error('Unauthorized or Case not found');
       navigate('/cases');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const saveNotes = async () => {
-    setSavingNotes(true);
-    try {
-      await api.put(`/cases/${id}`, { notes });
-      message.success('Intelligence notes saved.');
-    } catch (_error) {
-      message.error('Failed to save notes.');
-    } finally {
-      setSavingNotes(false);
     }
   };
 
@@ -168,7 +114,6 @@ const CaseDetail: React.FC = () => {
               caseId={investigation._id} 
               caseTitle={investigation.title}
               onReportGenerated={() => {
-                fetchFindings();
                 fetchReports();
               }}
             />
@@ -176,192 +121,40 @@ const CaseDetail: React.FC = () => {
         </Col>
       </Row>
 
-      <Row gutter={24}>
-        <Col xs={24} lg={16}>
-          <Card 
-            title={<span><SnippetsOutlined /> Objective & Intelligence Briefing</span>} 
-            style={{ marginBottom: 24 }}
-          >
-            <Paragraph style={{ fontSize: '16px', lineHeight: '1.6', color: 'var(--text-main)' }}>
-              {investigation.description}
-            </Paragraph>
-            
-            {investigation.clues && investigation.clues.length > 0 && (
-              <div style={{ marginTop: 24 }}>
-                <Title level={5}>Known Clues & Leads</Title>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {investigation.clues.map((clue, idx) => (
-                    <Tag key={idx} style={{ padding: '4px 12px', fontSize: '13px' }}>{clue}</Tag>
-                  ))}
-                </div>
-              </div>
-            )}
-          </Card>
-
-          <Card style={{ marginBottom: 24 }} styles={{ body: { padding: 0 } }}>
-            <Tabs
-              activeKey={activeTab}
-              onChange={(key) => setActiveTab(key as 'findings' | 'report')}
-              type="card"
-              items={[
-                {
-                  key: 'findings',
-                  label: <span style={{ padding: '0 12px' }}><SearchOutlined /> Findings ({findings.length})</span>,
-                  children: (
-                    <div style={{ padding: 16 }}>
-                      <Spin spinning={findingsLoading}>
-                        {findings.length === 0 ? (
-                          <Empty 
-                            image={Empty.PRESENTED_IMAGE_SIMPLE}
-                            description="No findings linked to this case. Use OSINT tools to gather intelligence." 
-                          />
-                        ) : (
-                          <Table
-                            columns={[
-                              {
-                                title: 'Type',
-                                dataIndex: 'findingType',
-                                key: 'findingType',
-                                render: (text) => (
-                                  <Tag color="blue">{text.toUpperCase().replace(/_/g, ' ')}</Tag>
-                                ),
-                              },
-                              {
-                                title: 'Entity',
-                                dataIndex: 'email',
-                                key: 'entity',
-                                render: (_, record) => (
-                                  <Text strong style={{ color: 'var(--text-main)' }}>
-                                    {record.email || record.username || record.phone || record.domain || '—'}
-                                  </Text>
-                                ),
-                              },
-                              {
-                                title: 'Confidence',
-                                dataIndex: 'confidence',
-                                key: 'confidence',
-                                width: 120,
-                                render: (confidence) => (
-                                  <Tag
-                                    color={
-                                      confidence >= 80
-                                        ? 'success'
-                                        : confidence >= 60
-                                          ? 'warning'
-                                          : 'error'
-                                    }
-                                  >
-                                    {confidence}%
-                                  </Tag>
-                                ),
-                              },
-                              {
-                                title: 'Date',
-                                dataIndex: 'createdAt',
-                                key: 'createdAt',
-                                width: 120,
-                                render: (date) => new Date(date).toLocaleDateString(),
-                              },
-                            ]}
-                            dataSource={findings}
-                            rowKey="_id"
-                            pagination={{ pageSize: 10 }}
-                            size="small"
-                          />
-                        )}
-                      </Spin>
-                    </div>
-                  ),
-                },
-                ...(reports.length > 0 ? [{
-                  key: 'report',
-                  label: <span style={{ padding: '0 12px' }}><PieChartOutlined style={{ marginRight: 8 }} /> AI Intelligence Report</span>,
-                  children: (
-                    <div style={{ padding: 16 }}>
-                      <CaseReportView
-                        report={reports[0]}
-                        caseTitle={investigation.title}
-                        onDownloadPdf={() => {
-                          api.get(`/reports/${reports[0].id}/export/pdf`, { responseType: 'blob' }).then((response) => {
-                            const url = window.URL.createObjectURL(new Blob([response.data]));
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.setAttribute('download', `report-${investigation.title}-${new Date().toISOString().split('T')[0]}.pdf`);
-                            document.body.appendChild(link);
-                            link.click();
-                            link.remove();
-                            window.URL.revokeObjectURL(url);
-                            message.success('Report downloaded as PDF!');
-                          }).catch(() => message.error('Failed to download PDF'));
-                        }}
-                        onCopyText={() => {
-                          navigator.clipboard.writeText(reports[0].content);
-                          message.success('Report copied to clipboard!');
-                        }}
-                      />
-                    </div>
-                  )
-                }] : []),
-                {
-                  key: 'notes',
-                  label: <span style={{ padding: '0 12px' }}><FileTextOutlined style={{ marginRight: 8 }} /> Intelligence Log</span>,
-                  children: (
-                    <div style={{ padding: 16 }}>
-                      <TextArea 
-                        rows={15} 
-                        value={notes} 
-                        onChange={e => setNotes(e.target.value)}
-                        placeholder="Record detailed observations, timestamps, and investigation progress..."
-                        style={{ marginBottom: 16, fontSize: '15px' }}
-                      />
-                      <div style={{ textAlign: 'right' }}>
-                        <Button 
-                          type="primary" 
-                          icon={<SaveOutlined />} 
-                          onClick={saveNotes} 
-                          loading={savingNotes}
-                          size="large"
-                        >
-                          Save Intelligence Log
-                        </Button>
-                      </div>
-                    </div>
-                  ),
-                },
-              ]}
+      <Card style={{ marginBottom: 24 }} styles={{ body: { padding: 0 } }}>
+        {reports.length > 0 ? (
+          <div style={{ padding: 16 }}>
+            <CaseReportView
+              report={reports[0]}
+              caseTitle={investigation.title}
+              onDownloadPdf={() => {
+                api.get(`/reports/${reports[0].id}/export/pdf`, { responseType: 'blob' }).then((response) => {
+                  const url = window.URL.createObjectURL(new Blob([response.data]));
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.setAttribute('download', `report-${investigation.title}-${new Date().toISOString().split('T')[0]}.pdf`);
+                  document.body.appendChild(link);
+                  link.click();
+                  link.remove();
+                  window.URL.revokeObjectURL(url);
+                  message.success('Report downloaded as PDF!');
+                }).catch(() => message.error('Failed to download PDF'));
+              }}
+              onCopyText={() => {
+                navigator.clipboard.writeText(reports[0].content);
+                message.success('Report copied to clipboard!');
+              }}
             />
-          </Card>
-        </Col>
-
-        <Col xs={24} lg={8}>
-          <Card title="Target Profile" style={{ marginBottom: 24 }}>
-            {investigation.targetProfile ? (
-              <Descriptions column={1} size="small" labelStyle={{ color: 'var(--text-muted)' }}>
-                <Descriptions.Item label="Name">{investigation.targetProfile.name || 'Unknown'}</Descriptions.Item>
-                <Descriptions.Item label="Email">{investigation.targetProfile.email || 'None'}</Descriptions.Item>
-                <Descriptions.Item label="Phone">{investigation.targetProfile.phone || 'None'}</Descriptions.Item>
-                <Descriptions.Item label="Org">{investigation.targetProfile.organization || 'None'}</Descriptions.Item>
-                <Descriptions.Item label="Location">{investigation.targetProfile.location || 'None'}</Descriptions.Item>
-                <Descriptions.Item label="Social">{investigation.targetProfile.socialMedia || 'None'}</Descriptions.Item>
-              </Descriptions>
-            ) : (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No profile data available." />
-            )}
-          </Card>
-
-          <Card title="Suggested Toolset">
-            {investigation.toolsSuggested && investigation.toolsSuggested.length > 0 ? (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {investigation.toolsSuggested.map((tool, i) => (
-                  <Tag key={i} color="default">{tool}</Tag>
-                ))}
-              </div>
-            ) : (
-              <Text type="secondary">No tools suggested for this case.</Text>
-            )}
-          </Card>
-        </Col>
-      </Row>
+          </div>
+        ) : (
+          <div style={{ padding: 24 }}>
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description="No AI Intelligence Report available for this case yet."
+            />
+          </div>
+        )}
+      </Card>
     </div>
   );
 };

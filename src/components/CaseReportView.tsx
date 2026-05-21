@@ -7,6 +7,7 @@ import {
   ClockCircleOutlined, WifiOutlined, DollarOutlined, CarOutlined,
 } from '@ant-design/icons';
 import ReactMarkdown from 'react-markdown';
+import './CaseReportView.css';
 
 const { Text, Title } = Typography;
 
@@ -88,32 +89,100 @@ const entityTheme = (type: string) => {
 
 const strengthColor = (s: string) => s === 'strong' ? '#ef4444' : s === 'medium' ? '#3b82f6' : '#94a3b8';
 
+const uniqueStrings = (items: string[] = []) => {
+  const map = new Map<string, string>();
+  items.forEach((item) => {
+    const cleaned = String(item || '').trim();
+    if (!cleaned) return;
+    const key = cleaned.toLowerCase();
+    if (!map.has(key)) map.set(key, cleaned);
+  });
+  return Array.from(map.values());
+};
+
+const uniqueTimeline = (items: { date?: string; event: string }[] = []) => {
+  const map = new Map<string, { date?: string; event: string }>();
+  items.forEach((entry) => {
+    const date = String(entry?.date || '').trim();
+    const event = String(entry?.event || '').trim();
+    if (!event) return;
+    const key = `${date.toLowerCase()}|${event.toLowerCase()}`;
+    if (!map.has(key)) map.set(key, { date, event });
+  });
+  return Array.from(map.values());
+};
+
+const uniqueEdges = (items: { source: string; target: string; relation: string; strength: 'weak' | 'medium' | 'strong' }[] = []) => {
+  const map = new Map<string, { source: string; target: string; relation: string; strength: 'weak' | 'medium' | 'strong' }>();
+  items.forEach((edge) => {
+    const source = String(edge?.source || '').trim();
+    const target = String(edge?.target || '').trim();
+    const relation = String(edge?.relation || '').trim();
+    const strength = edge?.strength || 'weak';
+    if (!source || !target) return;
+    const key = `${source.toLowerCase()}|${target.toLowerCase()}|${relation.toLowerCase()}|${strength}`;
+    if (!map.has(key)) map.set(key, { source, target, relation, strength });
+  });
+  return Array.from(map.values());
+};
+
 // ── Component ────────────────────────────────────────────────────────────────
 const CaseReportView: React.FC<CaseReportViewProps> = ({
   report, caseTitle, onDownloadPdf, onCopyText, copiedToClipboard = false,
 }) => {
   const v = report.visualReport;
   const risk = riskBg(v?.riskLevel || report.riskLevel);
-  const entityGroups = v?.entitiesByType ? Object.entries(v.entitiesByType) : [];
-  const edges = v?.relationshipGraph?.edges || [];
+  const entityGroups = v?.entitiesByType
+    ? Object.entries(v.entitiesByType)
+      .map(([type, values]) => [type, uniqueStrings(values as string[])] as [string, string[]])
+      .filter(([, values]) => values.length > 0)
+    : [];
+  const edges = uniqueEdges(v?.relationshipGraph?.edges || []);
   const nodes = v?.relationshipGraph?.nodes || [];
+  const highlightedFindings = uniqueStrings(v?.highlightedFindings || []);
+  const timeline = uniqueTimeline(v?.timeline || []);
+  const riskFactors = uniqueStrings(v?.riskFactors || []);
+  const recommendations = uniqueStrings(v?.recommendations || []);
+  const tags = uniqueStrings(v?.tags || []);
+  // compute a simple presentation-only duplicates count (original - deduped)
+  let duplicatesCount = 0;
+  if (v) {
+    duplicatesCount += Math.max(0, (v.highlightedFindings || []).length - highlightedFindings.length);
+    duplicatesCount += Math.max(0, (v.timeline || []).length - timeline.length);
+    duplicatesCount += Math.max(0, (v.riskFactors || []).length - riskFactors.length);
+    duplicatesCount += Math.max(0, (v.recommendations || []).length - recommendations.length);
+    duplicatesCount += Math.max(0, (v.tags || []).length - tags.length);
+    const fp = v.digitalFootprint || {};
+    const fpKeys = ['emails','phoneNumbers','usernames','socialAccounts','ipAddresses','domains','wallets'];
+    fpKeys.forEach((k) => {
+      const arr = (fp as any)[k] || [];
+      duplicatesCount += Math.max(0, arr.length - uniqueStrings(arr).length);
+    });
+    if (v.entitiesByType) {
+      Object.values(v.entitiesByType).forEach((vals: any) => {
+        const orig = (vals || []).length;
+        const uniq = uniqueStrings(vals || []).length;
+        duplicatesCount += Math.max(0, orig - uniq);
+      });
+    }
+  }
 
   const footprint = v?.digitalFootprint || {};
   const footprintItems = [
-    { label: 'Email Addresses',    items: footprint.emails || [],          theme: entityTheme('email') },
-    { label: 'Phone Numbers',      items: footprint.phoneNumbers || [],     theme: entityTheme('phone') },
-    { label: 'Usernames',          items: footprint.usernames || [],        theme: entityTheme('username') },
-    { label: 'Social Accounts',    items: footprint.socialAccounts || [],   theme: entityTheme('social') },
-    { label: 'IP Addresses',       items: footprint.ipAddresses || [],      theme: entityTheme('ip') },
-    { label: 'Domains',            items: footprint.domains || [],          theme: entityTheme('domain') },
-    { label: 'Crypto Wallets',     items: footprint.wallets || [],          theme: entityTheme('wallet') },
+    { label: 'Email Addresses',    items: uniqueStrings(footprint.emails || []),        theme: entityTheme('email') },
+    { label: 'Phone Numbers',      items: uniqueStrings(footprint.phoneNumbers || []),   theme: entityTheme('phone') },
+    { label: 'Usernames',          items: uniqueStrings(footprint.usernames || []),      theme: entityTheme('username') },
+    { label: 'Social Accounts',    items: uniqueStrings(footprint.socialAccounts || []), theme: entityTheme('social') },
+    { label: 'IP Addresses',       items: uniqueStrings(footprint.ipAddresses || []),    theme: entityTheme('ip') },
+    { label: 'Domains',            items: uniqueStrings(footprint.domains || []),        theme: entityTheme('domain') },
+    { label: 'Crypto Wallets',     items: uniqueStrings(footprint.wallets || []),        theme: entityTheme('wallet') },
   ].filter(f => f.items.length > 0);
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: 400 }}>
+    <div className="case-report-view" style={{ background: '#f8fafc', minHeight: 400 }}>
 
       {/* ── Banner ── */}
-      <div style={{
+      <div className="case-report-banner" style={{
         background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #0c4a6e 100%)',
         padding: '36px 36px 28px',
         position: 'relative', overflow: 'hidden',
@@ -132,11 +201,16 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
               {v?.summary || 'AI-generated intelligence report from case dossier data.'}
             </Text>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 14 }}>
-              {(v?.tags || []).map(tag => (
+              {tags.map(tag => (
                 <Tag key={tag} style={{ borderRadius: 6, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.15)', color: '#e2e8f0', margin: 0, fontSize: 11 }}>
                   {tag}
                 </Tag>
               ))}
+              {duplicatesCount > 0 && (
+                <Tag className="case-report-dedup-badge" style={{ marginLeft: 8, borderRadius: 6, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', color: '#e2e8f0', fontSize: 11 }}>
+                  Deduped • {duplicatesCount}
+                </Tag>
+              )}
             </div>
           </Col>
           <Col xs={24} lg={8}>
@@ -184,7 +258,7 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
             { label: 'Risk Factors', value: (v?.riskFactors || []).length, color: '#ef4444' },
           ].map(s => (
             <Col xs={12} sm={6} key={s.label}>
-              <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '16px 20px', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+              <div className="case-report-stat-card" style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '16px 20px', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
                 <div style={{ fontSize: 32, fontWeight: 800, color: s.color }}>{s.value}</div>
                 <div style={{ fontSize: 11, color: '#64748b', letterSpacing: 1, marginTop: 2 }}>{s.label.toUpperCase()}</div>
               </div>
@@ -199,7 +273,7 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
 
             {/* Entity Extraction Matrix */}
             {entityGroups.length > 0 && (
-              <Card bordered={false} style={{ borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
                 title={<span style={{ fontWeight: 700, color: '#1e293b' }}><SafetyOutlined style={{ color: '#0ea5e9', marginRight: 8 }} />Entity Extraction Matrix</span>}>
                 <Row gutter={[12, 12]}>
                   {entityGroups.map(([type, values]) => {
@@ -220,7 +294,7 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
                           </div>
                           <Space direction="vertical" style={{ width: '100%' }} size={6}>
                             {(values as string[]).map((val, i) => (
-                              <div key={i} style={{ background: '#fff', border: `1px solid ${theme.border}`, padding: '7px 12px', borderRadius: 8, fontSize: 13, color: '#1e293b', wordBreak: 'break-all', fontWeight: 500 }}>
+                              <div key={`${val}-${i}`} className="case-report-list-item" style={{ background: '#fff', border: `1px solid ${theme.border}`, padding: '7px 12px', borderRadius: 8, fontSize: 13, color: '#1e293b', wordBreak: 'break-all', fontWeight: 500 }}>
                                 {val}
                               </div>
                             ))}
@@ -235,7 +309,7 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
 
             {/* Relationship Matrix Graph */}
             {edges.length > 0 && (
-              <Card bordered={false} style={{ borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
                 title={<span style={{ fontWeight: 700, color: '#1e293b' }}><ApiOutlined style={{ color: '#7c3aed', marginRight: 8 }} />Relationship Matrix Graph</span>}>
                 <div style={{ background: '#0f172a', borderRadius: 16, padding: 24, position: 'relative', overflow: 'hidden' }}>
                   <div style={{ position: 'absolute', inset: 0, opacity: 0.06, backgroundImage: 'linear-gradient(#38bdf8 1px,transparent 1px),linear-gradient(90deg,#38bdf8 1px,transparent 1px)', backgroundSize: '20px 20px' }} />
@@ -245,7 +319,7 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
                       const tgt = nodes.find(n => n.id === edge.target)?.label || edge.target;
                       const sc  = strengthColor(edge.strength);
                       return (
-                        <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <div key={`${edge.source}-${edge.target}-${edge.relation}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <div style={{ flex: '0 0 160px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', color: '#e2e8f0', fontSize: 12, fontWeight: 600, textAlign: 'center', wordBreak: 'break-all' }}>
                             {src}
                           </div>
@@ -269,7 +343,7 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
 
             {/* Digital Footprint */}
             {footprintItems.length > 0 && (
-              <Card bordered={false} style={{ borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
                 title={<span style={{ fontWeight: 700, color: '#1e293b' }}><WifiOutlined style={{ color: '#06b6d4', marginRight: 8 }} />Digital Footprint</span>}>
                 <Row gutter={[12, 12]}>
                   {footprintItems.map(({ label, items, theme }) => (
@@ -280,7 +354,7 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
                         </Text>
                         <Space direction="vertical" style={{ width: '100%' }} size={4}>
                           {items.map((item, i) => (
-                            <div key={i} style={{ background: '#fff', padding: '5px 10px', borderRadius: 6, fontSize: 12, color: '#334155', wordBreak: 'break-all', border: `1px solid ${theme.border}` }}>
+                            <div key={`${item}-${i}`} className="case-report-list-item" style={{ background: '#fff', padding: '5px 10px', borderRadius: 6, fontSize: 12, color: '#334155', wordBreak: 'break-all', border: `1px solid ${theme.border}` }}>
                               {item}
                             </div>
                           ))}
@@ -293,9 +367,9 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
             )}
 
             {/* Narrative Report */}
-            <Card bordered={false} style={{ borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
+            <Card className="case-report-panel case-report-narrative" bordered={false} style={{ borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
               title={<span style={{ fontWeight: 700, color: '#1e293b' }}><FileTextOutlined style={{ color: '#0ea5e9', marginRight: 8 }} />Full Intelligence Narrative</span>}>
-              <div style={{ color: '#1e293b', lineHeight: 1.85, fontSize: 14 }}>
+              <div className="case-report-markdown" style={{ color: '#1e293b', lineHeight: 1.85, fontSize: 14 }}>
                 <ReactMarkdown>{report.content}</ReactMarkdown>
               </div>
             </Card>
@@ -305,11 +379,11 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
           <Col xs={24} lg={9}>
 
             {/* Key Findings */}
-            {(v?.highlightedFindings || []).length > 0 && (
-              <Card bordered={false} style={{ borderRadius: 16, marginBottom: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
+            {highlightedFindings.length > 0 && (
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
                 title={<span style={{ fontWeight: 700, color: '#1e293b' }}><CheckCircleOutlined style={{ color: '#10b981', marginRight: 8 }} />Key Findings</span>}>
                 <Timeline
-                  items={(v?.highlightedFindings || []).map((f, i) => ({
+                  items={highlightedFindings.map((f, i) => ({
                     color: i % 3 === 0 ? 'blue' : i % 3 === 1 ? 'green' : 'gold',
                     children: <Text style={{ color: '#334155', fontSize: 13 }}>{f}</Text>,
                   }))}
@@ -318,11 +392,11 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
             )}
 
             {/* Timeline */}
-            {(v?.timeline || []).length > 0 && (
-              <Card bordered={false} style={{ borderRadius: 16, marginBottom: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
+            {timeline.length > 0 && (
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
                 title={<span style={{ fontWeight: 700, color: '#1e293b' }}><ClockCircleOutlined style={{ color: '#6366f1', marginRight: 8 }} />Investigation Timeline</span>}>
                 <Timeline
-                  items={(v?.timeline || []).map((t) => ({
+                  items={timeline.map((t) => ({
                     color: 'blue',
                     children: (
                       <div>
@@ -336,12 +410,12 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
             )}
 
             {/* Risk Factors */}
-            {(v?.riskFactors || []).length > 0 && (
-              <Card bordered={false} style={{ borderRadius: 16, marginBottom: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #fecaca', background: '#fff5f5' }}
+            {riskFactors.length > 0 && (
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #fecaca', background: '#fff5f5' }}
                 title={<span style={{ fontWeight: 700, color: '#dc2626' }}><WarningOutlined style={{ marginRight: 8 }} />Risk Factors</span>}>
                 <Space direction="vertical" style={{ width: '100%' }} size={8}>
-                  {(v?.riskFactors || []).map((rf, i) => (
-                    <div key={i} style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#991b1b' }}>
+                  {riskFactors.map((rf, i) => (
+                    <div key={`${rf}-${i}`} className="case-report-list-item" style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#991b1b' }}>
                       ⚠ {rf}
                     </div>
                   ))}
@@ -350,12 +424,12 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
             )}
 
             {/* Recommendations */}
-            {(v?.recommendations || []).length > 0 && (
-              <Card bordered={false} style={{ borderRadius: 16, marginBottom: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #bbf7d0', background: '#f0fdf4' }}
+            {recommendations.length > 0 && (
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #bbf7d0', background: '#f0fdf4' }}
                 title={<span style={{ fontWeight: 700, color: '#15803d' }}><CheckCircleOutlined style={{ marginRight: 8 }} />Recommendations</span>}>
                 <Space direction="vertical" style={{ width: '100%' }} size={8}>
-                  {(v?.recommendations || []).map((rec, i) => (
-                    <div key={i} style={{ background: '#fff', border: '1px solid #bbf7d0', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#166534', display: 'flex', gap: 8 }}>
+                  {recommendations.map((rec, i) => (
+                    <div key={`${rec}-${i}`} className="case-report-list-item" style={{ background: '#fff', border: '1px solid #bbf7d0', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#166534', display: 'flex', gap: 8 }}>
                       <span style={{ color: '#16a34a', flexShrink: 0 }}>→</span>
                       {rec}
                     </div>

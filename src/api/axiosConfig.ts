@@ -6,6 +6,12 @@ const defaultApiBaseUrl = () => {
   }
 
   if (typeof window !== 'undefined' && window.location?.origin) {
+    const host = window.location.hostname.toLowerCase();
+
+    if (host === 'www.shadowscan.me' || host === 'shadowscan.me') {
+      return 'https://shadowscan.duckdns.org/api';
+    }
+
     return `${window.location.origin}/api`;
   }
 
@@ -18,7 +24,7 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // Send cookies & credentials cross-origin
+  withCredentials: false,
 });
 
 // Request interceptor - attach auth token + CSRF

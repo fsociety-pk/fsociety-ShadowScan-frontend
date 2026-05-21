@@ -1,0 +1,62 @@
+/* Small, non-theme CSS to improve spacing, reduce perceived duplication, and add subtle separators.
+   This file intentionally avoids changing color tokens and only adjusts layout, spacing, shadows, and typography. */
+
+.case-report-view {
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+}
+
+.case-report-banner {
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.case-report-stat-card {
+  transition: transform .14s cubic-bezier(.2,.9,.2,1), box-shadow .14s cubic-bezier(.2,.9,.2,1);
+}
+.case-report-stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(2,6,23,0.12);
+}
+
+.case-report-panel {
+  overflow: hidden;
+}
+
+.case-report-panel > .ant-card-body {
+  padding: 14px !important;
+}
+
+.case-report-narrative .case-report-markdown p {
+  margin-bottom: 12px;
+}
+
+.case-report-list-item {
+  transition: background .12s ease, transform .12s ease, box-shadow .12s ease;
+}
+.case-report-list-item:hover {
+  transform: translateX(6px);
+  box-shadow: 0 10px 28px rgba(2,6,23,0.06);
+}
+
+.case-report-markdown img {
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+/* Tighten timeline spacing and improve legibility */
+.case-report-panel .ant-timeline-item-content {
+  font-size: 13px;
+  color: #334155;
+}
+
+/* subtle divider between left and right columns on large screens */
+@media (min-width: 992px) {
+  .case-report-view .ant-col[lg='9'] {
+    border-left: 1px solid #e6eef6;
+    padding-left: 18px;
+  }
+}
+
+.case-report-dedup-badge {
+  opacity: 0.95;
+  font-weight: 700;
+}
