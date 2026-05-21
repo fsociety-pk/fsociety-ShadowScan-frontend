@@ -9,7 +9,6 @@ import {
   Input,
   Button,
   Card,
-  Spin,
   Alert,
   Table,
   Tag,
@@ -21,13 +20,11 @@ import {
   Tooltip,
   Result,
 } from 'antd';
-import ProfessionalProgressCircle from '../../components/ProfessionalProgressCircle';
 import ProfessionalProgress from '../../components/ProfessionalProgress';
 import {
   LinkOutlined,
   UserOutlined,
   CheckCircleOutlined,
-  LoadingOutlined,
   ThunderboltOutlined,
   RocketOutlined,
   AimOutlined,
