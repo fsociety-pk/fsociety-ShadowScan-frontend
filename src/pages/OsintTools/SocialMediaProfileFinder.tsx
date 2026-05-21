@@ -22,6 +22,7 @@ import {
   Result,
 } from 'antd';
 import ProfessionalProgressCircle from '../../components/ProfessionalProgressCircle';
+import ProfessionalProgress from '../../components/ProfessionalProgress';
 import {
   LinkOutlined,
   UserOutlined,
@@ -369,42 +370,49 @@ const SocialMediaProfileFinder: React.FC<SocialMediaProfileFinderProps> = ({ onS
       {loading && (
         <Card
           style={{
-            marginBottom: 20,
-            background: 'rgba(248, 250, 252, 0.5)',
-            border: '1px solid rgba(0, 255, 136, 0.2)',
-            borderRadius: 12,
-            textAlign: 'center',
-            padding: 40,
+            marginBottom: 24, borderRadius: 16,
+            border: '1px solid #e6eefc', boxShadow: '0 6px 18px rgba(16,24,40,0.03)', overflow: 'hidden',
+            background: 'linear-gradient(135deg, #ffffff, #f8fafc)'
           }}
+          bodyStyle={{ padding: '40px 24px' }}
         >
-          <div style={{ marginBottom: 30 }}>
-            <Spin
-              indicator={
-                <LoadingOutlined
-                  style={{
-                    fontSize: 48,
-                    background: 'var(--cyber-gradient)',
-                    backgroundClip: 'text',
-                    WebkitBackgroundClip: 'text',
-                    color: 'transparent',
-                  }}
-                />
-              }
-              size="large"
-            />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="radar-container" style={{ position: 'relative', width: 140, height: 140, marginBottom: 28 }}>
+              <div className="radar-circle" />
+              <div className="radar-sweep" />
+              <div className="radar-core" />
+              <AimOutlined style={{
+                position: 'absolute', top: '50%', left: '50%',
+                transform: 'translate(-50%, -50%)', color: '#6366f1',
+                fontSize: 32, animation: 'pulse 1.5s infinite',
+              }} />
+            </div>
+
+            <div style={{ color: '#475569', fontFamily: 'monospace', fontSize: 13, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
+              [SYSTEM ACTIVE: PLATFORM PROFILING IN PROGRESS]
+            </div>
+
+            <div style={{ color: '#1e293b', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
+              Target Identifier: <span style={{ color: '#4f46e5', fontFamily: 'monospace' }}>"{form.getFieldValue('input')}"</span>
+            </div>
+
+            <div style={{ width: '100%', maxWidth: 500, margin: '16px auto 12px' }}>
+              <ProfessionalProgress percent={Math.floor(progress)} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
+                <span>GRID INTERROGATION</span>
+                <span style={{ color: '#4f46e5', fontWeight: 700 }}>{Math.floor(progress)}% COMPLETE</span>
+              </div>
+            </div>
+
+            <div style={{
+              background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 20px',
+              borderRadius: 8, width: '100%', maxWidth: 500, textAlign: 'center',
+              fontFamily: 'monospace', fontSize: 12, color: '#4f46e5',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
+            }}>
+              <span className="blink">{'>'}</span> {progressMessage || 'Scanning multiple network databases...'}
+            </div>
           </div>
-
-          <h3 style={{ color: 'var(--cyber-blue)', fontSize: 18, fontWeight: 700, marginBottom: 10, letterSpacing: 1 }}>
-            {progressMessage || 'SCANNING PLATFORMS...'}
-          </h3>
-
-          <div style={{ marginBottom: 20 }}>
-            <ProfessionalProgressCircle percent={Math.min(progress, 100)} size={120} colors={["var(--cyber-blue)", "var(--cyber-purple)"]} />
-          </div>
-
-          <p style={{ color: 'var(--text-muted)', fontSize: 14, marginTop: 15 }}>
-            Searching across 50+ platforms • This may take 1-3 minutes for comprehensive results
-          </p>
         </Card>
       )}
 

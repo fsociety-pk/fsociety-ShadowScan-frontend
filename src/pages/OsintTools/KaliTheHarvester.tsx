@@ -2,14 +2,25 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Form, Input, Button, Card, Tag, Space, Row, Col, Statistic } from 'antd';
 import {
   MailOutlined, SearchOutlined, CheckCircleOutlined,
-  RadarChartOutlined, StopOutlined, GlobalOutlined, InfoCircleOutlined
+  RadarChartOutlined, StopOutlined, GlobalOutlined, InfoCircleOutlined,
+  AimOutlined
 } from '@ant-design/icons';
+import ProfessionalProgress from '../../components/ProfessionalProgress';
 
 interface LogLine {
   type: 'status' | 'log' | 'found_email' | 'error' | 'done';
   message?: string;
   email?: string;
 }
+
+const HARVESTER_STEPS = [
+  'Querying Baidu lookup nodes...',
+  'Resolving Bing search vectors...',
+  'Parsing Google scraper channels...',
+  'Querying CRT.sh Certificate Transparency logs...',
+  'Interrogating Netcraft network data...',
+  'Filtering harvested email formats...'
+];
 
 const KaliTheHarvester: React.FC = () => {
   const [form] = Form.useForm();
@@ -18,6 +29,9 @@ const KaliTheHarvester: React.FC = () => {
   const [foundEmails, setFoundEmails] = useState<string[]>([]);
   const [done, setDone] = useState(false);
   const [target, setTarget] = useState('');
+  const [progress, setProgress] = useState(0);
+  const [currentStep, setCurrentStep] = useState('System Idle');
+  
   const logsEndRef = useRef<HTMLDivElement>(null);
   const esRef = useRef<EventSource | null>(null);
 
@@ -25,12 +39,27 @@ const KaliTheHarvester: React.FC = () => {
     logsEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
+  useEffect(() => {
+    let stepInterval: ReturnType<typeof setInterval>;
+    if (scanning) {
+      let idx = 0;
+      stepInterval = setInterval(() => {
+        setCurrentStep(HARVESTER_STEPS[idx % HARVESTER_STEPS.length]);
+        idx++;
+      }, 3000);
+    } else {
+      setCurrentStep('System Idle');
+    }
+    return () => clearInterval(stepInterval);
+  }, [scanning]);
+
   const stopScan = () => {
     if (esRef.current) {
       esRef.current.close();
       esRef.current = null;
     }
     setScanning(false);
+    setProgress(0);
     setLogs(prev => [...prev, { type: 'status', message: '[!] Scan stopped by user.' }]);
   };
 
@@ -41,6 +70,15 @@ const KaliTheHarvester: React.FC = () => {
     setFoundEmails([]);
     setDone(false);
     setScanning(true);
+    setProgress(0);
+    setCurrentStep('Connecting to data streams...');
+
+    // Progress Simulation
+    let sim = 0;
+    const progressInterval = setInterval(() => {
+      sim = Math.min(sim + Math.random() * 4, 95);
+      setProgress(Math.floor(sim));
+    }, 800);
 
     const base = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
     const url = `${base}/kali-tools/theharvester/stream?target=${encodeURIComponent(targetInput)}`;
@@ -60,11 +98,15 @@ const KaliTheHarvester: React.FC = () => {
           });
         }
         if (data.type === 'done') {
+          clearInterval(progressInterval);
+          setProgress(100);
           setDone(true);
           setScanning(false);
           es.close();
         }
         if (data.type === 'error') {
+          clearInterval(progressInterval);
+          setProgress(0);
           setScanning(false);
           es.close();
         }
@@ -72,7 +114,9 @@ const KaliTheHarvester: React.FC = () => {
     };
 
     es.onerror = () => {
+      clearInterval(progressInterval);
       setLogs(prev => [...prev, { type: 'error', message: '[!] Connection lost. Scan may be complete.' }]);
+      setProgress(100);
       setScanning(false);
       setDone(true);
       es.close();
@@ -144,6 +188,52 @@ const KaliTheHarvester: React.FC = () => {
           </Space>
         </Form>
       </Card>
+
+      {/* ── Scanning Loader ── */}
+      {scanning && (
+        <Card style={{
+          marginBottom: 24, borderRadius: 16,
+          border: '1px solid #e6eefc', boxShadow: '0 6px 18px rgba(16,24,40,0.03)',
+          background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
+        }} bodyStyle={{ padding: '40px 24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div className="radar-container" style={{ position: 'relative', width: 140, height: 140, marginBottom: 28 }}>
+              <div className="radar-circle" />
+              <div className="radar-sweep" />
+              <div className="radar-core" />
+              <AimOutlined style={{
+                position: 'absolute', top: '50%', left: '50%',
+                transform: 'translate(-50%,-50%)', color: '#6366f1', fontSize: 32,
+                animation: 'pulse 1.5s infinite',
+              }} />
+            </div>
+
+            <div style={{ color: '#475569', fontFamily: 'monospace', fontSize: 13, fontWeight: 700, letterSpacing: 1, marginBottom: 6 }}>
+              [SYSTEM ACTIVE: DOMAIN HARVESTING OPERATIONAL]
+            </div>
+            <div style={{ color: '#1e293b', fontSize: 16, fontWeight: 600, marginBottom: 16 }}>
+              Analyzing Domain/Email: <span style={{ color: '#4f46e5', fontFamily: 'monospace' }}>"{target}"</span>
+            </div>
+
+            <div style={{ width: '100%', maxWidth: 520, margin: '0 auto 12px' }}>
+              <ProfessionalProgress percent={progress} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: 11, marginTop: 6, fontFamily: 'monospace' }}>
+                <span>HARVESTING ARCHIVES</span>
+                <span style={{ color: '#4f46e5', fontWeight: 700 }}>{progress}% COMPLETE</span>
+              </div>
+            </div>
+
+            <div style={{
+              background: '#f8fafc', border: '1px solid #e2e8f0',
+              padding: '10px 20px', borderRadius: 8, width: '100%', maxWidth: 520,
+              textAlign: 'center', fontFamily: 'monospace', fontSize: 12,
+              color: '#4f46e5', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
+            }}>
+              <span className="blink">{'>'}</span> {currentStep}
+            </div>
+          </div>
+        </Card>
+      )}
 
       {/* Live Terminal Output */}
       {logs.length > 0 && (
@@ -269,12 +359,33 @@ const KaliTheHarvester: React.FC = () => {
 
       <style>{`
         .live-pulse {
-          animation: pulse 1.5s infinite;
+          animation: pulse-recon 1.5s infinite;
         }
-        @keyframes pulse {
+        @keyframes pulse-recon {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.4; transform: scale(0.8); }
         }
+        .radar-container { display: flex; align-items: center; justify-content: center; }
+        .radar-circle {
+          position: absolute; width: 100%; height: 100%;
+          border: 1.5px solid rgba(99,102,241,0.2); border-radius: 50%;
+        }
+        .radar-sweep {
+          position: absolute; width: 100%; height: 100%; border-radius: 50%;
+          background: conic-gradient(from 0deg at 50% 50%, rgba(99,102,241,0.3) 0deg, transparent 90deg);
+          animation: radar-sweep-harvester 2.5s linear infinite;
+        }
+        .radar-core {
+          position: absolute; width: 10px; height: 10px;
+          background: #6366f1; border-radius: 50%; box-shadow: 0 0 14px #6366f1;
+        }
+        @keyframes radar-sweep-harvester { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes pulse {
+          0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+          50%      { transform: translate(-50%,-50%) scale(1.18); opacity: 0.5; }
+        }
+        .blink { animation: blink-anim 1s step-end infinite; }
+        @keyframes blink-anim { 50% { opacity: 0; } }
       `}</style>
     </div>
   );
