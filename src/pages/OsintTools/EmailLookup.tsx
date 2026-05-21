@@ -4,12 +4,13 @@
  * Features a simulated radar animation and dynamic step readout during the scan.
  */
 import React, { useState, useEffect, useRef } from 'react';
-import { Form, Input, Button, Card, Tag, Row, Col, Progress, Segmented } from 'antd';
+import { Form, Input, Button, Card, Tag, Row, Col, Segmented } from 'antd';
 import {
   MailOutlined, SearchOutlined, CheckCircleOutlined, CloseCircleOutlined,
   LinkOutlined, EyeOutlined, AlertOutlined, AimOutlined, SafetyCertificateOutlined,
 } from '@ant-design/icons';
 import api from '../../api/axiosConfig';
+import ProfessionalProgress from '../../components/ProfessionalProgress';
 
 interface FoundPlatform {
   platform: string;
@@ -219,8 +220,9 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
       {scanning && (
         <Card
           style={{
-            marginBottom: 24, borderRadius: 16, background: '#0f172a',
-            border: '1px solid #1e293b', boxShadow: '0 10px 30px rgba(0, 0, 0, 0.2)', overflow: 'hidden',
+            marginBottom: 24, borderRadius: 16,
+            border: '1px solid #e6eefc', boxShadow: '0 6px 18px rgba(16,24,40,0.03)', overflow: 'hidden',
+            background: 'linear-gradient(135deg, #ffffff, #f8fafc)'
           }}
           bodyStyle={{ padding: '40px 24px' }}
         >
@@ -236,29 +238,27 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
               }} />
             </div>
 
-            <div style={{ color: '#38bdf8', fontFamily: 'monospace', fontSize: 14, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
+            <div style={{ color: '#475569', fontFamily: 'monospace', fontSize: 14, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
               [SYSTEM ACTIVE: EMAIL THREAT ENRICHMENT IN PROGRESS]
             </div>
 
-            <div style={{ color: '#fff', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
-              Scanning Email: <span style={{ color: '#6366f1', fontFamily: 'monospace' }}>"{targetEmail}"</span>
+            <div style={{ color: '#1e293b', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
+              Scanning Email: <span style={{ color: '#4f46e5', fontFamily: 'monospace' }}>"{targetEmail}"</span>
             </div>
 
             <div style={{ width: '100%', maxWidth: 500, margin: '16px auto 12px' }}>
-              <div className="pro-progress" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
-                <div className="pro-progress-bar" style={{ width: `${progress}%`, background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #a855f7)' }} />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#94a3b8', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
+              <ProfessionalProgress percent={progress} />
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
                 <span>ENRICHING DATA SOCKETS</span>
-                <span style={{ color: '#38bdf8', fontWeight: 700 }}>{progress}% COMPLETE</span>
+                <span style={{ color: '#4f46e5', fontWeight: 700 }}>{progress}% COMPLETE</span>
               </div>
             </div>
 
             <div style={{
-              background: '#020617', border: '1px solid #1e293b', padding: '12px 20px',
+              background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 20px',
               borderRadius: 8, width: '100%', maxWidth: 500, textAlign: 'center',
-              fontFamily: 'monospace', fontSize: 12, color: '#38bdf8',
-              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
+              fontFamily: 'monospace', fontSize: 12, color: '#4f46e5',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
             }}>
               <span className="blink">{'>'}</span> {currentStep}
             </div>
@@ -488,23 +488,6 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
         .radar-core {
           position: absolute; width: 8px; height: 8px;
           background: #6366f1; border-radius: 50%; box-shadow: 0 0 12px #6366f1;
-        }
-
-        /* Professional progress bar reused across OSINT tools */
-        .pro-progress {
-          width: 100%;
-          height: 10px;
-          background: rgba(255,255,255,0.06);
-          border-radius: 999px;
-          overflow: hidden;
-          border: 1px solid rgba(255,255,255,0.04);
-        }
-        .pro-progress-bar {
-          height: 100%;
-          width: 0%;
-          border-radius: 999px;
-          transition: width 400ms cubic-bezier(.2,.9,.2,1);
-          box-shadow: 0 6px 18px rgba(99,102,241,0.12) inset;
         }
 
         @keyframes radar-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

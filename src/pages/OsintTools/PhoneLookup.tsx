@@ -277,17 +277,17 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
 
             <div style={{ width: '100%', maxWidth: 500, margin: '16px auto 12px' }}>
               <ProfessionalProgress percent={progress} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#6b7280', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
                 <span>PROBING MATRIX</span>
                 <span style={{ color: '#10b981', fontWeight: 700 }}>{progress}% COMPLETE</span>
               </div>
             </div>
 
             <div style={{
-              background: 'rgba(30, 41, 59, 0.7)', border: '1px solid #334155', padding: '12px 20px',
+              background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 20px',
               borderRadius: 8, width: '100%', maxWidth: 500, textAlign: 'center',
-              fontFamily: 'monospace', fontSize: 12, color: '#38bdf8',
-              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.3)',
+              fontFamily: 'monospace', fontSize: 12, color: '#10b981',
+              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
             }}>
               <span className="blink">{'>'}</span> {currentStep}
             </div>
