@@ -9,41 +9,50 @@ interface Props {
 const ProfessionalProgress: React.FC<Props> = ({ percent, ariaLabel = 'progress', maxWidth = '100%' }) => {
   const pct = Math.max(0, Math.min(100, Math.round(percent)));
   return (
-    <div style={{ width: maxWidth, position: 'relative' }}>
-      <div
-        className="pro-progress-light"
-        role="progressbar"
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-valuenow={pct}
-        aria-label={ariaLabel}
-      >
-        <div className="pro-progress-light-bar" style={{ width: `${pct}%` }}>
-          <div className="pro-progress-shimmer" />
+    <div style={{ width: maxWidth, position: 'relative', padding: '4px 0' }}>
+      {/* Tech border outer cage */}
+      <div className="tech-progress-cage">
+        {/* Inner track */}
+        <div className="tech-progress-track">
+          {/* Active fill with sliding neon gradient and cyber slatted cells */}
+          <div className="tech-progress-fill" style={{ width: `${pct}%` }}>
+            <div className="tech-progress-cells" />
+            <div className="tech-progress-glow" />
+            <div className="tech-progress-laser" />
+          </div>
         </div>
       </div>
       <style>{`
-        .pro-progress-light {
-          width: 100%;
-          height: 12px;
-          background: #f1f5f9; /* light track */
-          border-radius: 999px;
-          overflow: hidden;
+        .tech-progress-cage {
+          background: #ffffff;
           border: 1px solid #e2e8f0;
-          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.03);
-          position: relative;
+          padding: 4px;
+          border-radius: 12px;
+          box-shadow: 0 4px 12px rgba(99, 102, 241, 0.04), inset 0 1px 3px rgba(255, 255, 255, 0.8);
         }
-        .pro-progress-light-bar {
+        .tech-progress-track {
+          width: 100%;
+          height: 16px;
+          background: #f8fafc;
+          border-radius: 8px;
+          overflow: hidden;
+          position: relative;
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+          border: 1px solid #e2e8f0;
+        }
+        .tech-progress-fill {
           height: 100%;
           width: 0%;
-          background: linear-gradient(90deg, #3b82f6, #6366f1, #a855f7);
-          border-radius: 999px;
-          transition: width 400ms cubic-bezier(.2,.9,.2,1);
+          border-radius: 8px;
+          background: linear-gradient(90deg, #6366f1, #3b82f6, #10b981, #3b82f6, #6366f1);
+          background-size: 200% 100%;
+          animation: tech-gradient-move 3s linear infinite;
+          transition: width 500ms cubic-bezier(.1, .9, .2, 1);
           position: relative;
           overflow: hidden;
-          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+          box-shadow: 0 0 8px rgba(99, 102, 241, 0.3);
         }
-        .pro-progress-shimmer {
+        .tech-progress-cells {
           position: absolute;
           top: 0;
           left: 0;
@@ -51,20 +60,43 @@ const ProfessionalProgress: React.FC<Props> = ({ percent, ariaLabel = 'progress'
           bottom: 0;
           background-image: linear-gradient(
             90deg,
-            rgba(255, 255, 255, 0) 0%,
-            rgba(255, 255, 255, 0.4) 50%,
-            rgba(255, 255, 255, 0) 100%
+            rgba(255, 255, 255, 0.15) 50%,
+            transparent 50%
           );
-          background-size: 200% 100%;
-          animation: pro-shimmer-anim 1.5s infinite linear;
+          background-size: 8px 100%;
+          opacity: 0.5;
         }
-        @keyframes pro-shimmer-anim {
-          0% {
-            background-position: -200% 0;
-          }
-          100% {
-            background-position: 200% 0;
-          }
+        .tech-progress-laser {
+          position: absolute;
+          top: 0;
+          right: 0;
+          bottom: 0;
+          width: 30px;
+          background: linear-gradient(
+            90deg,
+            transparent,
+            rgba(255, 255, 255, 0.8),
+            transparent
+          );
+          animation: tech-laser-sweep 2s infinite ease-in-out;
+        }
+        .tech-progress-glow {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.6);
+          mix-blend-mode: overlay;
+        }
+
+        @keyframes tech-gradient-move {
+          0% { background-position: 0% 50%; }
+          100% { background-position: 200% 50%; }
+        }
+        @keyframes tech-laser-sweep {
+          0% { transform: translateX(-150%); }
+          100% { transform: translateX(500%); }
         }
       `}</style>
     </div>

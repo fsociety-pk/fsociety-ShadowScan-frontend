@@ -258,8 +258,8 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
             { label: 'Relationships', value: edges.length, color: '#f59e0b' },
             { label: 'Risk Factors', value: (v?.riskFactors || []).length, color: '#ef4444' },
           ].map(s => (
-            <Col xs={12} sm={6} key={s.label}>
-              <div className="case-report-stat-card" style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '16px 20px', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+            <Col xs={12} sm={6} lg={6} key={s.label}>
+              <div className="case-report-stat-card" style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '16px 20px', textAlign: 'center', boxShadow: '0 2px 12px rgba(0,0,0,0.02)' }}>
                 <div style={{ fontSize: 32, fontWeight: 800, color: s.color }}>{s.value}</div>
                 <div style={{ fontSize: 11, color: '#64748b', letterSpacing: 1, marginTop: 2 }}>{s.label.toUpperCase()}</div>
               </div>
@@ -267,156 +267,101 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
           ))}
         </Row>
 
-        <Row gutter={[20, 20]}>
+        <Row gutter={[24, 24]}>
 
-          {/* ── LEFT COLUMN ── */}
-          <Col xs={24} lg={15}>
-
+          {/* ── COLUMN 1: ENTITIES & FOOTPRINT ── */}
+          <Col xs={24} lg={8}>
             {/* Entity Extraction Matrix */}
             {entityGroups.length > 0 && (
-              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', border: '1px solid #e2e8f0' }}
                 title={<span style={{ fontWeight: 700, color: '#1e293b' }}><SafetyOutlined style={{ color: '#0ea5e9', marginRight: 8 }} />Entity Extraction Matrix</span>}>
-                <Row gutter={[12, 12]}>
+                <Space direction="vertical" style={{ width: '100%' }} size={16}>
                   {entityGroups.map(([type, values]) => {
                     const theme = entityTheme(type);
                     return (
-                      <Col xs={24} md={12} key={type}>
-                        <div style={{ background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: 14, padding: 16, height: '100%' }}>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-                            <div style={{ background: '#fff', width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme.color, fontSize: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-                              {theme.icon}
-                            </div>
-                            <Text style={{ fontWeight: 700, fontSize: 12, letterSpacing: 0.8, textTransform: 'uppercase', color: theme.color }}>
-                              {type}
-                            </Text>
-                            <Tag style={{ marginLeft: 'auto', margin: 0, background: theme.color, color: '#fff', border: 'none', borderRadius: 999, fontSize: 10 }}>
-                              {(values as string[]).length}
-                            </Tag>
+                      <div key={type} style={{ background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: 14, padding: 16 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                          <div style={{ background: '#fff', width: 36, height: 36, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: theme.color, fontSize: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                            {theme.icon}
                           </div>
-                          <Space direction="vertical" style={{ width: '100%' }} size={6}>
-                            {(values as string[]).map((val, i) => (
-                              <div key={`${val}-${i}`} className="case-report-list-item" style={{ background: '#fff', border: `1px solid ${theme.border}`, padding: '7px 12px', borderRadius: 8, fontSize: 13, color: '#1e293b', wordBreak: 'break-all', fontWeight: 500 }}>
-                                {val}
-                              </div>
-                            ))}
-                          </Space>
+                          <Text style={{ fontWeight: 700, fontSize: 12, letterSpacing: 0.8, textTransform: 'uppercase', color: theme.color }}>
+                            {type}
+                          </Text>
+                          <Tag style={{ marginLeft: 'auto', margin: 0, background: theme.color, color: '#fff', border: 'none', borderRadius: 999, fontSize: 10 }}>
+                            {(values as string[]).length}
+                          </Tag>
                         </div>
-                      </Col>
+                        <Space direction="vertical" style={{ width: '100%' }} size={6}>
+                          {(values as string[]).map((val, i) => (
+                            <div key={`${val}-${i}`} className="case-report-list-item" style={{ background: '#fff', border: `1px solid ${theme.border}`, padding: '7px 12px', borderRadius: 8, fontSize: 13, color: '#1e293b', wordBreak: 'break-all', fontWeight: 500 }}>
+                              {val}
+                            </div>
+                          ))}
+                        </Space>
+                      </div>
                     );
                   })}
-                </Row>
-              </Card>
-            )}
-
-            {/* Relationship Matrix Graph */}
-            {edges.length > 0 && (
-              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
-                title={<span style={{ fontWeight: 700, color: '#1e293b' }}><ApiOutlined style={{ color: '#7c3aed', marginRight: 8 }} />Relationship Matrix Graph</span>}>
-                <div style={{ background: '#0f172a', borderRadius: 16, padding: 24, position: 'relative', overflow: 'hidden' }}>
-                  <div style={{ position: 'absolute', inset: 0, opacity: 0.06, backgroundImage: 'linear-gradient(#38bdf8 1px,transparent 1px),linear-gradient(90deg,#38bdf8 1px,transparent 1px)', backgroundSize: '20px 20px' }} />
-                  <Space direction="vertical" style={{ width: '100%', position: 'relative', zIndex: 1 }} size={14}>
-                    {edges.map((edge, i) => {
-                      const src = nodes.find(n => n.id === edge.source)?.label || edge.source;
-                      const tgt = nodes.find(n => n.id === edge.target)?.label || edge.target;
-                      const sc  = strengthColor(edge.strength);
-                      return (
-                        <div key={`${edge.source}-${edge.target}-${edge.relation}-${i}`} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{ flex: '0 0 160px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', color: '#e2e8f0', fontSize: 12, fontWeight: 600, textAlign: 'center', wordBreak: 'break-all' }}>
-                            {src}
-                          </div>
-                          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-                            <span style={{ color: sc, fontSize: 10, fontWeight: 700, letterSpacing: 1 }}>{edge.relation}</span>
-                            <div style={{ width: '100%', height: 2, background: `linear-gradient(90deg, transparent, ${sc}, transparent)`, position: 'relative' }}>
-                              <div style={{ position: 'absolute', right: '22%', top: -4, width: 0, height: 0, borderTop: '5px solid transparent', borderBottom: '5px solid transparent', borderLeft: `6px solid ${sc}` }} />
-                            </div>
-                            <span style={{ color: 'rgba(255,255,255,0.25)', fontSize: 9, fontFamily: 'monospace' }}>{edge.strength.toUpperCase()}</span>
-                          </div>
-                          <div style={{ flex: '0 0 160px', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '8px 12px', color: '#e2e8f0', fontSize: 12, fontWeight: 600, textAlign: 'center', wordBreak: 'break-all' }}>
-                            {tgt}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </Space>
-                </div>
+                </Space>
               </Card>
             )}
 
             {/* Digital Footprint */}
             {footprintItems.length > 0 && (
-              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', border: '1px solid #e2e8f0' }}
                 title={<span style={{ fontWeight: 700, color: '#1e293b' }}><WifiOutlined style={{ color: '#06b6d4', marginRight: 8 }} />Digital Footprint</span>}>
-                <Row gutter={[12, 12]}>
+                <Space direction="vertical" style={{ width: '100%' }} size={14}>
                   {footprintItems.map(({ label, items, theme }) => (
-                    <Col xs={24} sm={12} key={label}>
-                      <div style={{ background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: 12, padding: 14 }}>
-                        <Text style={{ display: 'block', fontWeight: 700, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase', color: theme.color, marginBottom: 10 }}>
-                          {label} ({items.length})
-                        </Text>
-                        <Space direction="vertical" style={{ width: '100%' }} size={4}>
-                          {items.map((item, i) => (
-                            <div key={`${item}-${i}`} className="case-report-list-item" style={{ background: '#fff', padding: '5px 10px', borderRadius: 6, fontSize: 12, color: '#334155', wordBreak: 'break-all', border: `1px solid ${theme.border}` }}>
-                              {item}
-                            </div>
-                          ))}
-                        </Space>
-                      </div>
-                    </Col>
+                    <div key={label} style={{ background: theme.bg, border: `1px solid ${theme.border}`, borderRadius: 12, padding: 14 }}>
+                      <Text style={{ display: 'block', fontWeight: 700, fontSize: 11, letterSpacing: 1, textTransform: 'uppercase', color: theme.color, marginBottom: 10 }}>
+                        {label} ({items.length})
+                      </Text>
+                      <Space direction="vertical" style={{ width: '100%' }} size={4}>
+                        {items.map((item, i) => (
+                          <div key={`${item}-${i}`} className="case-report-list-item" style={{ background: '#fff', padding: '5px 10px', borderRadius: 6, fontSize: 12, color: '#334155', wordBreak: 'break-all', border: `1px solid ${theme.border}` }}>
+                            {item}
+                          </div>
+                        ))}
+                      </Space>
+                    </div>
                   ))}
-                </Row>
+                </Space>
+              </Card>
+            )}
+          </Col>
+
+          {/* ── COLUMN 2: FINDINGS & FULL NARRATIVE ── */}
+          <Col xs={24} lg={8}>
+            {/* Key Findings */}
+            {highlightedFindings.length > 0 && (
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', border: '1px solid #e2e8f0' }}
+                title={<span style={{ fontWeight: 700, color: '#1e293b' }}><CheckCircleOutlined style={{ color: '#10b981', marginRight: 8 }} />Key Findings Matrix</span>}>
+                <Timeline
+                  items={highlightedFindings.map((f, i) => ({
+                    color: i % 3 === 0 ? 'blue' : i % 3 === 1 ? 'green' : 'gold',
+                    children: <Text style={{ color: '#334155', fontSize: 13, fontWeight: 500 }}>{f}</Text>,
+                  }))}
+                />
               </Card>
             )}
 
             {/* Narrative Report */}
-            <Card className="case-report-panel case-report-narrative" bordered={false} style={{ borderRadius: 16, marginBottom: 20, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
-              title={<span style={{ fontWeight: 700, color: '#1e293b' }}><FileTextOutlined style={{ color: '#0ea5e9', marginRight: 8 }} />Full Intelligence Narrative</span>}>
+            <Card className="case-report-panel case-report-narrative" bordered={false} style={{ borderRadius: 16, marginBottom: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', border: '1px solid #e2e8f0' }}
+              title={<span style={{ fontWeight: 700, color: '#1e293b' }}><FileTextOutlined style={{ color: '#0ea5e9', marginRight: 8 }} />Full Forensic Narrative</span>}>
               <div className="case-report-markdown" style={{ color: '#1e293b', lineHeight: 1.85, fontSize: 14 }}>
                 <ReactMarkdown>{report.content}</ReactMarkdown>
               </div>
             </Card>
           </Col>
 
-          {/* ── RIGHT COLUMN ── */}
-          <Col xs={24} lg={9}>
-
-            {/* Key Findings */}
-            {highlightedFindings.length > 0 && (
-              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
-                title={<span style={{ fontWeight: 700, color: '#1e293b' }}><CheckCircleOutlined style={{ color: '#10b981', marginRight: 8 }} />Key Findings</span>}>
-                <Timeline
-                  items={highlightedFindings.map((f, i) => ({
-                    color: i % 3 === 0 ? 'blue' : i % 3 === 1 ? 'green' : 'gold',
-                    children: <Text style={{ color: '#334155', fontSize: 13 }}>{f}</Text>,
-                  }))}
-                />
-              </Card>
-            )}
-
-            {/* Timeline */}
-            {timeline.length > 0 && (
-              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #e2e8f0' }}
-                title={<span style={{ fontWeight: 700, color: '#1e293b' }}><ClockCircleOutlined style={{ color: '#6366f1', marginRight: 8 }} />Investigation Timeline</span>}>
-                <Timeline
-                  items={timeline.map((t) => ({
-                    color: 'blue',
-                    children: (
-                      <div>
-                        {t.date && <Text style={{ color: '#94a3b8', fontSize: 11, display: 'block' }}>{t.date}</Text>}
-                        <Text style={{ color: '#334155', fontSize: 13 }}>{t.event}</Text>
-                      </div>
-                    ),
-                  }))}
-                />
-              </Card>
-            )}
-
+          {/* ── COLUMN 3: RISKS, RECOMMENDATIONS & TIMELINE ── */}
+          <Col xs={24} lg={8}>
             {/* Risk Factors */}
             {riskFactors.length > 0 && (
-              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #fecaca', background: '#fff5f5' }}
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', border: '1px solid #fee2e2', background: '#fffdfd' }}
                 title={<span style={{ fontWeight: 700, color: '#dc2626' }}><WarningOutlined style={{ marginRight: 8 }} />Risk Factors</span>}>
-                <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                <Space direction="vertical" style={{ width: '100%' }} size={10}>
                   {riskFactors.map((rf, i) => (
-                    <div key={`${rf}-${i}`} className="case-report-list-item" style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#991b1b' }}>
+                    <div key={`${rf}-${i}`} className="case-report-list-item" style={{ background: '#fff5f5', borderLeft: '4px solid #dc2626', borderTop: '1px solid #fee2e2', borderRight: '1px solid #fee2e2', borderBottom: '1px solid #fee2e2', borderRadius: '4px 8px 8px 4px', padding: '10px 14px', fontSize: 13, color: '#991b1b', fontWeight: 600 }}>
                       ⚠ {rf}
                     </div>
                   ))}
@@ -426,11 +371,11 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
 
             {/* Recommendations */}
             {recommendations.length > 0 && (
-              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 16, boxShadow: '0 4px 20px rgba(0,0,0,0.05)', border: '1px solid #bbf7d0', background: '#f0fdf4' }}
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', border: '1px solid #dcfce7', background: '#fdfdfd' }}
                 title={<span style={{ fontWeight: 700, color: '#15803d' }}><CheckCircleOutlined style={{ marginRight: 8 }} />Recommendations</span>}>
-                <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                <Space direction="vertical" style={{ width: '100%' }} size={10}>
                   {recommendations.map((rec, i) => (
-                    <div key={`${rec}-${i}`} className="case-report-list-item" style={{ background: '#fff', border: '1px solid #bbf7d0', borderRadius: 8, padding: '8px 12px', fontSize: 13, color: '#166534', display: 'flex', gap: 8 }}>
+                    <div key={`${rec}-${i}`} className="case-report-list-item" style={{ background: '#f0fdf4', borderLeft: '4px solid #16a34a', borderTop: '1px solid #dcfce7', borderRight: '1px solid #dcfce7', borderBottom: '1px solid #dcfce7', borderRadius: '4px 8px 8px 4px', padding: '10px 14px', fontSize: 13, color: '#166534', display: 'flex', gap: 8, fontWeight: 500 }}>
                       <span style={{ color: '#16a34a', flexShrink: 0 }}>→</span>
                       {rec}
                     </div>
@@ -438,7 +383,64 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
                 </Space>
               </Card>
             )}
+
+            {/* Timeline */}
+            {timeline.length > 0 && (
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, marginBottom: 24, boxShadow: '0 4px 20px rgba(0,0,0,0.02)', border: '1px solid #e2e8f0' }}
+                title={<span style={{ fontWeight: 700, color: '#1e293b' }}><ClockCircleOutlined style={{ color: '#6366f1', marginRight: 8 }} />Investigation Timeline</span>}>
+                <Timeline
+                  items={timeline.map((t) => ({
+                    color: 'blue',
+                    children: (
+                      <div>
+                        {t.date && <Text style={{ color: '#64748b', fontSize: 11, fontWeight: 700, display: 'block', marginBottom: 2, fontFamily: 'monospace' }}>{t.date}</Text>}
+                        <Text style={{ color: '#334155', fontSize: 13, fontWeight: 500 }}>{t.event}</Text>
+                      </div>
+                    ),
+                  }))}
+                />
+              </Card>
+            )}
           </Col>
+
+          {/* ── PANORAMIC BOTTOM PANEL: RELATIONSHIP MATRIX GRAPH ── */}
+          {edges.length > 0 && (
+            <Col xs={24}>
+              <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, boxShadow: '0 4px 24px rgba(0,0,0,0.03)', border: '1px solid #e2e8f0' }}
+                title={<span style={{ fontWeight: 700, color: '#1e293b' }}><ApiOutlined style={{ color: '#7c3aed', marginRight: 8 }} />Panoramic Entity Relationship Map</span>}>
+                <div style={{ background: '#0f172a', borderRadius: 16, padding: '32px 24px', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ position: 'absolute', inset: 0, opacity: 0.05, backgroundImage: 'linear-gradient(#38bdf8 1px,transparent 1px),linear-gradient(90deg,#38bdf8 1px,transparent 1px)', backgroundSize: '24px 24px' }} />
+                  <Row gutter={[24, 16]} style={{ position: 'relative', zIndex: 1 }}>
+                    {edges.map((edge, i) => {
+                      const src = nodes.find(n => n.id === edge.source)?.label || edge.source;
+                      const tgt = nodes.find(n => n.id === edge.target)?.label || edge.target;
+                      const sc  = strengthColor(edge.strength);
+                      return (
+                        <Col xs={24} md={12} xl={8} key={`${edge.source}-${edge.target}-${edge.relation}-${i}`}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(255,255,255,0.02)', padding: '12px 16px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.05)' }}>
+                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 10px', color: '#f1f5f9', fontSize: 12, fontWeight: 700, textAlign: 'center', wordBreak: 'break-all' }}>
+                              {src}
+                            </div>
+                            <div style={{ flex: '0 0 80px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+                              <span style={{ color: sc, fontSize: 10, fontWeight: 800, letterSpacing: 0.5, textAlign: 'center', whiteSpace: 'nowrap' }}>{edge.relation}</span>
+                              <div style={{ width: '100%', height: 2, background: `linear-gradient(90deg, transparent, ${sc}, transparent)`, position: 'relative' }}>
+                                <div style={{ position: 'absolute', right: '15%', top: -4, width: 0, height: 0, borderTop: '5px solid transparent', borderBottom: '5px solid transparent', borderLeft: `6px solid ${sc}` }} />
+                              </div>
+                              <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: 8, fontFamily: 'monospace' }}>{edge.strength.toUpperCase()}</span>
+                            </div>
+                            <div style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8, padding: '8px 10px', color: '#f1f5f9', fontSize: 12, fontWeight: 700, textAlign: 'center', wordBreak: 'break-all' }}>
+                              {tgt}
+                            </div>
+                          </div>
+                        </Col>
+                      );
+                    })}
+                  </Row>
+                </div>
+              </Card>
+            </Col>
+          )}
+
         </Row>
       </div>
     </div>
