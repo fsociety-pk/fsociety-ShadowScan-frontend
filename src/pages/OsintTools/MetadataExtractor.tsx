@@ -83,6 +83,7 @@ const MetadataExtractor: React.FC<MetadataExtractorProps> = ({ onScanStateChange
         try {
             const response = await api.post('/tools/extract-metadata', formData, {
                 headers: { 'Content-Type': 'multipart/form-data' },
+                timeout: 120000,
                 signal: abortController.signal,
                 onUploadProgress: progressEvent => {
                     if (progressEvent.total) {
@@ -99,8 +100,21 @@ const MetadataExtractor: React.FC<MetadataExtractorProps> = ({ onScanStateChange
             if ((error as { name?: string }).name === 'AbortError' || (error as { name?: string }).name === 'CanceledError') {
                 message.info('Upload cancelled by user.');
             } else {
-                const apiErr = error as { response?: { data?: { message?: string } } };
-                message.error(apiErr.response?.data?.message || 'Forensic analysis failed.');
+                const apiErr = error as {
+                    code?: string;
+                    message?: string;
+                    response?: { data?: { message?: string } };
+                };
+                const backendMessage = apiErr.response?.data?.message;
+                const networkTimeout = apiErr.code === 'ECONNABORTED' || apiErr.message?.toLowerCase().includes('timeout');
+                const networkDrop = apiErr.code === 'ERR_NETWORK' || apiErr.code === 'ERR_NETWORK_CHANGED';
+                const fallbackMessage = networkTimeout
+                    ? 'Forensic scan timed out. Server is still processing or dependencies are slow.'
+                    : networkDrop
+                        ? 'Network connection changed during forensic upload. Please retry.'
+                        : 'Forensic analysis failed.';
+
+                message.error(backendMessage || fallbackMessage);
                 onError?.(error as Error);
             }
         } finally {

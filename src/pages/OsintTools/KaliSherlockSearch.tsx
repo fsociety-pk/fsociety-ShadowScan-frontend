@@ -221,10 +221,16 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
       if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
       setProgress(0);
 
+      const networkTimeout = err?.code === 'ECONNABORTED' || String(err?.message || '').toLowerCase().includes('timeout');
+      const networkChanged = err?.code === 'ERR_NETWORK_CHANGED' || String(err?.message || '').toLowerCase().includes('network');
       const errorMsg =
         err?.response?.data?.message ||
         err?.response?.data?.error ||
-        err?.message ||
+        (networkTimeout
+          ? 'Sherlock scan timed out. Try again or increase backend Sherlock timeout settings.'
+          : networkChanged
+            ? 'Network changed during scan request. Please retry the search.'
+            : err?.message) ||
         'Scan failed. Please try again.';
 
       setError(errorMsg);
