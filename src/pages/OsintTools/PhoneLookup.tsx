@@ -58,6 +58,13 @@ interface NexusResult {
       reputationReports: string[];
       socialMediaHints: string[];
       disposableIndicators: string[];
+      buckets?: {
+        socialMedia: string[];
+        disposableProviders: string[];
+        reputation: string[];
+        individuals: string[];
+        general: string[];
+      };
     };
     sources: string[];
     success: boolean;
@@ -85,6 +92,26 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
   const [currentStep, setCurrentStep] = useState('System Idle');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const phoneInfoga = nexusData?.phoneinfoga;
+
+  const renderLinks = (items: string[]) => {
+    const unique = Array.from(new Set(items || []));
+    if (unique.length === 0) return <span style={{ color: '#94a3b8' }}>No records</span>;
+
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {unique.map((item) => {
+          const isUrl = /^https?:\/\//i.test(item);
+          return isUrl ? (
+            <a key={item} href={item} target="_blank" rel="noopener noreferrer" style={{ color: '#0f4c81', fontSize: 12, textDecoration: 'none', wordBreak: 'break-all' }}>
+              {item}
+            </a>
+          ) : (
+            <div key={item} style={{ color: '#334155', fontSize: 12, wordBreak: 'break-word' }}>{item}</div>
+          );
+        })}
+      </div>
+    );
+  };
 
   // Status messages cycled during scan animation
   const steps = [
@@ -444,28 +471,29 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
                 </Row>
 
                 <Row gutter={[16, 16]}>
-                  <Col xs={24} lg={8}>
-                    <Card title="External APIs" size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0' }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                        {phoneInfoga.footprint.externalApis.map((item) => <Tag key={item} color="blue" style={{ margin: 0 }}>{item}</Tag>)}
-                      </div>
+                  <Col xs={24} lg={12}>
+                    <Card title={`Social Media (${(phoneInfoga.footprint.buckets?.socialMedia || phoneInfoga.footprint.socialMediaHints || []).length})`} size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0' }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
+                      {renderLinks(phoneInfoga.footprint.buckets?.socialMedia || phoneInfoga.footprint.socialMediaHints || [])}
                     </Card>
                   </Col>
-                  <Col xs={24} lg={8}>
-                    <Card title="Phone Books & Search" size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0' }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        <div><Text strong>Phone books:</Text> {phoneInfoga.footprint.phoneBooks.join(' · ')}</div>
-                        <div><Text strong>Search engines:</Text> {phoneInfoga.footprint.searchEngines.join(' · ')}</div>
-                      </div>
+                  <Col xs={24} lg={12}>
+                    <Card title={`Disposable Providers (${(phoneInfoga.footprint.buckets?.disposableProviders || phoneInfoga.footprint.disposableIndicators || []).length})`} size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0' }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
+                      {renderLinks(phoneInfoga.footprint.buckets?.disposableProviders || phoneInfoga.footprint.disposableIndicators || [])}
                     </Card>
                   </Col>
-                  <Col xs={24} lg={8}>
-                    <Card title="Social & Disposable" size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0' }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        <div><Text strong>Social media:</Text> {phoneInfoga.footprint.socialMediaHints.join(' · ')}</div>
-                        <div><Text strong>Reputation reports:</Text> {phoneInfoga.footprint.reputationReports.join(' · ')}</div>
-                        <div><Text strong>Disposable checks:</Text> {phoneInfoga.footprint.disposableIndicators.join(' · ')}</div>
-                      </div>
+                  <Col xs={24} lg={12}>
+                    <Card title={`Reputation (${(phoneInfoga.footprint.buckets?.reputation || phoneInfoga.footprint.reputationReports || []).length})`} size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0' }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
+                      {renderLinks(phoneInfoga.footprint.buckets?.reputation || phoneInfoga.footprint.reputationReports || [])}
+                    </Card>
+                  </Col>
+                  <Col xs={24} lg={12}>
+                    <Card title={`Individuals (${(phoneInfoga.footprint.buckets?.individuals || phoneInfoga.footprint.phoneBooks || []).length})`} size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0' }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
+                      {renderLinks(phoneInfoga.footprint.buckets?.individuals || phoneInfoga.footprint.phoneBooks || [])}
+                    </Card>
+                  </Col>
+                  <Col xs={24}>
+                    <Card title={`General Search (${(phoneInfoga.footprint.buckets?.general || phoneInfoga.footprint.searchEngines || []).length})`} size="small" style={{ borderRadius: 16, border: '1px solid #e2e8f0' }} bodyStyle={{ background: '#f8fafc', borderRadius: 12 }}>
+                      {renderLinks(phoneInfoga.footprint.buckets?.general || phoneInfoga.footprint.searchEngines || [])}
                     </Card>
                   </Col>
                 </Row>

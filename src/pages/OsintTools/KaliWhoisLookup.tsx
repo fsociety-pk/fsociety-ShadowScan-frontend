@@ -18,10 +18,21 @@ interface WhoisResult {
   tool: string;
   target: string;
   timestamp: string;
+  rawWhois?: string;
   data: Record<string, string>;
   method: string;
   error?: string;
   status?: string;
+  dns?: {
+    nslookup?: string;
+    dig?: string;
+    host?: string;
+    availableTools?: {
+      nslookup?: boolean;
+      dig?: boolean;
+      host?: boolean;
+    };
+  };
   summary: {
     registrar: string | null;
     registrationDate: string | null;
@@ -326,6 +337,21 @@ const KaliWhoisLookup: React.FC<KaliWhoisLookupProps> = ({ onScanStateChange }) 
               boxShadow: '0 4px 20px rgba(0, 0, 0, 0.02)', marginBottom: 24,
             }}
           >
+            <div style={{ marginBottom: 14, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <Tag color={results.dns?.availableTools?.nslookup ? 'green' : 'default'} style={{ margin: 0, borderRadius: 8, fontWeight: 700 }}>
+                nslookup {results.dns?.availableTools?.nslookup ? 'available' : 'missing'}
+              </Tag>
+              <Tag color={results.dns?.availableTools?.dig ? 'green' : 'default'} style={{ margin: 0, borderRadius: 8, fontWeight: 700 }}>
+                dig {results.dns?.availableTools?.dig ? 'available' : 'missing'}
+              </Tag>
+              <Tag color={results.dns?.availableTools?.host ? 'green' : 'default'} style={{ margin: 0, borderRadius: 8, fontWeight: 700 }}>
+                host {results.dns?.availableTools?.host ? 'available' : 'missing'}
+              </Tag>
+              <Tag color={results.method === 'DNS-Only' ? 'orange' : 'blue'} style={{ margin: 0, borderRadius: 8, fontWeight: 700 }}>
+                {results.method === 'DNS-Only' ? 'WHOIS UNAVAILABLE (DNS-ONLY MODE)' : 'WHOIS ACTIVE'}
+              </Tag>
+            </div>
+
             <Descriptions
               bordered
               column={{ xxl: 2, xl: 2, lg: 2, md: 1, sm: 1, xs: 1 }}
@@ -373,12 +399,41 @@ const KaliWhoisLookup: React.FC<KaliWhoisLookupProps> = ({ onScanStateChange }) 
             style={{ borderRadius: 16, overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 4px 12px rgba(0,0,0,0.01)' }}
             items={[
               {
+                key: 'dns-raw',
+                label: <span style={{ fontWeight: 700, color: '#1e293b' }}><CodeOutlined /> Raw DNS Recon Output (nslookup / dig / host)</span>,
+                children: (
+                  <Row gutter={[12, 12]}>
+                    <Col xs={24} lg={8}>
+                      <Card size="small" title="nslookup" style={{ borderRadius: 12, border: '1px solid #e2e8f0' }} bodyStyle={{ padding: 10 }}>
+                        <pre style={{ margin: 0, maxHeight: 280, overflow: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: 12, color: '#1e293b' }}>
+                          {results.dns?.nslookup || 'No output'}
+                        </pre>
+                      </Card>
+                    </Col>
+                    <Col xs={24} lg={8}>
+                      <Card size="small" title="dig" style={{ borderRadius: 12, border: '1px solid #e2e8f0' }} bodyStyle={{ padding: 10 }}>
+                        <pre style={{ margin: 0, maxHeight: 280, overflow: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: 12, color: '#1e293b' }}>
+                          {results.dns?.dig || 'No output'}
+                        </pre>
+                      </Card>
+                    </Col>
+                    <Col xs={24} lg={8}>
+                      <Card size="small" title="host" style={{ borderRadius: 12, border: '1px solid #e2e8f0' }} bodyStyle={{ padding: 10 }}>
+                        <pre style={{ margin: 0, maxHeight: 280, overflow: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-word', fontSize: 12, color: '#1e293b' }}>
+                          {results.dns?.host || 'No output'}
+                        </pre>
+                      </Card>
+                    </Col>
+                  </Row>
+                ),
+              },
+              {
                 key: 'raw',
                 label: <span style={{ fontWeight: 700, color: '#1e293b' }}><CodeOutlined /> Raw Whois Record Output Matrix</span>,
                 children: (
                   <div style={{ maxHeight: 350, overflow: 'auto', background: '#0f172a', padding: 20, borderRadius: 12, border: '1px solid #1e293b' }}>
                     <pre style={{ color: '#38bdf8', fontSize: 13, margin: 0, fontFamily: 'monospace', lineHeight: 1.6 }}>
-                      {JSON.stringify(results.data, null, 2)}
+                      {results.rawWhois || JSON.stringify(results.data, null, 2)}
                     </pre>
                   </div>
                 ),

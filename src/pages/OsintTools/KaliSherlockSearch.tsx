@@ -704,6 +704,7 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
                             display: 'flex',
                             alignItems: 'center',
                             gap: 14,
+                            minHeight: 92,
                             cursor: p.status === 'found' && p.url ? 'pointer' : 'default',
                             transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
                           }}
@@ -743,7 +744,7 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
 
                           {/* Platform info */}
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontWeight: 700, fontSize: 14, color: '#1e293b' }}>
+                            <div style={{ fontWeight: 700, fontSize: 14, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={p.platform}>
                               {p.platform}
                             </div>
                             <div style={{

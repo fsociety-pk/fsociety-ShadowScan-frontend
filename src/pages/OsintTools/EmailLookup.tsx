@@ -369,6 +369,7 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
                         style={{
                           border: '1px solid #f1f5f9', background: '#f8fafc', borderRadius: 14,
                           padding: '16px', display: 'flex', alignItems: 'center', gap: 14,
+                          minHeight: 92,
                           cursor: 'pointer', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                           boxShadow: '0 2px 4px rgba(0,0,0,0.01)',
                         }}
@@ -406,7 +407,7 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
 
                         {/* Platform name and URL */}
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: 700, fontSize: 14, color: '#1e293b' }}>{p.platform}</div>
+                          <div style={{ fontWeight: 700, fontSize: 14, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={p.platform}>{p.platform}</div>
                           <div style={{
                             fontSize: 11, color: '#64748b', overflow: 'hidden',
                             textOverflow: 'ellipsis', whiteSpace: 'nowrap',
