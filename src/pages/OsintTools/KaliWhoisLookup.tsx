@@ -12,7 +12,7 @@ import {
   CodeOutlined, CalendarOutlined, ApiOutlined,
 } from '@ant-design/icons';
 import api from '../../api/axiosConfig';
-import ProfessionalProgress from '../../components/ProfessionalProgress';
+import CyberConsoleLoader from '../../components/CyberConsoleLoader';
 
 interface WhoisResult {
   tool: string;
@@ -20,6 +20,8 @@ interface WhoisResult {
   timestamp: string;
   data: Record<string, string>;
   method: string;
+  error?: string;
+  status?: string;
   summary: {
     registrar: string | null;
     registrationDate: string | null;
@@ -86,6 +88,12 @@ const KaliWhoisLookup: React.FC<KaliWhoisLookupProps> = ({ onScanStateChange }) 
 
   const handleSearch = async (values: { target: string }) => {
     const domain = values.target.trim();
+    
+    if (domain.length === 0) {
+      setError('Domain/IP cannot be empty');
+      return;
+    }
+    
     setTargetDomain(domain);
     setResults(null);
     setError(null);
@@ -108,30 +116,47 @@ const KaliWhoisLookup: React.FC<KaliWhoisLookupProps> = ({ onScanStateChange }) 
     }, 450);
 
     try {
-      const response = await api.post('/kali-tools/whois', { target: domain });
+      const response = await api.post('/kali-tools/whois', { target: domain }, { timeout: 30000 });
 
       clearInterval(progressInterval);
       if (timerRef.current) clearInterval(timerRef.current);
       setProgress(100);
 
       const data: WhoisResult = response.data;
-      setResults(data);
+      
+      // Check if we got valid data
+      if (data && data.tool === 'Whois') {
+        setResults(data);
 
-      let threat = 'SECURE';
-      if (!data.summary.registrar) threat = 'UNKNOWN';
-      else if (data.summary.nameServers.length === 0) threat = 'SUSPICIOUS';
+        let threat = 'SECURE';
+        if (!data.summary.registrar) threat = 'UNKNOWN';
+        else if (data.summary.nameServers.length === 0) threat = 'SUSPICIOUS';
 
-      setScanStats(prev => ({
-        ...prev,
-        threatLevel: threat,
-        nsCount: data.summary.nameServers.length,
-      }));
-    } catch (err: unknown) {
+        setScanStats(prev => ({
+          ...prev,
+          threatLevel: threat,
+          nsCount: data.summary.nameServers.length,
+        }));
+        
+        // Check if there was an error in the response
+        if (data.error || data.method === 'Failed') {
+          setError(`Lookup completed with limited data: ${data.error || 'Tool unavailable'}`);
+        }
+      } else {
+        setError('Invalid response format from server');
+      }
+    } catch (err: any) {
       clearInterval(progressInterval);
       if (timerRef.current) clearInterval(timerRef.current);
-      setProgress(100);
-      const apiErr = err as { response?: { data?: { message?: string } } };
-      setError(apiErr.response?.data?.message || 'Whois lookup failed');
+      setProgress(0);
+      
+      const errorMsg = err?.response?.data?.message || 
+                       err?.response?.data?.error || 
+                       err?.message || 
+                       'Whois lookup failed. Please try again.';
+      
+      setError(errorMsg);
+      setResults(null);
     } finally {
       setScanning(false);
     }
@@ -203,54 +228,16 @@ const KaliWhoisLookup: React.FC<KaliWhoisLookupProps> = ({ onScanStateChange }) 
         <Alert message={error} type="error" showIcon closable style={{ marginBottom: 24, borderRadius: 12 }} />
       )}
 
-      {/* Radar scanning animation */}
+      {/* ── Scanning Loader ── */}
       {scanning && (
-        <Card
-            style={{
-              marginBottom: 24, borderRadius: 16,
-              border: '1px solid #e6eefc', boxShadow: '0 6px 18px rgba(16,24,40,0.03)', overflow: 'hidden',
-              background: 'linear-gradient(135deg, #ffffff, #f8fafc)'
-            }}
-            bodyStyle={{ padding: '40px 24px' }}
-          >
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="radar-container" style={{ position: 'relative', width: 140, height: 140, marginBottom: 28 }}>
-              <div className="radar-circle" />
-              <div className="radar-sweep" />
-              <div className="radar-core" />
-              <GlobalOutlined style={{
-                position: 'absolute', top: '50%', left: '50%',
-                transform: 'translate(-50%, -50%)', color: '#6366f1',
-                fontSize: 32, animation: 'pulse 1.5s infinite',
-              }} />
-            </div>
-
-            <div style={{ color: '#475569', fontFamily: 'monospace', fontSize: 14, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
-              [SYSTEM ACTIVE: AUTHORITATIVE TLD INTERROGATION IN PROGRESS]
-            </div>
-
-            <div style={{ color: '#111827', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
-              Scanning Host: <span style={{ color: '#4f46e5', fontFamily: 'monospace' }}>"{targetDomain}"</span>
-            </div>
-
-            <div style={{ width: '100%', maxWidth: 500, margin: '16px auto 12px' }}>
-              <ProfessionalProgress percent={progress} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
-                <span>RESOLVING ROUTERS</span>
-                <span style={{ color: '#4f46e5', fontWeight: 700 }}>{progress}% COMPLETE</span>
-              </div>
-            </div>
-
-            <div style={{
-              background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 20px',
-              borderRadius: 8, width: '100%', maxWidth: 500, textAlign: 'center',
-              fontFamily: 'monospace', fontSize: 12, color: '#4f46e5',
-              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
-            }}>
-              <span className="blink">{'>'}</span> {currentStep}
-            </div>
-          </div>
-        </Card>
+        <div style={{ marginBottom: 24 }}>
+          <CyberConsoleLoader
+            percent={progress}
+            target={targetDomain}
+            currentStep={currentStep}
+            opName="DNS & WHOIS Domain Intelligence"
+          />
+        </div>
       )}
 
       {/* Scan results */}

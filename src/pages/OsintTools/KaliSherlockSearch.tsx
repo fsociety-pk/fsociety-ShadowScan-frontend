@@ -5,7 +5,7 @@
  */
 import React, { useState, useEffect, useRef } from 'react';
 import { Form, Input, Button, Card, Tag, Row, Col } from 'antd';
-import ProfessionalProgress from '../../components/ProfessionalProgress';
+import CyberConsoleLoader from '../../components/CyberConsoleLoader';
 import {
   SearchOutlined, CheckCircleOutlined, CloseCircleOutlined,
   LinkOutlined, EyeOutlined, SafetyCertificateOutlined, AlertOutlined,
@@ -107,6 +107,12 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
 
   const handleSearch = async (values: { username: string }) => {
     const username = values.username.trim();
+    
+    if (username.length === 0) {
+      setError('Username cannot be empty');
+      return;
+    }
+    
     setTargetUsername(username);
     setPlatforms([]);
     setProgress(0);
@@ -135,8 +141,16 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
       if (timerRef.current) clearInterval(timerRef.current);
       setProgress(100);
 
-      const parsed = normalizePlatforms(response.data?.platforms || []);
-      setPlatforms(parsed);
+      // Handle response with proper error checking
+      const data = response.data || {};
+      const platforms_list = data.platforms || [];
+      
+      if (!Array.isArray(platforms_list)) {
+        throw new Error('Invalid response format');
+      }
+
+      const parsed = normalizePlatforms(platforms_list);
+      setPlatforms(parsed.length > 0 ? parsed : []);
 
       const found = parsed.filter(p => p.status === 'found').length;
       setScanStats(prev => ({
@@ -144,12 +158,26 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
         exposureCount: found,
         threatLevel: found > 10 ? 'EXPANSIVE' : found > 4 ? 'MODERATE' : 'SECURE',
       }));
+      
+      if (parsed.length === 0) {
+        setError(`No platforms found for username "${username}"`);
+      }
+      
       setDone(true);
     } catch (err: any) {
       clearInterval(progressInterval);
       if (timerRef.current) clearInterval(timerRef.current);
       setProgress(0);
-      setError(err?.response?.data?.message || 'Scan failed. Please try again.');
+      
+      // Better error handling
+      const errorMsg = err?.response?.data?.message || 
+                       err?.response?.data?.error || 
+                       err?.message || 
+                       'Scan failed. Please try again.';
+      
+      setError(errorMsg);
+      setPlatforms([]);
+      setDone(false); // Don't show results if there's an error
     } finally {
       setScanning(false);
     }
@@ -243,50 +271,16 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
         </div>
       )}
 
-      {/* ── Scanning Radar Card ── */}
+      {/* ── Scanning Loader ── */}
       {scanning && (
-        <Card style={{
-          marginBottom: 24, borderRadius: 16,
-          border: '1px solid #e6eefc', boxShadow: '0 6px 18px rgba(16,24,40,0.03)',
-          background: 'linear-gradient(135deg, #ffffff, #f8fafc)',
-        }} bodyStyle={{ padding: '40px 24px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <div className="radar-container" style={{ position: 'relative', width: 140, height: 140, marginBottom: 28 }}>
-              <div className="radar-circle" />
-              <div className="radar-sweep" />
-              <div className="radar-core" />
-              <AimOutlined style={{
-                position: 'absolute', top: '50%', left: '50%',
-                transform: 'translate(-50%,-50%)', color: '#6366f1', fontSize: 32,
-                animation: 'pulse 1.5s infinite',
-              }} />
-            </div>
-
-            <div style={{ color: '#475569', fontFamily: 'monospace', fontSize: 13, fontWeight: 700, letterSpacing: 1, marginBottom: 6 }}>
-              [SYSTEM ACTIVE: FORENSIC INVESTIGATION IN PROGRESS]
-            </div>
-            <div style={{ color: '#1e293b', fontSize: 16, fontWeight: 600, marginBottom: 16 }}>
-              Auditing: <span style={{ color: '#4f46e5', fontFamily: 'monospace' }}>"{targetUsername}"</span>
-            </div>
-
-            <div style={{ width: '100%', maxWidth: 520, margin: '0 auto 12px' }}>
-              <ProfessionalProgress percent={progress} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: 11, marginTop: 6, fontFamily: 'monospace' }}>
-                <span>PROBING NODES</span>
-                <span style={{ color: '#4f46e5', fontWeight: 700 }}>{progress}% COMPLETE</span>
-              </div>
-            </div>
-
-            <div style={{
-              background: '#f8fafc', border: '1px solid #e2e8f0',
-              padding: '10px 20px', borderRadius: 8, width: '100%', maxWidth: 520,
-              textAlign: 'center', fontFamily: 'monospace', fontSize: 12,
-              color: '#4f46e5', boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
-            }}>
-              <span className="blink">{'>'}</span> {currentStep}
-            </div>
-          </div>
-        </Card>
+        <div style={{ marginBottom: 24 }}>
+          <CyberConsoleLoader
+            percent={progress}
+            target={targetUsername}
+            currentStep={currentStep}
+            opName="Username Footprint Audit"
+          />
+        </div>
       )}
 
       {/* ── Results ── */}
@@ -491,25 +485,6 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
 
       {/* ── Shared animation styles ── */}
       <style>{`
-        .radar-container { display: flex; align-items: center; justify-content: center; }
-        .radar-circle {
-          position: absolute; width: 100%; height: 100%;
-          border: 1.5px solid rgba(99,102,241,0.2); border-radius: 50%;
-        }
-        .radar-sweep {
-          position: absolute; width: 100%; height: 100%; border-radius: 50%;
-          background: conic-gradient(from 0deg at 50% 50%, rgba(99,102,241,0.3) 0deg, transparent 90deg);
-          animation: radar-sweep 2.5s linear infinite;
-        }
-        .radar-core {
-          position: absolute; width: 10px; height: 10px;
-          background: #6366f1; border-radius: 50%; box-shadow: 0 0 14px #6366f1;
-        }
-        @keyframes radar-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes pulse {
-          0%,100% { transform: translate(-50%,-50%) scale(1); opacity: 1; }
-          50%      { transform: translate(-50%,-50%) scale(1.18); opacity: 0.5; }
-        }
         .blink { animation: blink-anim 1s step-end infinite; }
         @keyframes blink-anim { 50% { opacity: 0; } }
       `}</style>

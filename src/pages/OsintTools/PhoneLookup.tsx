@@ -12,7 +12,7 @@ import {
 import PhoneInputPkg from 'react-phone-input-2';
 import 'react-phone-input-2/lib/style.css';
 import api from '../../api/axiosConfig';
-import ProfessionalProgress from '../../components/ProfessionalProgress';
+import CyberConsoleLoader from '../../components/CyberConsoleLoader';
 
 // react-phone-input-2 ships CommonJS default — handle both module formats
 const PhoneInput = (PhoneInputPkg as { default?: typeof PhoneInputPkg }).default || PhoneInputPkg;
@@ -246,53 +246,16 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
       )}
 
       {/* Radar scanning animation */}
+      {/* ── Scanning Loader ── */}
       {scanning && (
-        <Card
-            style={{
-              marginBottom: 24, borderRadius: 16,
-              border: '1px solid #e6eefc', boxShadow: '0 6px 18px rgba(16,24,40,0.03)', overflow: 'hidden',
-              background: 'linear-gradient(135deg, #ffffff, #f8fafc)'
-            }}
-            bodyStyle={{ padding: '40px 24px' }}
-          >
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <div className="radar-container" style={{ position: 'relative', width: 140, height: 140, marginBottom: 28 }}>
-              <div className="radar-circle" />
-              <div className="radar-sweep" />
-              <div className="radar-core" />
-              <WhatsAppOutlined style={{
-                position: 'absolute', top: '50%', left: '50%',
-                transform: 'translate(-50%, -50%)', color: '#25D366',
-                fontSize: 32, animation: 'pulse 1.5s infinite',
-              }} />
-            </div>
-
-            <div style={{ color: '#475569', fontFamily: 'monospace', fontSize: 14, fontWeight: 700, letterSpacing: '1px', marginBottom: 6 }}>
-              [SYSTEM ACTIVE: CONTACT PROBE BRIDGE IN PROGRESS]
-            </div>
-
-            <div style={{ color: '#111827', fontSize: 16, fontWeight: 600, marginBottom: 12 }}>
-              Scanning Contact: <span style={{ color: '#10b981', fontFamily: 'monospace' }}>"{targetPhone}"</span>
-            </div>
-
-            <div style={{ width: '100%', maxWidth: 500, margin: '16px auto 12px' }}>
-              <ProfessionalProgress percent={progress} />
-              <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: 12, marginTop: 6, fontFamily: 'monospace' }}>
-                <span>PROBING MATRIX</span>
-                <span style={{ color: '#10b981', fontWeight: 700 }}>{progress}% COMPLETE</span>
-              </div>
-            </div>
-
-            <div style={{
-              background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px 20px',
-              borderRadius: 8, width: '100%', maxWidth: 500, textAlign: 'center',
-              fontFamily: 'monospace', fontSize: 12, color: '#10b981',
-              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)',
-            }}>
-              <span className="blink">{'>'}</span> {currentStep}
-            </div>
-          </div>
-        </Card>
+        <div style={{ marginBottom: 24 }}>
+          <CyberConsoleLoader
+            percent={progress}
+            target={targetPhone}
+            currentStep={currentStep}
+            opName="Phone Threat & Footprint Enumeration"
+          />
+        </div>
       )}
 
       {/* Scan results */}
