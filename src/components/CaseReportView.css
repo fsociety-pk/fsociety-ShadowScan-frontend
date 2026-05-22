@@ -1,113 +1,352 @@
-/* Small, non-theme CSS to improve spacing, reduce perceived duplication, and add subtle separators.
-   This file intentionally avoids changing color tokens and only adjusts layout, spacing, shadows, and typography. */
+/* ── CaseReportView — Professional Animated Styles ─────────────────────── */
 
+/* ── Entry animation keyframes ── */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.94); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+
+@keyframes pulseRing {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.12); }
+  50%       { box-shadow: 0 0 0 6px rgba(14, 165, 233, 0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Root container ── */
 .case-report-view {
-  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-  width: 100%;
-  overflow-x: hidden;
+  animation: fadeIn 0.35s ease both;
+  font-feature-settings: 'ss01', 'cv01';
 }
 
+/* ── Banner ── */
 .case-report-banner {
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  animation: fadeSlideUp 0.4s ease both;
+  border-bottom: 1px solid #e2e8f0;
 }
 
+/* ── Stat cards ── */
 .case-report-stat-card {
-  transition: transform .14s cubic-bezier(.2,.9,.2,1), box-shadow .14s cubic-bezier(.2,.9,.2,1);
-}
-.case-report-stat-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(2,6,23,0.12);
-}
-
-.case-report-panel {
+  animation: scaleIn 0.4s ease both;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  cursor: default;
+  position: relative;
   overflow: hidden;
 }
 
-.case-report-panel > .ant-card-body {
-  padding: 14px !important;
+.case-report-stat-card:nth-child(1) { animation-delay: 0.05s; }
+.case-report-stat-card:nth-child(2) { animation-delay: 0.10s; }
+.case-report-stat-card:nth-child(3) { animation-delay: 0.15s; }
+.case-report-stat-card:nth-child(4) { animation-delay: 0.20s; }
+
+.case-report-stat-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%);
+  background-size: 400px 100%;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  pointer-events: none;
 }
 
-.case-report-narrative .case-report-markdown p {
-  margin-bottom: 12px;
+.case-report-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.07) !important;
+  border-color: #c7d7e8 !important;
 }
 
-.case-report-narrative > .ant-card-body {
-  max-height: min(78vh, 920px);
-  overflow: auto;
+.case-report-stat-card:hover::before {
+  opacity: 1;
+  animation: shimmer 0.8s linear;
+}
+
+/* Stat number animate on mount */
+.case-report-stat-card > div:first-child {
+  animation: countUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  animation-delay: inherit;
+}
+
+/* ── Panel cards (entity, footprint, findings, narrative, risk, etc.) ── */
+.case-report-panel {
+  animation: fadeSlideUp 0.45s ease both;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.case-report-panel:nth-child(1) { animation-delay: 0.08s; }
+.case-report-panel:nth-child(2) { animation-delay: 0.14s; }
+.case-report-panel:nth-child(3) { animation-delay: 0.20s; }
+.case-report-panel:nth-child(4) { animation-delay: 0.26s; }
+.case-report-panel:nth-child(5) { animation-delay: 0.32s; }
+
+.case-report-panel:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Card title bar refinement */
+.case-report-panel .ant-card-head {
+  border-bottom: 1px solid #f1f5f9 !important;
+  padding: 14px 20px !important;
+  min-height: unset !important;
+  background: #fafbfc;
+  border-radius: 16px 16px 0 0;
+}
+
+.case-report-panel .ant-card-head-title {
+  font-size: 13px !important;
+  letter-spacing: 0.01em;
+  padding: 0 !important;
+}
+
+.case-report-panel .ant-card-body {
+  padding: 18px 20px !important;
+}
+
+/* ── List item rows ── */
+.case-report-list-item {
+  animation: slideInLeft 0.3s ease both;
+  transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+  cursor: default;
+}
+
+.case-report-list-item:hover {
+  transform: translateX(3px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  filter: brightness(0.97);
+}
+
+/* ── Narrative / markdown area ── */
+.case-report-narrative .ant-card-body {
+  max-height: 640px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+.case-report-narrative .ant-card-body::-webkit-scrollbar {
+  width: 5px;
+}
+
+.case-report-narrative .ant-card-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.case-report-narrative .ant-card-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 99px;
 }
 
 .case-report-markdown {
-  overflow-wrap: anywhere;
   word-break: break-word;
+  overflow-wrap: break-word;
 }
 
-.case-report-markdown pre {
-  max-width: 100%;
-  overflow-x: auto;
-  background: #0f172a;
-  color: #e2e8f0;
-  border-radius: 10px;
-  padding: 12px;
-  white-space: pre;
+.case-report-markdown h1,
+.case-report-markdown h2,
+.case-report-markdown h3,
+.case-report-markdown h4 {
+  color: #0f172a;
+  font-weight: 700;
+  margin: 1.2em 0 0.5em;
+  line-height: 1.4;
 }
 
-.case-report-markdown code {
-  white-space: pre-wrap;
-  word-break: break-word;
+.case-report-markdown h1 { font-size: 17px; }
+.case-report-markdown h2 { font-size: 15px; border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; }
+.case-report-markdown h3 { font-size: 14px; }
+
+.case-report-markdown p {
+  margin: 0 0 0.9em;
+  color: #334155;
+  line-height: 1.85;
 }
 
-.case-report-markdown table {
-  display: block;
-  width: 100%;
-  overflow-x: auto;
-  border-collapse: collapse;
-}
-
-.case-report-markdown th,
-.case-report-markdown td {
-  border: 1px solid #e2e8f0;
-  padding: 8px 10px;
-  text-align: left;
-}
-
-.case-report-list-item {
-  transition: background .12s ease, transform .12s ease, box-shadow .12s ease;
-}
-.case-report-list-item:hover {
-  transform: translateX(6px);
-  box-shadow: 0 10px 28px rgba(2,6,23,0.06);
-}
-
-.case-report-markdown img {
-  max-width: 100%;
-  border-radius: 8px;
-}
-
-/* Tighten timeline spacing and improve legibility */
-.case-report-panel .ant-timeline-item-content {
-  font-size: 13px;
+.case-report-markdown ul,
+.case-report-markdown ol {
+  padding-left: 1.4em;
+  margin: 0 0 0.9em;
   color: #334155;
 }
 
-/* subtle divider between left and right columns on large screens */
-@media (min-width: 992px) {
-  .case-report-view .ant-col[lg='9'] {
-    border-left: 1px solid #e6eef6;
-    padding-left: 18px;
-  }
+.case-report-markdown li {
+  margin-bottom: 4px;
+  line-height: 1.75;
 }
 
-.case-report-dedup-badge {
-  opacity: 0.95;
+.case-report-markdown strong {
+  color: #0f172a;
   font-weight: 700;
 }
 
+.case-report-markdown code {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 12px;
+  color: #0f172a;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+.case-report-markdown blockquote {
+  border-left: 3px solid #0ea5e9;
+  margin: 0.8em 0;
+  padding: 8px 14px;
+  background: #f0f9ff;
+  border-radius: 0 8px 8px 0;
+  color: #075985;
+}
+
+.case-report-markdown hr {
+  border: none;
+  border-top: 1px solid #f1f5f9;
+  margin: 1.2em 0;
+}
+
+.case-report-markdown table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  margin-bottom: 0.9em;
+  table-layout: fixed;
+  word-break: break-word;
+}
+
+.case-report-markdown th {
+  background: #f8fafc;
+  padding: 7px 10px;
+  font-weight: 700;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.case-report-markdown td {
+  padding: 7px 10px;
+  color: #334155;
+  border: 1px solid #f1f5f9;
+  vertical-align: top;
+}
+
+.case-report-markdown tr:hover td {
+  background: #f8fafc;
+}
+
+/* ── Confidence score ring ── */
+.case-report-banner [style*="CONFIDENCE"] {
+  animation: pulseRing 2.4s ease-in-out infinite;
+}
+
+/* ── Tag pills ── */
+.case-report-banner .ant-tag {
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.case-report-banner .ant-tag:hover {
+  transform: scale(1.06);
+  opacity: 0.85;
+}
+
+/* ── Dedup badge ── */
+.case-report-dedup-badge {
+  animation: fadeIn 0.6s ease 0.4s both;
+}
+
+/* ── Timeline customization ── */
+.case-report-panel .ant-timeline-item-tail {
+  border-left: 2px solid #e2e8f0 !important;
+}
+
+.case-report-panel .ant-timeline-item-content {
+  margin-bottom: 14px !important;
+}
+
+/* ── Relationship graph panel ── */
+.case-report-panel:last-child {
+  animation-delay: 0.36s;
+}
+
+/* Relationship edge cards */
+.case-report-panel [style*="rgba(255,255,255,0.02)"] {
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.case-report-panel [style*="rgba(255,255,255,0.02)"]:hover {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  transform: translateY(-1px);
+}
+
+/* ── Alert override ── */
+.case-report-view .ant-alert {
+  border-radius: 12px !important;
+  font-size: 13px;
+  animation: fadeSlideUp 0.4s ease 0.1s both;
+}
+
+/* ── Responsive tweaks ── */
 @media (max-width: 768px) {
-  .case-report-panel > .ant-card-body {
-    padding: 12px !important;
+  .case-report-banner {
+    padding: 16px !important;
   }
 
-  .case-report-narrative > .ant-card-body {
-    max-height: none;
+  .case-report-narrative .ant-card-body {
+    max-height: 480px;
   }
+
+  .case-report-stat-card:hover {
+    transform: none;
+  }
+
+  .case-report-panel:hover {
+    transform: none;
+  }
+}
+
+/* ── Scrollbar for entity/footprint panels ── */
+.case-report-panel .ant-card-body {
+  scrollbar-width: thin;
+  scrollbar-color: #e2e8f0 transparent;
+}
+
+/* ── Entity group cards — subtle entrance stagger ── */
+.case-report-panel [style*="borderRadius: 14px"],
+.case-report-panel [style*="border-radius: 14px"] {
+  animation: fadeSlideUp 0.35s ease both;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.case-report-panel [style*="borderRadius: 14px"]:hover,
+.case-report-panel [style*="border-radius: 14px"]:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
 }

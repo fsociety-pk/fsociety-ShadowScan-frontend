@@ -144,7 +144,6 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
   const riskFactors = uniqueStrings(v?.riskFactors || []);
   const recommendations = uniqueStrings(v?.recommendations || []);
   const tags = uniqueStrings(v?.tags || []);
-  // compute a simple presentation-only duplicates count (original - deduped)
   let duplicatesCount = 0;
   if (v) {
     duplicatesCount += Math.max(0, (v.highlightedFindings || []).length - highlightedFindings.length);
@@ -216,11 +215,11 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
           </Col>
           <Col xs={24} lg={8}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignItems: 'flex-end' }}>
-              {/* Confidence ring */}
-                <div style={{ textAlign: 'center', background: '#ffffff', border: '1px solid #e6eefc', borderRadius: 12, padding: '12px 20px' }}>
-                  <div style={{ fontSize: 42, fontWeight: 900, color: risk.text, lineHeight: 1 }}>{v?.confidenceScore ?? '--'}</div>
-                  <div style={{ fontSize: 11, color: '#6b7280', letterSpacing: 2, marginTop: 4 }}>CONFIDENCE</div>
-                </div>
+              {/* Confidence score */}
+              <div style={{ textAlign: 'center', background: '#ffffff', border: '1px solid #e6eefc', borderRadius: 12, padding: '12px 20px' }}>
+                <div style={{ fontSize: 42, fontWeight: 900, color: risk.text, lineHeight: 1 }}>{v?.confidenceScore ?? '--'}</div>
+                <div style={{ fontSize: 11, color: '#6b7280', letterSpacing: 2, marginTop: 4 }}>CONFIDENCE</div>
+              </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'flex-end' }}>
                 {onDownloadPdf && (
                   <Button type="primary" icon={<DownloadOutlined />} onClick={onDownloadPdf} style={{ borderRadius: 8, fontWeight: 700, background: '#0ea5e9', border: 'none', color: '#fff' }}>
@@ -361,7 +360,7 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
                 title={<span style={{ fontWeight: 700, color: '#dc2626' }}><WarningOutlined style={{ marginRight: 8 }} />Risk Factors</span>}>
                 <Space direction="vertical" style={{ width: '100%' }} size={10}>
                   {riskFactors.map((rf, i) => (
-                    <div key={`${rf}-${i}`} className="case-report-list-item" style={{ background: '#fff5f5', borderLeft: '4px solid #dc2626', borderTop: '1px solid #fee2e2', borderRight: '1px solid #fee2e2', borderBottom: '1px solid #fee2e2', borderRadius: '4px 8px 8px 4px', padding: '10px 14px', fontSize: 13, color: '#991b1b', fontWeight: 600 }}>
+                    <div key={`${rf}-${i}`} className="case-report-list-item" style={{ background: '#fff5f5', borderLeft: '4px solid #dc2626', borderTop: '1px solid #fee2e2', borderRight: '1px solid #fee2e2', borderBottom: '1px solid #fee2e2', borderRadius: '0 8px 8px 0', padding: '10px 14px', fontSize: 13, color: '#991b1b', fontWeight: 600 }}>
                       ⚠ {rf}
                     </div>
                   ))}
@@ -375,7 +374,7 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
                 title={<span style={{ fontWeight: 700, color: '#15803d' }}><CheckCircleOutlined style={{ marginRight: 8 }} />Recommendations</span>}>
                 <Space direction="vertical" style={{ width: '100%' }} size={10}>
                   {recommendations.map((rec, i) => (
-                    <div key={`${rec}-${i}`} className="case-report-list-item" style={{ background: '#f0fdf4', borderLeft: '4px solid #16a34a', borderTop: '1px solid #dcfce7', borderRight: '1px solid #dcfce7', borderBottom: '1px solid #dcfce7', borderRadius: '4px 8px 8px 4px', padding: '10px 14px', fontSize: 13, color: '#166534', display: 'flex', gap: 8, fontWeight: 500 }}>
+                    <div key={`${rec}-${i}`} className="case-report-list-item" style={{ background: '#f0fdf4', borderLeft: '4px solid #16a34a', borderTop: '1px solid #dcfce7', borderRight: '1px solid #dcfce7', borderBottom: '1px solid #dcfce7', borderRadius: '0 8px 8px 0', padding: '10px 14px', fontSize: 13, color: '#166534', display: 'flex', gap: 8, fontWeight: 500 }}>
                       <span style={{ color: '#16a34a', flexShrink: 0 }}>→</span>
                       {rec}
                     </div>
