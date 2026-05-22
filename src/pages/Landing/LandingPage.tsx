@@ -77,7 +77,7 @@ const STATS = [
   { value: '300+', label: 'Platforms Scanned' },
   { value: '7', label: 'OSINT Engines' },
   { value: 'AI', label: 'Powered Reports' },
-  { value: '100%', label: 'Open Source' },
+  { value: '100%', label: 'Sovereign & Secure' },
 ];
 
 const FEATURES = [
@@ -178,7 +178,7 @@ const LandingPage: React.FC = () => {
   }, []);
 
   const faqs = [
-    { q: 'Is ShadowScan free to use?', a: 'Yes, ShadowScan is open-source and free. You can self-host it with your own API keys.' },
+    { q: 'Is ShadowScan free to use?', a: 'Yes, ShadowScan is sovereign and free to host. You can deploy it privately with your own API keys.' },
     { q: 'Which API keys do I need?', a: 'RapidAPI key for WhatsApp intelligence, and a Google Gemini API key for AI-powered reports. Other tools (Sherlock, Nmap, etc.) run locally on your server.' },
     { q: 'Is my investigation data private?', a: 'Yes. All data is stored in your own MongoDB instance. Nothing is shared with third parties.' },
     { q: 'Can I export reports as PDFs?', a: 'Absolutely. ShadowScan generates professionally formatted PDF dossiers from any investigation case.' },
@@ -231,9 +231,9 @@ const LandingPage: React.FC = () => {
         </div>
 
         <h1 style={{ fontSize: 'clamp(36px, 6vw, 80px)', fontWeight: 900, lineHeight: 1.1, marginBottom: 16, letterSpacing: -1 }}>
-          <span style={{ color: '#0f172a' }}>Open Source</span>
+          <span style={{ color: '#0f172a', textShadow: '2px 4px 10px rgba(15,23,42,0.15)' }}>Sovereign OSINT Portal</span>
           <br />
-          <span style={{ background: 'linear-gradient(135deg, #0ea5e9, #8b5cf6, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          <span style={{ background: 'linear-gradient(135deg, #0ea5e9, #8b5cf6, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', textShadow: '0px 0px 4px rgba(139,92,246,0.1)' }}>
             {twText}<span style={{ animation: 'blink 1s step-end infinite', opacity: 1 }}>|</span>
           </span>
         </h1>
