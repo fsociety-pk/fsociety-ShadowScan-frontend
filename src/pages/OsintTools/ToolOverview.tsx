@@ -99,12 +99,12 @@ const ToolOverview: React.FC = () => {
       tags: ["Email Intelligence", "Breach Discovery", "Platform Mapping"]
     },
     {
-      title: "WhatsOSINT",
-      description: "Real-time WhatsApp intelligence gathering. It retrieves profile photos, status updates, and account metadata directly from WhatsApp's infrastructure.",
+      title: "PhoneOSINT",
+      description: "Real-time phone intelligence gathering. Retrieves profile photos, status text, carrier data, and public footprint across directories and social platforms.",
       icon: <WhatsAppOutlined />,
       color: "#25D366",
-      useCase: "Verifying the identity of an unknown caller or checking a target's current active status and bio.",
-      tags: ["WhatsApp Recon", "Live Status", "Phone Verification"]
+      useCase: "Verifying the identity of an unknown caller or checking a target's public profile and digital footprint.",
+      tags: ["Phone Recon", "Live Status", "Phone Verification"]
     },
     {
       title: "Whois Intelligence",

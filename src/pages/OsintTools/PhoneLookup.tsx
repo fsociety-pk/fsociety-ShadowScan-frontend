@@ -277,11 +277,13 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
 
   const downloadPfp = () => {
     if (!wa?.image) return;
-    const a = document.createElement('a');
-    a.href = wa.image;
-    a.download = `pfp_${targetPhone.replace(/\D/g, '')}.jpg`;
-    a.target = '_blank';
-    a.click();
+    // Open the profile photo in a new tab instead of forcing a download
+    try {
+      window.open(wa.image, '_blank', 'noopener');
+    } catch (e) {
+      // Fallback to navigation
+      window.location.href = wa.image;
+    }
   };
 
   // ── Derived display data ────────────────────────────────────────────────────
@@ -405,8 +407,8 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
 
                   <div className="pl-wa-actions">
                     {wa.image && (
-                      <Button icon={<DownloadOutlined />} onClick={downloadPfp} className="pl-pfp-btn" size="small">
-                        Download Profile Photo
+                      <Button icon={<DownloadOutlined />} onClick={downloadPfp} className="pl-pfp-btn glowable" size="small">
+                        View Profile Photo
                       </Button>
                     )}
                     {wa.last_updated && (
@@ -571,6 +573,7 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
         .pl-summary-bar { background: #fff; border-radius: 14px; border: 1px solid #e2e8f0; padding: 14px 20px; margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.03); }
         .pl-summary-target { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .pl-summary-phone { font-size: 17px; font-weight: 800; color: #0f172a; font-family: 'JetBrains Mono', monospace; }
+        .pl-summary-phone { max-width: 320px; display: inline-block; vertical-align: middle; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .pl-summary-tag { margin: 0; font-weight: 700; border-radius: 6px; }
         .pl-summary-meta { display: flex; gap: 8px; flex-wrap: wrap; }
         .pl-meta-chip { background: #f1f5f9; border-radius: 8px; padding: 4px 12px; font-size: 12px; color: #64748b; font-weight: 600; display: flex; align-items: center; gap: 6px; }
@@ -588,6 +591,7 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
         .pl-wa-badge { position: absolute; bottom: 2px; right: 2px; background: #25D366; color: #fff; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 12px; border: 2px solid #fff; }
         .pl-wa-identity { flex: 1; min-width: 0; }
         .pl-wa-name { font-size: 17px; font-weight: 800; color: #0f172a; margin-bottom: 3px; word-break: break-word; }
+        .pl-wa-name { max-width: calc(100% - 12px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .pl-wa-phone { font-size: 13px; color: #64748b; font-family: monospace; margin-bottom: 8px; }
         .pl-wa-tags { display: flex; gap: 6px; flex-wrap: wrap; }
         .pl-wa-status { background: #f8fafc; border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; border-left: 3px solid #25D366; }
@@ -595,7 +599,10 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
         .pl-wa-status-text { font-size: 13.5px; color: #334155; font-style: italic; font-weight: 500; }
         .pl-wa-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
         .pl-pfp-btn { border-radius: 8px; font-weight: 700; background: #f0fdf4; border: 1.5px solid #86efac; color: #15803d; }
-        .pl-pfp-btn:hover { background: #dcfce7 !important; border-color: #4ade80 !important; color: #15803d !important; }
+        .pl-pfp-btn { transition: box-shadow 180ms ease, transform 160ms ease; }
+        .pl-pfp-btn:hover { background: #dcfce7 !important; border-color: #4ade80 !important; color: #15803d !important; transform: translateY(-2px); }
+        .pl-pfp-btn.glowable { box-shadow: 0 8px 20px rgba(37,211,102,0.08); }
+        .pl-pfp-btn.glowable:hover { box-shadow: 0 10px 30px rgba(37,211,102,0.18), 0 0 20px rgba(34,197,94,0.08); }
         .pl-wa-updated { font-size: 11.5px; color: #94a3b8; display: flex; align-items: center; gap: 5px; }
 
         /* ── Info rows ── */
@@ -606,7 +613,9 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
         .pl-info-content { flex: 1; display: flex; justify-content: space-between; align-items: center; gap: 8px; min-width: 0; }
         .pl-info-label { font-size: 12px; color: #94a3b8; font-weight: 600; flex-shrink: 0; }
         .pl-info-value { font-size: 13px; color: #1e293b; font-weight: 600; text-align: right; word-break: break-all; }
+        .pl-info-value { max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .pl-code { background: #f1f5f9; border-radius: 5px; padding: 2px 7px; font-size: 12px; color: #0f172a; font-family: monospace; border: 1px solid #e2e8f0; }
+        .pl-code { display: inline-block; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         /* ── Reputation ── */
         .pl-rep-card { border-left: 3px solid #e2e8f0; }

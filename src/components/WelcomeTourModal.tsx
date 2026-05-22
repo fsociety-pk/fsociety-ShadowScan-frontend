@@ -17,13 +17,13 @@ import {
 const TOUR_SEEN_KEY = 'shadowscan_tour_seen';
 
 const steps = [
-  {
+    {
     icon: <ToolOutlined style={{ fontSize: 32, color: '#0ea5e9' }} />,
     accent: '#0ea5e9',
     tag: 'STEP 1',
     title: 'Run OSINT Tools',
     description:
-      'Navigate to the OSINT Tools panel and choose your reconnaissance engine. Run Sherlock for username discovery, Holehe for email intelligence, WhatsOSINT for phone lookup, or Whois for domain records.',
+      'Navigate to the OSINT Tools panel and choose your reconnaissance engine. Run Sherlock for username discovery, Holehe for email intelligence, PhoneOSINT for phone lookup, or Whois for domain records.',
     tip: 'Tip: You can run multiple tools and combine their outputs.',
   },
   {

@@ -100,12 +100,12 @@ const ToolOverviewModal: React.FC<ToolOverviewModalProps> = ({ open, onClose }) 
       tags: ["Email Intelligence", "Holehe", "Profile Mapping"]
     },
     {
-      title: "WhatsOSINT WhatsApp Recon",
-      description: "Real-time WhatsApp intelligence gathering. It retrieves profile photos, status updates, and account metadata directly from WhatsApp's infrastructure.",
+      title: "PhoneOSINT Phone Recon",
+      description: "Real-time phone intelligence gathering. Retrieves profile photos, status text, carrier data, and public footprint across directories and social platforms.",
       icon: <WhatsAppOutlined />,
       color: "#25D366",
-      useCase: "Verifying the identity of an unknown caller or checking a target's current active status and bio.",
-      tags: ["WhatsApp Recon", "Live Status", "Phone Verification"]
+      useCase: "Verifying the identity of an unknown caller or checking a target's public profile and digital footprint.",
+      tags: ["Phone Recon", "Live Status", "Phone Verification"]
     },
     {
       title: "Whois DNS Intelligence",

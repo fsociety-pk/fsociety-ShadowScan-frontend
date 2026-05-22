@@ -35,7 +35,7 @@ const WORKFLOW_REPLY = `Here's the **3-Step OSINT Workflow** for Shadow Scan:
 Navigate to the [OSINT Tools](/tools) section and choose your reconnaissance engine:
 - **Sherlock** → username presence across 300+ platforms
 - **Holehe** → email account discovery & intelligence
-- **WhatsOSINT** → phone number & WhatsApp intelligence
+ - **PhoneOSINT** → phone number & profile intelligence
 - **Whois / DNS** → domain ownership & infrastructure records
 
 **Step 2 — Paste Raw Findings**
@@ -57,14 +57,14 @@ const OsintChatbot: React.FC = () => {
       role: 'assistant',
       content: `Hello, Operative! I'm your **OSINT AI Assistant**.
 
-I can help you with:
-- **Guidance** on the 3-step investigation workflow
-- **Tool questions** (Sherlock, Holehe, Whois, WhatsOSINT)
-- **Analysis** of intelligence findings
-- **Image analysis** (attach a screenshot for multimodal AI)
-- **General investigation Q&A** (strategy, interpretation, next steps)
+    I can help you with:
+    - **Guidance** on the 3-step investigation workflow
+    - **Tool questions** (Sherlock, Holehe, Whois, PhoneOSINT)
+    - **Analysis** of intelligence findings
+    - **Image analysis** (attach a screenshot for multimodal AI)
+    - **General investigation Q&A** (strategy, interpretation, next steps)
 
-Type **"help"** or **"guide me"** to see the full workflow, or ask me anything!`,
+    Type **"help"** or **"guide me"** to see the full workflow, or ask me anything!`,
     },
   ]);
   const [input, setInput] = useState('');

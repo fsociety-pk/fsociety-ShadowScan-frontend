@@ -24,6 +24,7 @@ import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
 import EditCase from './pages/Cases/EditCase';
 import OsintChatbot from './components/OsintChatbot';
+import QuickAddFinding from './components/QuickAddFinding';
 import ToolOverviewModal from './components/ToolOverviewModal';
 import WelcomeTourModal from './components/WelcomeTourModal';
 import LandingPage from './pages/Landing/LandingPage';
@@ -288,6 +289,7 @@ const AppContent: React.FC = () => {
       </Layout>
 
       {user && <OsintChatbot />}
+      {user && <QuickAddFinding />}
       {user && <WelcomeTourModal />}
       <ToolOverviewModal open={overviewOpen} onClose={() => setOverviewOpen(false)} />
 

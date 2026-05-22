@@ -334,7 +334,7 @@ discord: fsociety_pk#1337
 data_leak_reference: Pastebin dump ID - redline_pk_0912
 tool_result_sherlock: 37 social accounts found with same username pattern
 tool_result_holehe: email registered on GitHub, Spotify, Dropbox, Discord, Reddit
-tool_result_whatsosint: profile image available, status text "we are fsociety pk"
+tool_result_phoneosint: profile image available, status text "we are fsociety pk"
 employer: Systems Limited
 note: Late-night login pattern (02:00-05:00 PKT), recurrent VPN exits in Islamabad and Lahore, possible command-and-control coordination through disposable domains.`;
 
@@ -744,7 +744,7 @@ note: Late-night login pattern (02:00-05:00 PKT), recurrent VPN exits in Islamab
                   <RobotOutlined style={{ marginRight: 6 }} />Email Intelligence — Email Analysis
                 </Tag>
                 <Tag color="green" style={{ width: '100%', padding: '6px 10px', borderRadius: 8, fontWeight: 600 }}>
-                  <RobotOutlined style={{ marginRight: 6 }} />WhatsOSINT — Phone Analysis
+                  <RobotOutlined style={{ marginRight: 6 }} />PhoneOSINT — Phone Analysis
                 </Tag>
                 <Tag color="purple" style={{ width: '100%', padding: '6px 10px', borderRadius: 8, fontWeight: 600 }}>
                   <RobotOutlined style={{ marginRight: 6 }} />Sherlock — Identity Matrix

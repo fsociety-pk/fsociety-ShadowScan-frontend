@@ -54,12 +54,12 @@ const OsintTools: React.FC = () => {
     },
     {
       key: 'phone' as ToolType,
-      title: 'WhatsApp OSINT',
-      sub: 'WhatsOSINT Live Probe',
-      desc: 'Gather profile display name, about status text, and active avatar from WhatsApp network.',
+      title: 'Phone OSINT',
+      sub: 'PhoneOSINT Live Probe',
+      desc: 'Gather phone intelligence: carrier, profile metadata, public avatar, and footprint across directories and social platforms.',
       icon: <WhatsAppOutlined />,
       color: '#25D366',
-      badge: 'WHATSOSINT'
+      badge: 'PHONEOSINT'
     },
     {
       key: 'dns' as ToolType,
