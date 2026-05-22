@@ -496,13 +496,21 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
             }}
           >
             <Row gutter={[24, 24]} align="middle" style={{ padding: '10px 0' }}>
-              <Col xs={24} sm={6} style={{ textAlign: 'center' }}>
-                <Avatar
-                  size={130}
-                  src={nexusData.whatsapp.image}
-                  icon={<UserOutlined />}
-                  style={{ border: '4px solid #25D366', boxShadow: '0 4px 20px rgba(37, 211, 102, 0.25)' }}
-                />
+              <Col xs={24} sm={6} style={{ textAlign: 'center', minWidth: 140 }}>
+                {nexusData.whatsapp.image ? (
+                  <Avatar
+                    size={130}
+                    src={nexusData.whatsapp.image}
+                    icon={<UserOutlined />}
+                    style={{ border: '4px solid #25D366', boxShadow: '0 4px 20px rgba(37, 211, 102, 0.25)', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <div style={{ width: 130, height: 130, borderRadius: 12, border: '4px solid #e6f4ea', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'inset 0 0 8px rgba(0,0,0,0.02)' }}>
+                    <div style={{ color: '#94a3b8', fontSize: 12, textAlign: 'center', padding: 8 }}>
+                      No public profile photo
+                    </div>
+                  </div>
+                )}
               </Col>
               <Col xs={24} sm={18}>
                 <Descriptions column={1} size="small" bordered={false} style={{ background: '#f8fafc', padding: 16, borderRadius: 12 }}>
@@ -512,8 +520,8 @@ const PhoneLookup: React.FC<PhoneLookupProps> = ({ onScanStateChange }) => {
                     </Tag>
                   </Descriptions.Item>
                   <Descriptions.Item label={<strong>Display Name</strong>}>
-                    <Text strong style={{ fontSize: 16, color: '#1e293b' }}>
-                      {nexusData.whatsapp.name || <span style={{ color: '#94a3b8' }}>N/A (Hidden Profile)</span>}
+                    <Text strong style={{ fontSize: 16, color: '#1e293b', wordBreak: 'break-word' }}>
+                      {nexusData.whatsapp.name || <span style={{ color: '#94a3b8' }}>No public display name</span>}
                     </Text>
                   </Descriptions.Item>
                   <Descriptions.Item label={<strong>About Status Update</strong>}>
