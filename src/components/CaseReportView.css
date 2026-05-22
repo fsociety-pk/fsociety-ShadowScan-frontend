@@ -3,6 +3,8 @@
 
 .case-report-view {
   font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 .case-report-banner {
@@ -27,6 +29,45 @@
 
 .case-report-narrative .case-report-markdown p {
   margin-bottom: 12px;
+}
+
+.case-report-narrative > .ant-card-body {
+  max-height: min(78vh, 920px);
+  overflow: auto;
+}
+
+.case-report-markdown {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.case-report-markdown pre {
+  max-width: 100%;
+  overflow-x: auto;
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 10px;
+  padding: 12px;
+  white-space: pre;
+}
+
+.case-report-markdown code {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.case-report-markdown table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+}
+
+.case-report-markdown th,
+.case-report-markdown td {
+  border: 1px solid #e2e8f0;
+  padding: 8px 10px;
+  text-align: left;
 }
 
 .case-report-list-item {
@@ -59,4 +100,14 @@
 .case-report-dedup-badge {
   opacity: 0.95;
   font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .case-report-panel > .ant-card-body {
+    padding: 12px !important;
+  }
+
+  .case-report-narrative > .ant-card-body {
+    max-height: none;
+  }
 }

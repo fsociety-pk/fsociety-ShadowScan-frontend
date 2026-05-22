@@ -17,6 +17,75 @@ interface InvestigationCase {
   createdAt: string;
 }
 
+interface ParsedDescription {
+  summary: string;
+  indicators: {
+    emails: number;
+    phones: number;
+    usernames: number;
+    ips: number;
+    domains: number;
+  };
+}
+
+const clampText = (text: string, maxLength = 180): string => {
+  const clean = text.replace(/\s+/g, ' ').trim();
+  if (clean.length <= maxLength) return clean;
+  return `${clean.slice(0, maxLength).trim()}...`;
+};
+
+const buildSmartDescription = (raw: string): ParsedDescription => {
+  const text = String(raw || '').trim();
+  if (!text) {
+    return {
+      summary: 'No case brief available yet.',
+      indicators: { emails: 0, phones: 0, usernames: 0, ips: 0, domains: 0 },
+    };
+  }
+
+  const lines = text
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const labeled = lines
+    .map((line) => {
+      const idx = line.indexOf(':');
+      if (idx <= 0) return null;
+      const key = line.slice(0, idx).trim().toLowerCase();
+      const value = line.slice(idx + 1).trim();
+      return value ? { key, value } : null;
+    })
+    .filter((entry): entry is { key: string; value: string } => !!entry);
+
+  const summaryParts: string[] = [];
+  const contact = labeled.find((entry) => entry.key === 'contact')?.value;
+  const friend = labeled.find((entry) => entry.key === 'friend' || entry.key === 'associate')?.value;
+  const note = labeled.find((entry) => entry.key === 'note')?.value;
+  const location = labeled.find((entry) => entry.key === 'location')?.value;
+
+  if (contact) summaryParts.push(`Primary contact ${contact}`);
+  if (friend) summaryParts.push(`linked with ${friend}`);
+  if (location) summaryParts.push(`last seen ${location}`);
+  if (note) summaryParts.push(note);
+
+  const fallbackNarrative = lines.slice(0, 2).join('. ');
+  const summary = clampText(
+    summaryParts.length > 0 ? summaryParts.join('. ') : fallbackNarrative || text
+  );
+
+  return {
+    summary,
+    indicators: {
+      emails: (text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi) || []).length,
+      phones: (text.match(/\+?\d[\d\s().-]{7,}\d/g) || []).length,
+      usernames: (text.match(/(?:username\s*:\s*|@)[a-z0-9._-]{3,}/gi) || []).length,
+      ips: (text.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/g) || []).length,
+      domains: (text.match(/\b(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}\b/gi) || []).length,
+    },
+  };
+};
+
 const CaseList: React.FC = () => {
   const navigate = useNavigate();
   const [cases, setCases] = useState<InvestigationCase[]>([]);
@@ -146,6 +215,9 @@ const CaseList: React.FC = () => {
 
       <Row gutter={[24, 24]}>
         {filteredCases.map((c) => (
+          (() => {
+            const parsed = buildSmartDescription(c.description);
+            return (
           <Col xs={24} sm={12} lg={8} key={c._id}>
             <Card
               hoverable
@@ -168,8 +240,16 @@ const CaseList: React.FC = () => {
                 <Tag color={c.status === 'Active' ? 'success' : 'default'}>{c.status}</Tag>
               </div>
               
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+                {parsed.indicators.emails > 0 && <Tag color="geekblue">Email {parsed.indicators.emails}</Tag>}
+                {parsed.indicators.phones > 0 && <Tag color="green">Phone {parsed.indicators.phones}</Tag>}
+                {parsed.indicators.usernames > 0 && <Tag color="purple">Username {parsed.indicators.usernames}</Tag>}
+                {parsed.indicators.ips > 0 && <Tag color="cyan">IP {parsed.indicators.ips}</Tag>}
+                {parsed.indicators.domains > 0 && <Tag color="orange">Domain {parsed.indicators.domains}</Tag>}
+              </div>
+
               <Text type="secondary" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden', flex: 1 }}>
-                {c.description}
+                {parsed.summary}
               </Text>
               
               <div style={{ marginTop: 16, fontSize: '12px', color: 'var(--text-muted)' }}>
@@ -177,6 +257,8 @@ const CaseList: React.FC = () => {
               </div>
             </Card>
           </Col>
+            );
+          })()
         ))}
         {filteredCases.length === 0 && (
           <Col span={24} style={{ textAlign: 'center', padding: '60px 0' }}>

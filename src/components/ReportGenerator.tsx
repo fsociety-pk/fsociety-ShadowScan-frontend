@@ -95,9 +95,9 @@ const ReportGenerator: React.FC<ReportGeneratorProps> = ({ caseId, caseTitle, on
           setReport(null);
         }}
         footer={null}
-        width={900}
+        width="min(1280px, 96vw)"
         style={{ backgroundColor: '#0d1117' }}
-        styles={{ body: { backgroundColor: '#f8fafc', color: 'var(--text-main)' } }}
+        styles={{ body: { backgroundColor: '#f8fafc', color: 'var(--text-main)', maxHeight: '86vh', overflowY: 'auto' } }}
       >
         {!report ? (
           <div>

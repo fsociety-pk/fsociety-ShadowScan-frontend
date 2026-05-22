@@ -130,9 +130,35 @@ const EmailLookup: React.FC<EmailLookupProps> = ({ onScanStateChange }) => {
 
       const payload = response.data || {};
       const socialProfiles: FoundPlatform[] = normalizePlatforms(payload.social_profiles || []);
-      setFoundPlatforms(socialProfiles);
+      const holeheSites: FoundPlatform[] = normalizePlatforms(
+        Array.isArray(payload?.holehe?.sites)
+          ? payload.holehe.sites.map((site: any) => ({
+              platform: site?.domain,
+              url: site?.domain ? `https://${site.domain}` : '',
+              status: site?.status,
+            }))
+          : []
+      );
 
-      const confirmedCount = socialProfiles.filter(p => p.status === 'found').length;
+      const merged = new Map<string, FoundPlatform>();
+      [...socialProfiles, ...holeheSites].forEach((entry) => {
+        const key = (entry.platform || entry.url || '').toLowerCase();
+        if (!key) return;
+        const existing = merged.get(key);
+        if (!existing) {
+          merged.set(key, entry);
+          return;
+        }
+
+        if (entry.status === 'found' && existing.status !== 'found') {
+          merged.set(key, entry);
+        }
+      });
+
+      const mergedPlatforms = Array.from(merged.values());
+      setFoundPlatforms(mergedPlatforms);
+
+      const confirmedCount = mergedPlatforms.filter(p => p.status === 'found').length;
 
       let threat = 'SECURE';
       if (confirmedCount > 8) threat = 'EXPANSIVE';

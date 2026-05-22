@@ -185,7 +185,7 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
       {/* ── Banner ── */}
       <div className="case-report-banner" style={{
         background: 'linear-gradient(180deg, #ffffff 0%, #f8fafc 60%)',
-        padding: '36px 36px 28px',
+        padding: 'clamp(16px, 3vw, 36px) clamp(16px, 3vw, 36px) clamp(14px, 2.5vw, 28px)',
         position: 'relative', overflow: 'hidden',
       }}>
         {/* subtle grid */}
@@ -248,7 +248,7 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
           description="No linked findings were stored in the findings database, so the report was generated from the raw text you entered in the New Case section." />
       )}
 
-      <div style={{ padding: '24px 24px 40px' }}>
+      <div style={{ padding: 'clamp(14px, 2.2vw, 24px) clamp(14px, 2.2vw, 24px) clamp(20px, 4vw, 40px)' }}>
 
         {/* ── Stat pills ── */}
         <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
@@ -408,7 +408,7 @@ const CaseReportView: React.FC<CaseReportViewProps> = ({
             <Col xs={24}>
               <Card className="case-report-panel" bordered={false} style={{ borderRadius: 16, boxShadow: '0 4px 24px rgba(0,0,0,0.03)', border: '1px solid #e2e8f0' }}
                 title={<span style={{ fontWeight: 700, color: '#1e293b' }}><ApiOutlined style={{ color: '#7c3aed', marginRight: 8 }} />Panoramic Entity Relationship Map</span>}>
-                <div style={{ background: '#0f172a', borderRadius: 16, padding: '32px 24px', position: 'relative', overflow: 'hidden' }}>
+                <div style={{ background: '#0f172a', borderRadius: 16, padding: 'clamp(14px, 2.4vw, 32px) clamp(12px, 2vw, 24px)', position: 'relative', overflow: 'hidden' }}>
                   <div style={{ position: 'absolute', inset: 0, opacity: 0.05, backgroundImage: 'linear-gradient(#38bdf8 1px,transparent 1px),linear-gradient(90deg,#38bdf8 1px,transparent 1px)', backgroundSize: '24px 24px' }} />
                   <Row gutter={[24, 16]} style={{ position: 'relative', zIndex: 1 }}>
                     {edges.map((edge, i) => {
