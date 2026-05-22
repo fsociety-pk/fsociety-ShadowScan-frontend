@@ -97,13 +97,6 @@ const QuickAddFinding: React.FC = () => {
     }
   };
 
-  const handleSaveServerDraft = async () => {
-    if (!text.trim()) {
-      message.error('Enter some findings before saving to server');
-      return;
-    }
-  };
-
   return (
     <>
       <div style={{ position: 'fixed', bottom: 110, right: 30, zIndex: 1100 }}>
