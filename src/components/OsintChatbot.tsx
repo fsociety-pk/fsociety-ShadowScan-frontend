@@ -37,7 +37,6 @@ Navigate to the [OSINT Tools](/tools) section and choose your reconnaissance eng
 - **Holehe** → email account discovery & intelligence
 - **WhatsOSINT** → phone number & WhatsApp intelligence
 - **Whois / DNS** → domain ownership & infrastructure records
-- **Metadata Extractor** → hidden metadata in images, PDFs & documents
 
 **Step 2 — Paste Raw Findings**
 Copy all raw output from the tools and paste it into the **Report Generator** textarea. You can also attach supporting files (screenshots, docs, exports).
@@ -60,7 +59,7 @@ const OsintChatbot: React.FC = () => {
 
 I can help you with:
 - **Guidance** on the 3-step investigation workflow
-- **Tool questions** (Sherlock, Holehe, Whois, Metadata Extractor)
+- **Tool questions** (Sherlock, Holehe, Whois, WhatsOSINT)
 - **Analysis** of intelligence findings
 - **Image analysis** (attach a screenshot for multimodal AI)
 - **General investigation Q&A** (strategy, interpretation, next steps)

@@ -36,11 +36,11 @@ const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
 
 const ACTIONS = [
-  'email_lookup', 'username_scan', 'phone_lookup', 'metadata_extraction', 
+  'email_lookup', 'username_scan', 'phone_lookup',
   'user_created', 'user_deleted', 'user_blocked', 'login_attempt', 'password_reset_request'
 ];
 
-const TOOLS = ['EmailIntelligence', 'UsernameTracker', 'PhoneForensics', 'MetadataExtractor', 'AdminPanel'];
+const TOOLS = ['EmailIntelligence', 'UsernameTracker', 'PhoneForensics', 'AdminPanel'];
 
 const ActivityLogs: React.FC = () => {
   const [logs, setLogs] = useState<AdminLog[]>([]);

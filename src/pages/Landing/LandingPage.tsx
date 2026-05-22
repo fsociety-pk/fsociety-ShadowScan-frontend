@@ -48,13 +48,6 @@ const WhoisIcon = () => (
   </svg>
 );
 
-const ExifToolIcon = () => (
-  <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="#e879f9" strokeWidth="2">
-    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-    <circle cx="8.5" cy="8.5" r="1.5" /><polyline points="21 15 16 10 5 21" />
-  </svg>
-);
-
 const GeminiIcon = () => (
   <svg viewBox="0 0 24 24" width="30" height="30" fill="none">
     <defs><linearGradient id="gm" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#4285F4" /><stop offset="100%" stopColor="#34A853" /></linearGradient></defs>
@@ -69,13 +62,12 @@ const TOOLS = [
   { name: 'WhatsApp Intel', Icon: WhatsAppIcon, desc: 'Profile photo & business account classification' },
   { name: 'Holehe', Icon: HoleheIcon, desc: 'Email footprint & account registration detection' },
   { name: 'Whois', Icon: WhoisIcon, desc: 'Domain ownership & registrar intelligence' },
-  { name: 'ExifTool', Icon: ExifToolIcon, desc: 'File metadata forensic extraction' },
   { name: 'Gemini AI Reports', Icon: GeminiIcon, desc: 'AI relationship graphs & structured dossiers' },
 ];
 
 const STATS = [
   { value: '300+', label: 'Platforms Scanned' },
-  { value: '7', label: 'OSINT Engines' },
+  { value: '6', label: 'OSINT Engines' },
   { value: 'AI', label: 'Powered Reports' },
   { value: '100%', label: 'Sovereign & Secure' },
 ];

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Typography, Card, List, Tag, Spin, Row, Col, Space, Empty, Tabs, Avatar, Tooltip, Badge, Button } from 'antd';
 import ProfessionalProgressCircle from '../../components/ProfessionalProgressCircle';
@@ -19,28 +19,63 @@ interface Finding {
   isVerified: boolean;
   tags: string[];
   createdAt: string;
-  caseId: any;
-  data: Record<string, any>;
+  caseId: { _id: string; title?: string } | string;
+  data: Record<string, unknown>;
 }
+
+interface CaseResult {
+  _id: string;
+  title: string;
+  category: string;
+  priority: string;
+  status: string;
+  createdAt: string;
+}
+
+interface EntityResult {
+  _id: string;
+  value: string;
+  type: string;
+  relatedCase?: {
+    _id: string;
+    title?: string;
+  };
+}
+
+interface SearchSummary {
+  total?: number;
+  [key: string]: unknown;
+}
+
+interface SearchResultsState {
+  cases: CaseResult[];
+  entities: EntityResult[];
+  findings?: Finding[];
+  summary?: SearchSummary;
+}
+
+const getFindingCaseId = (finding: Finding): string => (
+  typeof finding.caseId === 'string' ? finding.caseId : finding.caseId._id
+);
+
+const getFindingCaseTitle = (finding: Finding): string => (
+  typeof finding.caseId === 'string' ? 'System Intelligence' : finding.caseId.title || 'System Intelligence'
+);
 
 const SearchResults: React.FC = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q');
   const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState<{ cases: any[], entities: any[], findings?: Finding[], summary?: any }>({
+  const [results, setResults] = useState<SearchResultsState>({
     cases: [],
     entities: []
   });
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (query) {
-      fetchResults();
-    }
-  }, [query]);
+  const fetchResults = useCallback(async () => {
+    if (!query) return;
 
-  const fetchResults = async () => {
     setLoading(true);
     try {
       const [globalRes, findingsRes] = await Promise.all([
@@ -65,7 +100,11 @@ const SearchResults: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [query]);
+
+  useEffect(() => {
+    fetchResults();
+  }, [fetchResults]);
 
 
   const getIconByType = (type: string) => {
@@ -85,7 +124,7 @@ const SearchResults: React.FC = () => {
       'username_search': 'Username Search',
       'phone_lookup': 'Phone Lookup',
       'breach': 'Breach Detected',
-      'metadata': 'Forensic Metadata'
+      'metadata': 'Legacy Record'
     };
     return labels[type] || type;
   };
@@ -114,7 +153,7 @@ const SearchResults: React.FC = () => {
         <Card 
           key={item._id}
           hoverable
-          onClick={() => navigate(`/cases/${item.caseId?._id || item.caseId}`)}
+          onClick={() => navigate(`/cases/${getFindingCaseId(item)}`)}
           style={{ marginBottom: 16 }}
           styles={{ body: { padding: 20 } }}
         >
@@ -149,7 +188,7 @@ const SearchResults: React.FC = () => {
 
                 <div style={{ marginTop: 8 }}>
                   <Text type="secondary" style={{ fontSize: '13px' }}>
-                    Linked to Case: <Text strong style={{ color: 'var(--primary)' }}>{item.caseId?.title || 'System Intelligence'}</Text>
+                    Linked to Case: <Text strong style={{ color: 'var(--primary)' }}>{getFindingCaseTitle(item)}</Text>
                   </Text>
                 </div>
               </Space>
@@ -177,7 +216,7 @@ const SearchResults: React.FC = () => {
   const renderCases = () => (
     <List
       dataSource={results.cases}
-      renderItem={(item) => (
+      renderItem={(item: CaseResult) => (
         <Card 
           key={item._id} 
           hoverable
@@ -208,7 +247,7 @@ const SearchResults: React.FC = () => {
   const renderEntities = () => (
     <List
       dataSource={results.entities}
-      renderItem={(item) => (
+      renderItem={(item: EntityResult) => (
         <Card 
           key={item._id}
           hoverable

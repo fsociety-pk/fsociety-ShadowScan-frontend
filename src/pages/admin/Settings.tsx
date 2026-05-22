@@ -214,9 +214,6 @@ const Settings: React.FC = () => {
                   <Form.Item name="enablePhoneLookup" label="Phone Intelligence (PK)" valuePropName="checked">
                     <Switch checkedChildren="ON" unCheckedChildren="OFF" />
                   </Form.Item>
-                  <Form.Item name="enableMetadataExtraction" label="Forensic Metadata" valuePropName="checked">
-                    <Switch checkedChildren="ON" unCheckedChildren="OFF" />
-                  </Form.Item>
                 </Col>
               </Row>
 

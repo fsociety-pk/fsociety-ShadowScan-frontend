@@ -9,7 +9,7 @@ import CyberConsoleLoader from '../../components/CyberConsoleLoader';
 import {
   SearchOutlined, CheckCircleOutlined, CloseCircleOutlined,
   LinkOutlined, EyeOutlined, SafetyCertificateOutlined, AlertOutlined,
-  AimOutlined, WarningOutlined, StopOutlined,
+  AimOutlined, WarningOutlined, StopOutlined, ClockCircleOutlined, FilterOutlined,
 } from '@ant-design/icons';
 import api from '../../api/axiosConfig';
 
@@ -37,13 +37,65 @@ interface KaliSherlockSearchProps {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-const getPlatformFavicon = (url: string): string => {
+const getPlatformDomain = (url: string): string => {
   try {
-    const domain = new URL(url).hostname;
-    return `https://www.google.com/s2/favicons?sz=64&domain=${domain}`;
+    return new URL(url).hostname;
   } catch {
     return '';
   }
+};
+
+const getPlatformInitial = (platform: string): string => {
+  const cleaned = platform.replace(/[^a-zA-Z0-9]/g, '');
+  return cleaned ? cleaned[0].toUpperCase() : '?';
+};
+
+const PlatformIcon: React.FC<{ platform: string; url: string }> = ({ platform, url }) => {
+  const [index, setIndex] = useState(0);
+  const domain = getPlatformDomain(url);
+
+  const sources = domain
+    ? [
+      `https://icons.duckduckgo.com/ip3/${domain}.ico`,
+      `https://www.google.com/s2/favicons?sz=64&domain=${domain}`,
+      `https://icon.horse/icon/${domain}`,
+    ]
+    : [];
+
+  return (
+    <div style={{
+      width: 42,
+      height: 42,
+      borderRadius: 10,
+      background: '#fff',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      border: '1px solid #e2e8f0',
+      flexShrink: 0,
+      overflow: 'hidden',
+      position: 'relative',
+    }}>
+      {sources[index] ? (
+        <img
+          src={sources[index]}
+          alt={platform}
+          onError={() => setIndex((prev) => prev + 1)}
+          style={{ width: 22, height: 22, objectFit: 'contain' }}
+        />
+      ) : (
+        <span style={{
+          fontSize: 15,
+          fontWeight: 800,
+          color: '#6366f1',
+          fontFamily: 'monospace',
+          lineHeight: 1,
+        }}>
+          {getPlatformInitial(platform)}
+        </span>
+      )}
+    </div>
+  );
 };
 
 const normalizePlatforms = (platforms: any[]): FoundPlatform[] =>
@@ -111,6 +163,8 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
     exposureCount: 0,
     elapsedTime: 0,
   });
+  const [resultSearch, setResultSearch] = useState('');
+  const [sortMode, setSortMode] = useState<'status' | 'platform'>('status');
 
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const stepIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -164,6 +218,8 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
     setError(null);
     setScanning(true);
     setActiveFilter('all');
+    setResultSearch('');
+    setSortMode('status');
     setScanStats({ threatLevel: 'CLEAN', exposureCount: 0, elapsedTime: 0 });
 
     // Elapsed-time ticker
@@ -251,9 +307,31 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
     error: platforms.filter((p) => p.status === 'error').length,
   };
 
-  const filtered = activeFilter === 'all'
-    ? platforms
-    : platforms.filter((p) => p.status === activeFilter);
+  const statusPriority: Record<FoundPlatform['status'], number> = {
+    found: 0,
+    rate_limit: 1,
+    error: 2,
+    not_found: 3,
+  };
+
+  const filtered = platforms
+    .filter((p) => activeFilter === 'all' || p.status === activeFilter)
+    .filter((p) => {
+      const q = resultSearch.trim().toLowerCase();
+      if (!q) return true;
+      return p.platform.toLowerCase().includes(q)
+        || (p.url || '').toLowerCase().includes(q)
+        || (p.message || '').toLowerCase().includes(q);
+    })
+    .sort((a, b) => {
+      if (sortMode === 'platform') {
+        return a.platform.localeCompare(b.platform);
+      }
+      if (statusPriority[a.status] !== statusPriority[b.status]) {
+        return statusPriority[a.status] - statusPriority[b.status];
+      }
+      return a.platform.localeCompare(b.platform);
+    });
 
   // ── Render ────────────────────────────────────────────────────────────────
 
@@ -358,6 +436,22 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
             currentStep={currentStep}
             opName="Username Footprint Audit"
           />
+          <div style={{
+            marginTop: 12,
+            background: '#eff6ff',
+            border: '1px solid #bfdbfe',
+            color: '#1e40af',
+            borderRadius: 12,
+            padding: '10px 14px',
+            fontSize: 12,
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 8,
+          }}>
+            <ClockCircleOutlined />
+            Sherlock checks hundreds of platforms and may take 30-90 seconds depending on network speed and platform rate limits.
+          </div>
         </div>
       )}
 
@@ -429,6 +523,39 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
             }}>
               Filter Results
             </div>
+            <Row gutter={[10, 10]} style={{ marginBottom: 10 }}>
+              <Col xs={24} md={12}>
+                <Input
+                  value={resultSearch}
+                  onChange={(e) => setResultSearch(e.target.value)}
+                  allowClear
+                  size="middle"
+                  prefix={<FilterOutlined style={{ color: '#64748b' }} />}
+                  placeholder="Search platform, URL, or message"
+                  style={{ borderRadius: 10 }}
+                />
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                  <Button
+                    size="middle"
+                    type={sortMode === 'status' ? 'primary' : 'default'}
+                    onClick={() => setSortMode('status')}
+                    style={{ borderRadius: 10, fontWeight: 600 }}
+                  >
+                    Sort: Status
+                  </Button>
+                  <Button
+                    size="middle"
+                    type={sortMode === 'platform' ? 'primary' : 'default'}
+                    onClick={() => setSortMode('platform')}
+                    style={{ borderRadius: 10, fontWeight: 600 }}
+                  >
+                    Sort: Platform
+                  </Button>
+                </div>
+              </Col>
+            </Row>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {(Object.keys(STATUS_META) as SherlockFilter[]).map((key) => {
                 const meta = STATUS_META[key];
@@ -504,16 +631,69 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
               }}
               bodyStyle={{ padding: '16px 20px' }}
             >
+              <div style={{
+                marginBottom: 14,
+                padding: '10px 12px',
+                borderRadius: 10,
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+              }}>
+                <div style={{
+                  fontSize: 11,
+                  color: '#64748b',
+                  fontWeight: 700,
+                  letterSpacing: 0.6,
+                  marginBottom: 8,
+                  textTransform: 'uppercase',
+                }}>
+                  Status Legend
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {(['found', 'not_found', 'rate_limit', 'error'] as SherlockFilter[]).map((statusKey) => {
+                    const meta = STATUS_META[statusKey];
+                    const label = statusKey === 'found'
+                      ? 'Found'
+                      : statusKey === 'not_found'
+                        ? 'Not Found'
+                        : statusKey === 'rate_limit'
+                          ? 'Rate Limit'
+                          : 'Error';
+
+                    return (
+                      <Tag
+                        key={statusKey}
+                        style={{
+                          margin: 0,
+                          fontWeight: 700,
+                          fontSize: 11,
+                          borderRadius: 6,
+                          padding: '3px 9px',
+                          border: `1px solid ${meta.border}`,
+                          background: meta.bg,
+                          color: meta.text,
+                        }}
+                      >
+                        {meta.icon} {label}
+                      </Tag>
+                    );
+                  })}
+                </div>
+              </div>
               <Row gutter={[14, 14]}>
                 {filtered.map((p, idx) => {
                   const meta = STATUS_META[p.status];
                   return (
                     <Col key={idx} xs={24} sm={12} lg={8}>
                       <a
-                        href={p.url || '#'}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href={p.status === 'found' && p.url ? p.url : undefined}
+                        target={p.status === 'found' && p.url ? '_blank' : undefined}
+                        rel={p.status === 'found' && p.url ? 'noopener noreferrer' : undefined}
                         style={{ textDecoration: 'none', display: 'block' }}
+                        onClick={(e) => {
+                          if (p.status !== 'found' || !p.url) {
+                            e.preventDefault();
+                          }
+                        }}
                       >
                         <div
                           style={{
@@ -524,10 +704,11 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
                             display: 'flex',
                             alignItems: 'center',
                             gap: 14,
-                            cursor: 'pointer',
+                            cursor: p.status === 'found' && p.url ? 'pointer' : 'default',
                             transition: 'all 0.2s cubic-bezier(0.4,0,0.2,1)',
                           }}
                           onMouseEnter={(e) => {
+                            if (p.status !== 'found' || !p.url) return;
                             const d = e.currentTarget as HTMLDivElement;
                             d.style.borderColor = '#6366f1';
                             d.style.background = '#ffffff';
@@ -535,6 +716,7 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
                             d.style.transform = 'translateY(-2px)';
                           }}
                           onMouseLeave={(e) => {
+                            if (p.status !== 'found' || !p.url) return;
                             const d = e.currentTarget as HTMLDivElement;
                             d.style.borderColor = '#f1f5f9';
                             d.style.background = '#f8fafc';
@@ -543,30 +725,21 @@ const KaliSherlockSearch: React.FC<KaliSherlockSearchProps> = ({ onScanStateChan
                           }}
                         >
                           {/* Favicon */}
-                          <div style={{
-                            width: 42,
-                            height: 42,
-                            borderRadius: 10,
-                            background: '#fff',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            border: '1px solid #e2e8f0',
-                            flexShrink: 0,
-                          }}>
-                            {p.url ? (
-                              <img
-                                src={getPlatformFavicon(p.url)}
-                                alt={p.platform}
-                                onError={(e) => {
-                                  (e.currentTarget as HTMLImageElement).style.display = 'none';
-                                }}
-                                style={{ width: 22, height: 22, objectFit: 'contain' }}
-                              />
-                            ) : (
+                          {p.url ? <PlatformIcon platform={p.platform} url={p.url} /> : (
+                            <div style={{
+                              width: 42,
+                              height: 42,
+                              borderRadius: 10,
+                              background: '#fff',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              border: '1px solid #e2e8f0',
+                              flexShrink: 0,
+                            }}>
                               <LinkOutlined style={{ color: '#94a3b8', fontSize: 16 }} />
-                            )}
-                          </div>
+                            </div>
+                          )}
 
                           {/* Platform info */}
                           <div style={{ flex: 1, minWidth: 0 }}>

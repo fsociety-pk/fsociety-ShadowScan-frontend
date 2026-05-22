@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Typography, Row, Col, Tag, Card } from 'antd';
 import {
-  UserOutlined, MailOutlined, WhatsAppOutlined, FileSearchOutlined,
+  UserOutlined, MailOutlined, WhatsAppOutlined,
   GlobalOutlined, SafetyCertificateOutlined, SettingOutlined,
   PlayCircleOutlined, SyncOutlined
 } from '@ant-design/icons';
@@ -9,13 +9,12 @@ import { useLocation } from 'react-router-dom';
 
 import EmailLookup from './EmailLookup';
 import PhoneLookup from './PhoneLookup';
-import MetadataExtractor from './MetadataExtractor';
 import KaliSherlockSearch from './KaliSherlockSearch';
 import KaliWhoisLookup from './KaliWhoisLookup';
 
 const { Title, Paragraph } = Typography;
 
-type ToolType = 'username' | 'email' | 'phone' | 'dns' | 'metadata';
+type ToolType = 'username' | 'email' | 'phone' | 'dns';
 
 const OsintTools: React.FC = () => {
   const location = useLocation();
@@ -28,7 +27,7 @@ const OsintTools: React.FC = () => {
   useEffect(() => {
     if (toolParam) {
       const lower = toolParam.toLowerCase();
-      if (['username', 'email', 'phone', 'dns', 'metadata'].includes(lower)) {
+      if (['username', 'email', 'phone', 'dns'].includes(lower)) {
         setActiveTool(lower as ToolType);
       }
     }
@@ -71,15 +70,6 @@ const OsintTools: React.FC = () => {
       color: '#3b82f6',
       badge: 'WHOIS'
     },
-    {
-      key: 'metadata' as ToolType,
-      title: 'Metadata Extractor',
-      sub: 'EXIF Forensic Scope',
-      desc: 'Decompile documents and images to extract raw metadata, camera signatures, and GPS coordinates.',
-      icon: <FileSearchOutlined />,
-      color: '#8b5cf6',
-      badge: 'EXIFTOOL'
-    }
   ];
 
   const handleScanStateChange = (scanning: boolean) => {
@@ -96,8 +86,6 @@ const OsintTools: React.FC = () => {
         return <PhoneLookup onScanStateChange={handleScanStateChange} />;
       case 'dns':
         return <KaliWhoisLookup onScanStateChange={handleScanStateChange} />;
-      case 'metadata':
-        return <MetadataExtractor onScanStateChange={handleScanStateChange} />;
       default:
         return <KaliSherlockSearch onScanStateChange={handleScanStateChange} />;
     }

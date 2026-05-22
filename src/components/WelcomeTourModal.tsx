@@ -23,7 +23,7 @@ const steps = [
     tag: 'STEP 1',
     title: 'Run OSINT Tools',
     description:
-      'Navigate to the OSINT Tools panel and choose your reconnaissance engine. Run Sherlock for username discovery, Holehe for email intelligence, WhatsOSINT for phone lookup, Whois for domain records, or the Metadata Extractor to analyse files.',
+      'Navigate to the OSINT Tools panel and choose your reconnaissance engine. Run Sherlock for username discovery, Holehe for email intelligence, WhatsOSINT for phone lookup, or Whois for domain records.',
     tip: 'Tip: You can run multiple tools and combine their outputs.',
   },
   {
@@ -32,7 +32,7 @@ const steps = [
     tag: 'STEP 2',
     title: 'Paste Your Findings',
     description:
-      'Copy all raw results from the tools and paste them into the Report Generator textarea. You can also upload file attachments (images, PDFs) for deeper metadata analysis.',
+      'Copy all raw results from the tools and paste them into the Report Generator textarea. You can also upload screenshots or supporting files as evidence context.',
     tip: 'Tip: The more raw data you paste, the richer your AI report will be.',
   },
   {

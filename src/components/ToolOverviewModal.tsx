@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, Card, Typography, Row, Col, Tag, Space, Divider } from 'antd';
 import { 
-  UserOutlined, MailOutlined, FileSearchOutlined, GlobalOutlined, 
+  UserOutlined, MailOutlined, GlobalOutlined, 
   InfoCircleOutlined, WhatsAppOutlined, RobotOutlined, RadarChartOutlined
 } from '@ant-design/icons';
 
@@ -106,14 +106,6 @@ const ToolOverviewModal: React.FC<ToolOverviewModalProps> = ({ open, onClose }) 
       color: "#25D366",
       useCase: "Verifying the identity of an unknown caller or checking a target's current active status and bio.",
       tags: ["WhatsApp Recon", "Live Status", "Phone Verification"]
-    },
-    {
-      title: "Metadata Extractor",
-      description: "The 'digital microscope' for files. It pulls hidden forensic data from photos, documents, and videos—including GPS coordinates and camera models.",
-      icon: <FileSearchOutlined />,
-      color: "#8b5cf6",
-      useCase: "Pinpointing exactly where and when a photo was taken by extracting GPS coordinates.",
-      tags: ["Forensics", "GPS Extraction", "Hidden Data"]
     },
     {
       title: "Whois DNS Intelligence",

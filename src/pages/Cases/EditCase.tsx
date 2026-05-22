@@ -130,7 +130,6 @@ const EditCase: React.FC = () => {
                   <Option value="Username Lookup">Username Lookup</Option>
                   <Option value="Email Intelligence">Email Intelligence</Option>
                   <Option value="Phone Forensic">Phone Forensic</Option>
-                  <Option value="Metadata Analysis">Metadata Analysis</Option>
                   <Option value="Image Search">Image Search</Option>
                 </Select>
               </Form.Item>
